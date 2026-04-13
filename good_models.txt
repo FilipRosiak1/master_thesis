@@ -1,0 +1,23 @@
+LEGACY
+
+1. seq2seq
+    # --- Configuration ---
+    # Leave empty "" to automatically use the folder with the latest date
+    # Or specify a folder name like "2026-02-22_23-11-20"
+    custom_folder = "2026-02-24_03-46-47" 
+    
+    # Leave empty "" to use the final model
+    # Or specify a checkpoint name like "vae_f1_genotype_epoch_500.pth"
+    checkpoint_name = "vae_f1_genotype_epoch_150.pth" 
+
+2. grammar vae better 
+    custom_folder = "2026-02-25_23-06-59" 
+    checkpoint_name = "gvae_epoch_1100.pth" 
+    Total Genotypes: 1497
+    Exactly Reconstructed: 558
+    Exact Accuracy: 37.27%
+    Average Similarity: 92.61%
+
+====================================================================================================
+
+NEW

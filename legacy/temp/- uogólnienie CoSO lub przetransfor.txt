@@ -1,0 +1,9 @@
+- uogólnienie CoSO lub przetransformowanie do f1
+- coś z autoenkodrem bo latent ma stałą liczbę wymiarów
+- https://www.framsticks.com/gecco-competition
+- https://www.framsticks.com/presentations/
+- https://www.framsticks.com/files/common/LatentRepresentationsForSequencesOptimization.pdf
+- https://www.framsticks.com/filebrowser/download/333
+- https://www.framsticks.com/filebrowser/download/341
+- https://github.com/marcovirgolin/GP-GOMEA
+- https://github.com/marcovirgolin/gpg

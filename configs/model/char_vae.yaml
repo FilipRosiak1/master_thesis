@@ -1,0 +1,5 @@
+model: char_vae
+latent_dim: 32
+hidden_dim: 256
+embedding_dim: 32
+max_length: 182

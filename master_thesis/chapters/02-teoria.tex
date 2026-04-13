@@ -1,0 +1,27 @@
+
+\chapter{Podstawy teoretyczne}
+
+Niniejszy rozdział zawiera przegląd literatury oraz podstawy teoretyczne dotyczące kluczowych komponentów pracy: algorytmów z rodziny GOMEA, technik uczenia reprezentacji za pomocą autoenkoderów oraz specyfiki środowiska Framsticks.
+
+\section{Rodzina algorytmów GOMEA}
+Algorytm Gene-pool Optimal Mixing Evolutionary Algorithm (GOMEA) stanowi klasę algorytmów ewolucyjnych opartych na modelach (Model-Based Evolutionary Algorithms - MBEAs), które kładą nacisk na naukę i wykorzystanie struktury powiązań (linkage learning) między zmiennymi decyzyjnymi. W odróżnieniu od klasycznych metod ewolucyjnych, GOMEA buduje model statystyczny (Family of Subsets - FOS), który identyfikuje grupy zmiennych silnie ze sobą powiązanych.
+
+\subsection{RV-GOMEA (Real-Valued GOMEA)}
+Wariant RV-GOMEA został zaprojektowany do optymalizacji w przestrzeniach ciągłych. Wykorzystuje on rozkłady normalne do modelowania zależności między zmiennymi rzeczywistymi. Dzięki mechanizmowi Optimal Mixing, algorytm potrafi efektywnie przeszukiwać przestrzeń latentną wyuczoną przez sieci neuronowe, co stanowi kluczowy element niniejszej pracy.
+
+\section{Uczenie reprezentacji za pomocą autoenkoderów}
+Autoenkodery to klasa sieci neuronowych służąca do nienadzorowanego uczenia się skompresowanych reprezentacji danych wejściowych. Proces ten polega na rzutowaniu danych na niskowymiarową przestrzeń (latent space) przez enkoder, a następnie próbie ich rekonstrukcji przez dekoder.
+
+\subsection{Variational Autoencoders i Grammar-VAE}
+W kontekście optymalizacji struktur, szczególnie istotne są Wariacyjne Autoenkodery (VAE), które wprowadzają probabilistyczną strukturę przestrzeni latentnej. Dla danych o ścisłej strukturze formalnej, takich jak genotypy Framsticks, rozwinięciem tej idei jest Grammar-VAE. Pozwala on na wymuszenie poprawności syntaktycznej generowanych rozwiązań bezpośrednio w procesie dekodowania poprzez uwzględnienie reguł gramatyki bezkontekstowej.
+
+\section{Reprezentacje w środowisku Framsticks}
+Środowisko Framsticks wykorzystuje kilka typów reprezentacji genetycznych o różnym stopniu abstrakcji. W pracy szczególną uwagę poświęcono reprezentacjom F1 i F9.
+
+\subsection{Reprezentacja F1 (Direct mapping)}
+F1 jest reprezentacją o strukturze drzewiastej, pozwalającą na tworzenie skomplikowanych, rozgałęzionych struktur z precyzyjnym określeniem kątów i długości poszczególnych elementów. Jej wysoka ekspresywność wiąże się jednak z trudnością w bezpośredniej optymalizacji ze względu na silną nietrywialność mapowania genotyp-fenotyp.
+
+\subsection{Reprezentacja F9 (Linear sequences)}
+F9 operuje na sekwencjach symboli, co czyni ją zbliżoną do reprezentacji stosowanych w modelowaniu sekwencji w NLP. Jest ona mniej elastyczna niż F1, ale jej liniowy charakter sprawia, że jest naturalnym kandydatem do testowania algorytmów operujących na ciągach znaków.
+
+

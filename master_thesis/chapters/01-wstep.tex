@@ -1,0 +1,21 @@
+\chapter{Wstęp}
+
+Rozwój algorytmów ewolucyjnych w kontekście reprezentacji o zmiennej długości i niepozycyjnym charakterze stanowi istotne wyzwanie w dziedzinie obliczeń ewolucyjnych. Tradycyjne metody często napotykają trudności z efektywnym przeszukiwaniem przestrzeni rozwiązań o złożonej strukturze, takich jak genotypy w środowisku Framsticks. W takich systemach klasyczne operatory krzyżowania i mutacji nie uwzględniają zjawiska epistazy oraz braku stałego przypisania funkcji do pozycji w genotypie, co prowadzi do niszczenia dobrych fragmentów rozwiązań. Potrzeba opracowania bardziej efektywnych metod optymalizacji dla złożonych struktur modularnych stanowi główne uzasadnienie podjęcia niniejszego tematu.
+
+Wśród zaawansowanych algorytmów ewolucyjnych szczególne miejsce zajmuje Gene-pool Optimal Mixing Evolutionary Algorithm (GOMEA). Jego unikalną cechą jest zdolność do rozumienia powiązań między zmiennymi, co pozwala na efektywną budowę rozwiązań. Należy jednak zauważyć, że algorytmy z rodziny GOMEA zostały zaprojektowane do pracy na reprezentacjach o stałej długości i ustalonej semantyce pozycji. Stanowi to istotne ograniczenie w przypadku wielu rzeczywistych problemów optymalizacyjnych, gdzie rozwiązania - tak jak w przypadku struktur we Framsticks - mają z natury zmienną długość i złożoną topologię.
+
+Rozwiązaniem tego problemu może być wykorzystanie uczenia maszynowego do przetworzenia reprezentacji o zmiennej długości na postać o stałej długości. Zastosowanie autoenkoderów, w szczególności modeli wariacyjnych (VAE) oraz gramatycznych (Grammar-VAE), pozwala na mapowanie skomplikowanych danych dyskretnych na zwartą, ciągłą i stałowymiarową przestrzeń latentną. Dzięki temu wariant RV-GOMEA (Real-Valued GOMEA) może operować na wektorze cech o stałej wielkości, które po zdekodowaniu reprezentują kompletne struktury. Analiza prowadzona w ramach pracy opiera się na materiale, obejmującym publikacje dotyczące algorytmów GOMEA, modeli generatywnych oraz dokumentacji środowiska Framsticks.
+
+W pracy postawiono hipotezę badawczą zakładającą, że optymalizacja w ciągłej, stałowymiarowej przestrzeni latentnej - wyuczonej za pomocą autoenkoderów - pozwoli na uzyskanie wyników o lepszej jakości niż ewolucja prowadzona bezpośrednio na natywnych reprezentacjach z użyciem klasycznych operatorów mutacji i krzyżowania.
+\newpage
+% \noindent
+% \textbf{Wstęp do pracy musi się kończyć dwoma następującymi akapitami:}
+% \begin{quote}
+Celem niniejszej pracy jest zbadanie możliwości optymalizacji struktur o zmiennej długości w środowisku Framsticks poprzez rzutowanie ich na stałowymiarową przestrzeń latentną wyuczoną za pomocą autoenkoderów. W tak zdefiniowanej przestrzeni zostanie zastosowany algorytm ewolucyjny RV-GOMEA (Real-Valued Gene-pool Optimal Mixing Evolutionary Algorithm) w celu efektywnego przeszukiwania przestrzeni rozwiązań. Zakres pracy obejmuje implementację i porównanie różnych architektur autoenkoderów (np. VAE, Grammar-VAE) zdolnych do kompresji natwynych reprezentacji Framsticks, a także analizę skuteczności algorytmu RV-GOMEA. \\
+% \end{quote}
+\indent
+Struktura pracy jest następująca. 
+W rozdziale 2 przedstawiono przegląd literatury na temat algorytmów z rodziny GOMEA oraz technik radzenia sobie z reprezentacjami niepozycyjnymi i o zmiennej długości. 
+Rozdział 3 poświęcony jest opisowi zaproponowanej metodyki, w tym architekturze stosowanych autoenkoderów oraz integracji przestrzeni latentnej z algorytmem RV-GOMEA. 
+Rozdział 4 zawiera opis przeprowadzonych eksperymentów, analizę wyników oraz porównanie skuteczności zaproponowanego podejścia z klasycznymi operatorami. 
+Rozdział 5 stanowi podsumowanie pracy oraz wskazuje możliwe kierunki dalszych badań.
