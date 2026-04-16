@@ -26,7 +26,9 @@ def _default_cache_path(filepath: str, dataset_kind: str, max_length: int) -> st
     return str(cache_dir / f"{dataset_kind}_max{max_length}_{digest}.pt")
 
 
-def _meta_matches(cache_meta: dict, *, filepath: str, max_length: int, dataset_kind: str) -> bool:
+def _meta_matches(
+    cache_meta: dict, *, filepath: str, max_length: int, dataset_kind: str
+) -> bool:
     if not isinstance(cache_meta, dict):
         return False
     current = _file_meta(filepath)
@@ -35,7 +37,31 @@ def _meta_matches(cache_meta: dict, *, filepath: str, max_length: int, dataset_k
         and cache_meta.get("max_length") == max_length
         and cache_meta.get("source") == current
         and cache_meta.get("grammar_hash") == md5(G.gram.encode("utf-8")).hexdigest()
+        and cache_meta.get("dataset_format_version") == 4
     )
+
+
+def _parse_dataset_row(line: str) -> tuple[str, float | None]:
+    row = line.strip()
+    if not row:
+        return "", None
+
+    # New format: genotype<TAB>fitness
+    if "\t" in row:
+        genotype, fitness_raw = row.split("\t", 1)
+        genotype = genotype.strip()
+        fitness_raw = fitness_raw.strip()
+        if not genotype:
+            return "", None
+        if not fitness_raw:
+            return genotype, None
+        try:
+            return genotype, float(fitness_raw)
+        except ValueError:
+            return genotype, None
+
+    # Old format: genotype only
+    return row, None
 
 
 @dataclass
@@ -48,7 +74,15 @@ class Vocabulary:
 class CharGenotypeDataset(Dataset):
     def __init__(self, filepath: str, max_length: int) -> None:
         with open(filepath, "r", encoding="utf-8") as handle:
-            lines = [line.strip() for line in handle if line.strip()]
+            raw_rows = [line.strip() for line in handle if line.strip()]
+
+        lines: list[str] = []
+        fitnesses: list[float | None] = []
+        for row in raw_rows:
+            genotype, fitness = _parse_dataset_row(row)
+            if genotype:
+                lines.append(genotype)
+                fitnesses.append(fitness)
 
         chars = set("".join(lines))
         vocab = ["<PAD>", "<SOS>", "<EOS>"] + sorted(list(chars))
@@ -57,7 +91,9 @@ class CharGenotypeDataset(Dataset):
 
         encoded_data = []
         for line in lines:
-            encoded = [char2idx["<SOS>"]] + [char2idx[c] for c in line] + [char2idx["<EOS>"]]
+            encoded = (
+                [char2idx["<SOS>"]] + [char2idx[c] for c in line] + [char2idx["<EOS>"]]
+            )
             if len(encoded) < max_length:
                 encoded.extend([char2idx["<PAD>"]] * (max_length - len(encoded)))
             else:
@@ -65,6 +101,7 @@ class CharGenotypeDataset(Dataset):
             encoded_data.append(encoded)
 
         self.lines = lines
+        self.fitnesses = fitnesses
         self.max_length = max_length
         self.vocabulary = Vocabulary(vocab=vocab, char2idx=char2idx, idx2char=idx2char)
         self.data = torch.tensor(encoded_data, dtype=torch.long)
@@ -104,20 +141,39 @@ class GrammarRuleDataset(Dataset):
         self.pad_rule_idx = len(self.productions)
         self.num_classes = len(self.productions) + 1
 
-        cache_path = cache_path or _default_cache_path(filepath, "grammar_rule", max_length)
+        cache_path = cache_path or _default_cache_path(
+            filepath, "grammar_rule", max_length
+        )
         if use_cache and not rebuild_cache and Path(cache_path).exists():
             payload = torch.load(cache_path, map_location="cpu")
-            if _meta_matches(payload.get("meta", {}), filepath=filepath, max_length=max_length, dataset_kind="grammar_rule"):
+            if _meta_matches(
+                payload.get("meta", {}),
+                filepath=filepath,
+                max_length=max_length,
+                dataset_kind="grammar_rule",
+            ):
                 self.valid_lines = payload["valid_lines"]
+                self.valid_fitnesses = payload.get(
+                    "valid_fitnesses", [None] * len(self.valid_lines)
+                )
                 self.data = payload["data"]
                 return
 
         with open(filepath, "r", encoding="utf-8") as handle:
-            lines = [line.strip() for line in handle if line.strip()]
+            raw_rows = [line.strip() for line in handle if line.strip()]
+
+        lines: list[str] = []
+        fitnesses: list[float | None] = []
+        for row in raw_rows:
+            genotype, fitness = _parse_dataset_row(row)
+            if genotype:
+                lines.append(genotype)
+                fitnesses.append(fitness)
 
         encoded_rules = []
         valid_lines = []
-        for line in lines:
+        valid_fitnesses: list[float | None] = []
+        for line, fitness in zip(lines, fitnesses):
             tokens = list(line)
             try:
                 trees = list(self.parser.parse(tokens))
@@ -130,10 +186,12 @@ class GrammarRuleDataset(Dataset):
                 encoded.extend([self.pad_rule_idx] * (self.max_length - len(encoded)))
                 encoded_rules.append(encoded)
                 valid_lines.append(line)
+                valid_fitnesses.append(fitness)
             except Exception:
                 continue
 
         self.valid_lines = valid_lines
+        self.valid_fitnesses = valid_fitnesses
         self.data = torch.tensor(encoded_rules, dtype=torch.long)
 
         if use_cache:
@@ -144,8 +202,10 @@ class GrammarRuleDataset(Dataset):
                         "source": _file_meta(filepath),
                         "max_length": max_length,
                         "grammar_hash": md5(G.gram.encode("utf-8")).hexdigest(),
+                        "dataset_format_version": 4,
                     },
                     "valid_lines": self.valid_lines,
+                    "valid_fitnesses": self.valid_fitnesses,
                     "data": self.data,
                 },
                 cache_path,
@@ -174,20 +234,39 @@ class GrammarOneHotDataset(Dataset):
         self.prod_map = {prod: i for i, prod in enumerate(self.productions)}
         self.n_chars = len(self.productions)
 
-        cache_path = cache_path or _default_cache_path(filepath, "grammar_onehot", max_length)
+        cache_path = cache_path or _default_cache_path(
+            filepath, "grammar_onehot", max_length
+        )
         if use_cache and not rebuild_cache and Path(cache_path).exists():
             payload = torch.load(cache_path, map_location="cpu")
-            if _meta_matches(payload.get("meta", {}), filepath=filepath, max_length=max_length, dataset_kind="grammar_onehot"):
+            if _meta_matches(
+                payload.get("meta", {}),
+                filepath=filepath,
+                max_length=max_length,
+                dataset_kind="grammar_onehot",
+            ):
                 self.valid_lines = payload["valid_lines"]
+                self.valid_fitnesses = payload.get(
+                    "valid_fitnesses", [None] * len(self.valid_lines)
+                )
                 self.data = payload["data"]
                 return
 
         with open(filepath, "r", encoding="utf-8") as handle:
-            lines = [line.strip() for line in handle if line.strip()]
+            raw_rows = [line.strip() for line in handle if line.strip()]
+
+        lines: list[str] = []
+        fitnesses: list[float | None] = []
+        for row in raw_rows:
+            genotype, fitness = _parse_dataset_row(row)
+            if genotype:
+                lines.append(genotype)
+                fitnesses.append(fitness)
 
         one_hot_data = []
         valid_lines = []
-        for line in lines:
+        valid_fitnesses: list[float | None] = []
+        for line, fitness in zip(lines, fitnesses):
             tokens = list(line)
             try:
                 trees = list(self.parser.parse(tokens))
@@ -206,10 +285,12 @@ class GrammarOneHotDataset(Dataset):
 
                 one_hot_data.append(one_hot)
                 valid_lines.append(line)
+                valid_fitnesses.append(fitness)
             except Exception:
                 continue
 
         self.valid_lines = valid_lines
+        self.valid_fitnesses = valid_fitnesses
         self.data = torch.tensor(np.array(one_hot_data), dtype=torch.float32)
 
         if use_cache:
@@ -220,8 +301,10 @@ class GrammarOneHotDataset(Dataset):
                         "source": _file_meta(filepath),
                         "max_length": max_length,
                         "grammar_hash": md5(G.gram.encode("utf-8")).hexdigest(),
+                        "dataset_format_version": 4,
                     },
                     "valid_lines": self.valid_lines,
+                    "valid_fitnesses": self.valid_fitnesses,
                     "data": self.data,
                 },
                 cache_path,

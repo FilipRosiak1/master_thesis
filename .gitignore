@@ -43,3 +43,6 @@ outputs/
 # Local env/config files
 .env
 .env.*
+
+# Large raw data
+datasets/f1/raw_data/
