@@ -8,6 +8,50 @@ Assumptions:
 - Dependencies are installed: `python -m pip install -r requirements.txt`
 - Dataset exists at `datasets/f1/f1_dataset.txt`
 
+## 0) `scripts/workbench.py` (single entrypoint)
+
+Use one command to access the full workflow.
+
+### Example 1: Run full pipeline (train + eval)
+
+```bash
+python scripts/workbench.py pipeline --model grammar_vae_masked --data-path datasets/f1/f1_dataset.txt
+```
+
+### Example 2: Full pipeline with latent optimization
+
+```bash
+python scripts/workbench.py pipeline --model tree_vae --data-path datasets/f1/f1_dataset.txt --fitness-fn my_fitness:fitness --algorithm cmaes
+```
+
+### Example 3: Forward args to existing train script
+
+```bash
+python scripts/workbench.py train -- --model transformer_vae --data-path datasets/f1/f1_dataset.txt --output-root models/f1
+```
+
+### Example 4: Interactive mode
+
+```bash
+python scripts/workbench.py menu
+```
+
+## 0.1) `scripts/workbench_ui.py` (web UI)
+
+Streamlit interface for train/eval/infer/optimize/pipeline.
+
+### Example 1: Start UI
+
+```bash
+streamlit run scripts/workbench_ui.py
+```
+
+### Example 2: Start on custom port
+
+```bash
+streamlit run scripts/workbench_ui.py --server.port 8502
+```
+
 ## 1) `scripts/train.py` (unified trainer)
 
 ### Example 1: Minimal char-VAE training
@@ -97,6 +141,40 @@ python scripts/infer.py --model grammar_vae --weights <WEIGHTS_PATH> --mode reco
 
 ```bash
 python scripts/infer.py --config-model configs/model/grammar_vae_masked.yaml --weights <WEIGHTS_PATH> --mode mutate --noise-scale 1.0 --input-string "R(X,X)"
+```
+
+## 3.1) `scripts/optimize_latent.py` (latent-space optimization)
+
+Provide your own fitness function as `module:function` or `path.py:function`.
+
+### Example 1: CMA-ES optimization
+
+```bash
+python scripts/optimize_latent.py --model grammar_vae_masked --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 80
+```
+
+Use internal backend explicitly (without `python-cma`):
+
+```bash
+python scripts/optimize_latent.py --model grammar_vae_masked --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --cma-backend internal
+```
+
+### Example 2: CEM optimization
+
+```bash
+python scripts/optimize_latent.py --model tree_vae --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cem --iterations 80 --population-size 128 --elite-fraction 0.2
+```
+
+### Example 3: File-based fitness callable
+
+```bash
+python scripts/optimize_latent.py --model transformer_vae --weights <WEIGHTS_PATH> --fitness-fn tools/fitness_impl.py:fitness --algorithm cmaes --seed 42
+```
+
+### Example 4: CEM with tighter convergence
+
+```bash
+python scripts/optimize_latent.py --model vq_grammar_ae --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cem --iterations 120 --initial-std 1.2 --smoothing 0.1 --min-std 0.0005
 ```
 
 ## 4) `scripts/train_f1_char.py` (quick char-VAE training)

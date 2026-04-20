@@ -139,6 +139,10 @@ def train_model(
                 recon_logits, mu, logvar = model(batch, teacher_forcing_ratio=tf_ratio)
                 pad_idx = dataset.pad_idx if model_name == "char_vae" else dataset.pad_rule_idx
                 loss, ce, kld = sequence_vae_loss(recon_logits, batch, mu, logvar, pad_idx=pad_idx, beta=beta)
+                if model_name == "vq_grammar_ae":
+                    vq_loss = model.aux_loss() * batch.size(0)
+                    loss = loss + vq_loss
+                    kld = vq_loss
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)

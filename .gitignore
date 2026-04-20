@@ -46,3 +46,6 @@ outputs/
 
 # Large raw data
 datasets/f1/raw_data/
+
+# Seminar materials
+seminar/

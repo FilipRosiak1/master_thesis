@@ -32,10 +32,14 @@ python -c "import nltk; nltk.download('punkt')"
 - `src/f1vae/models` - model architectures
 - `src/f1vae/training` - shared losses and training loop
 - `src/f1vae/inference` - decode and evaluation utilities
+- `src/f1vae/optimization` - latent-space optimization algorithms (CMA-ES, CEM)
 - `src/f1vae/experiments` - CLI-backed experiment entrypoints
 - `scripts/train.py` - unified training CLI wrapper
 - `scripts/eval.py` - unified evaluation CLI wrapper
 - `scripts/infer.py` - single-sample inference (no full-dataset initialization)
+- `scripts/optimize_latent.py` - optimize latent `z` with pluggable fitness function
+- `scripts/workbench.py` - one entrypoint for train/eval/infer/optimize and full pipeline
+- `scripts/workbench_ui.py` - Streamlit UI for running the same workflows visually
 - `scripts/train_f1_*.py` - quick architecture-specific training scripts
 - `tests/test_smoke_forward.py` - smoke tests for dataset+forward+loss
 
@@ -60,7 +64,7 @@ python -c "import nltk; nltk.download('punkt')"
 
 - `src/f1vae/config/defaults.py`
   - per-architecture default hyperparameters
-  - defines defaults for `char_vae`, `grammar_vae`, `grammar_vae_masked`
+  - defines defaults for `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `transformer_vae`, `vq_grammar_ae`
 
 - `src/f1vae/grammars/f1.py`
   - F1 grammar definition string
@@ -82,6 +86,15 @@ python -c "import nltk; nltk.download('punkt')"
 - `src/f1vae/models/grammar_vae_masked.py`
   - masked grammar VAE architecture (Conv encoder + GRU decoder)
   - includes grammar-constrained masked sampling (`decode_masked`)
+
+- `src/f1vae/models/tree_vae.py`
+  - tree-aware grammar VAE with context-enriched rule encoding
+
+- `src/f1vae/models/transformer_vae.py`
+  - transformer-based grammar VAE
+
+- `src/f1vae/models/vq_grammar_ae.py`
+  - VQ latent grammar autoencoder with codebook quantization
 
 - `src/f1vae/models/registry.py`
   - maps model name -> dataset class and model constructor
@@ -110,6 +123,15 @@ python -c "import nltk; nltk.download('punkt')"
     - reconstruction metrics
     - mutation sampling examples
 
+- `src/f1vae/optimization/cmaes.py`
+  - CMA-ES optimizer (uses `python-cma` backend if installed, otherwise internal fallback)
+
+- `src/f1vae/optimization/cem.py`
+  - CEM optimizer
+
+- `src/f1vae/optimization/types.py`
+  - shared optimization result/objective types
+
 #### `scripts/`
 
 - `scripts/train.py`
@@ -130,6 +152,15 @@ python -c "import nltk; nltk.download('punkt')"
 - `scripts/infer.py`
   - inference on one genotype string without loading/parsing the full dataset
 
+- `scripts/optimize_latent.py`
+  - latent search script for maximizing user-provided genotype fitness
+
+- `scripts/workbench.py`
+  - unified launcher with subcommands: `train`, `eval`, `infer`, `optimize`, `pipeline`, `menu`
+
+- `scripts/workbench_ui.py`
+  - Streamlit frontend for train/eval/infer/optimize/pipeline with command output panels
+
 #### `configs/`
 
 - `configs/data/f1.yaml`
@@ -143,6 +174,15 @@ python -c "import nltk; nltk.download('punkt')"
 
 - `configs/model/grammar_vae_masked.yaml`
   - masked grammar model preset values
+
+- `configs/model/tree_vae.yaml`
+  - tree-aware grammar VAE preset values
+
+- `configs/model/transformer_vae.yaml`
+  - transformer grammar VAE preset values
+
+- `configs/model/vq_grammar_ae.yaml`
+  - VQ grammar autoencoder preset values
 
 - `configs/train/base.yaml`
   - training preset values (batch, epochs, lr, checkpoint interval)
@@ -209,6 +249,9 @@ Supported models:
 - `char_vae`
 - `grammar_vae`
 - `grammar_vae_masked`
+- `tree_vae`
+- `transformer_vae`
+- `vq_grammar_ae`
 
 #### All training parameters
 
@@ -226,7 +269,7 @@ Supported models:
   - description: YAML with training settings
 - `--model` (required unless set in `--config-model`)
   - type: choice
-  - values: `char_vae`, `grammar_vae`, `grammar_vae_masked`
+  - values: `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `transformer_vae`, `vq_grammar_ae`
   - description: architecture to train
 - `--data-path` (required unless set in `--config-data`)
   - type: string (path)
@@ -321,7 +364,7 @@ python scripts/eval.py --model grammar_vae_masked --weights <path_to_weights.pth
   - description: YAML with dataset path
 - `--model` (required unless set in `--config-model`)
   - type: choice
-  - values: `char_vae`, `grammar_vae`, `grammar_vae_masked`
+  - values: `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `transformer_vae`, `vq_grammar_ae`
   - description: architecture used to load/build model
 - `--weights` (required)
   - type: string (path)
@@ -367,7 +410,55 @@ python scripts/eval.py --model grammar_vae_masked --weights <path_to_weights.pth
   - default: per-model default
   - description: override sequence length when loading model
 
-## 5) Legacy compatibility scripts
+## 5) Latent optimization with external fitness
+
+Use `scripts/optimize_latent.py` to search latent vector `z` directly and decode candidate genotypes.
+
+Two built-in algorithms are available:
+
+- `cmaes` - covariance matrix adaptation evolution strategy
+- `cem` - cross-entropy method
+
+For `cmaes`, the script can use the external `python-cma` package automatically when available.
+Install it optionally with:
+
+```bash
+python -m pip install cma
+```
+
+The fitness function is passed as a parameter and loaded dynamically.
+
+- format: `module:function`
+- or file path format: `path/to/file.py:function`
+
+Fitness function signature:
+
+```python
+def fitness(genotype: str) -> float:
+    ...
+```
+
+Example:
+
+```bash
+python scripts/optimize_latent.py --model grammar_vae_masked --weights <path_to_weights.pth> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 100
+```
+
+Main parameters:
+
+- `--algorithm`: `cmaes` or `cem`
+- `--cma-backend`: `auto` (default, prefer `python-cma` if installed) or `internal`
+- `--iterations`: optimization iterations/generations
+- `--population-size`: number of candidates per iteration
+- `--fitness-fn`: required callable target (`module:function` or `file.py:function`)
+- `--seed`: optional RNG seed
+
+Algorithm-specific parameters:
+
+- CMA-ES: `--initial-sigma`
+- CEM: `--elite-fraction`, `--initial-std`, `--smoothing`, `--min-std`
+
+## 6) Legacy compatibility scripts
 
 Old entrypoints are archived in `legacy/` as wrappers to the new modules:
 
@@ -378,7 +469,7 @@ Old entrypoints are archived in `legacy/` as wrappers to the new modules:
 
 These remain to avoid breaking older workflows and imports.
 
-## 6) Tests
+## 7) Tests
 
 Smoke tests:
 
@@ -389,15 +480,34 @@ python -m pytest tests/test_smoke_forward.py
 What they check:
 
 - tiny synthetic dataset parsing
-- model forward pass for all 3 architecture families
+- model forward pass for all supported architecture families
 - loss computation stability (`torch.isfinite`)
 
-## 7) Helpful commands
+## 8) Helpful commands
 
 Show all training args:
 
 ```bash
 python scripts/train.py --help
+```
+
+Run a full project pipeline from one command:
+
+```bash
+python scripts/workbench.py pipeline --model grammar_vae_masked --data-path datasets/f1/f1_dataset.txt
+```
+
+Forward arguments to any existing script:
+
+```bash
+python scripts/workbench.py train -- --model tree_vae --data-path datasets/f1/f1_dataset.txt --output-root models/f1
+python scripts/workbench.py optimize -- --model grammar_vae_masked --weights <path_to_weights.pth> --fitness-fn my_fitness:fitness --algorithm cmaes
+```
+
+Run the web UI:
+
+```bash
+streamlit run scripts/workbench_ui.py
 ```
 
 Show all evaluation args:

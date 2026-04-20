@@ -21,6 +21,9 @@ from f1vae.inference.encode import encode_char_string, encode_grammar_onehot_str
 from f1vae.models.char_vae import CharVAE
 from f1vae.models.grammar_vae import GrammarRuleVAE
 from f1vae.models.grammar_vae_masked import GrammarMaskedVAE
+from f1vae.models.transformer_vae import TransformerGrammarVAE
+from f1vae.models.tree_vae import TreeGrammarVAE
+from f1vae.models.vq_grammar_ae import VQGrammarAE
 from f1vae.models.registry import MODEL_NAMES
 
 
@@ -73,6 +76,48 @@ def _build_model(model_name: str, *, latent_dim: int, hidden_dim: int | None, em
     if model_name == "grammar_vae_masked":
         return (GrammarMaskedVAE(latent_dim=latent_dim, max_length=max_length, n_chars=len(G.GCFG.productions())), None)
 
+    if model_name == "tree_vae":
+        num_rules = len(G.GCFG.productions())
+        return (
+            TreeGrammarVAE(
+                num_classes=num_rules + 1,
+                emb_dim=int(embedding_dim),
+                hidden_dim=int(hidden_dim),
+                latent_dim=latent_dim,
+                max_length=max_length,
+                pad_rule_idx=num_rules,
+            ),
+            None,
+        )
+
+    if model_name == "transformer_vae":
+        num_rules = len(G.GCFG.productions())
+        return (
+            TransformerGrammarVAE(
+                num_classes=num_rules + 1,
+                emb_dim=int(embedding_dim),
+                hidden_dim=int(hidden_dim),
+                latent_dim=latent_dim,
+                max_length=max_length,
+                pad_rule_idx=num_rules,
+            ),
+            None,
+        )
+
+    if model_name == "vq_grammar_ae":
+        num_rules = len(G.GCFG.productions())
+        return (
+            VQGrammarAE(
+                num_classes=num_rules + 1,
+                emb_dim=int(embedding_dim),
+                hidden_dim=int(hidden_dim),
+                latent_dim=latent_dim,
+                max_length=max_length,
+                pad_rule_idx=num_rules,
+            ),
+            None,
+        )
+
     raise ValueError(f"Unsupported model: {model_name}")
 
 
@@ -122,7 +167,7 @@ def main() -> None:
                 z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
             generated = model.decode_from_latent(z).squeeze(0)
             out = decode_char_indices(generated, idx2char)
-        elif model_name == "grammar_vae":
+        elif model_name in {"grammar_vae", "tree_vae", "transformer_vae"}:
             x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
             mu, logvar = model.encoder(x)
             z = mu.clone()
@@ -130,6 +175,15 @@ def main() -> None:
                 dim = random.randint(0, z.size(1) - 1)
                 std = torch.exp(0.5 * logvar)
                 z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
+            logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
+            out = decode_grammar_indices(logits.argmax(-1))
+        elif model_name == "vq_grammar_ae":
+            x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
+            z = model.encoder(x)
+            z = z.clone()
+            if args.mode == "mutate":
+                dim = random.randint(0, z.size(1) - 1)
+                z[0, dim] += args.noise_scale * torch.randn(1, device=device).squeeze()
             logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
             out = decode_grammar_indices(logits.argmax(-1))
         else:

@@ -1,0 +1,5 @@
+model: transformer_vae
+latent_dim: 32
+hidden_dim: 256
+embedding_dim: 64
+max_length: 500

@@ -26,10 +26,16 @@ def reconstruction_metrics(model_name: str, model, dataset, device: torch.device
                 mu, _ = model.encoder(input_tensor)
                 generated = model.decode_from_latent(mu).squeeze(0)
                 reconstructed = decode_char_indices(generated, dataset.vocabulary.idx2char)
-            elif model_name == "grammar_vae":
+            elif model_name in {"grammar_vae", "tree_vae", "transformer_vae"}:
                 original = dataset.valid_lines[i]
                 mu, _ = model.encoder(input_tensor)
                 logits = model.decoder(mu, None, teacher_forcing_ratio=0.0).squeeze(0)
+                generated = logits.argmax(-1)
+                reconstructed = decode_grammar_indices(generated)
+            elif model_name == "vq_grammar_ae":
+                original = dataset.valid_lines[i]
+                z = model.encoder(input_tensor)
+                logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
                 generated = logits.argmax(-1)
                 reconstructed = decode_grammar_indices(generated)
             elif model_name == "grammar_vae_masked":
@@ -81,7 +87,7 @@ def mutation_examples(
                 z[0, dim] += noise_scale * std[0, dim] * eps
                 generated = model.decode_from_latent(z).squeeze(0)
                 mutated = decode_char_indices(generated, dataset.vocabulary.idx2char)
-            elif model_name == "grammar_vae":
+            elif model_name in {"grammar_vae", "tree_vae", "transformer_vae"}:
                 original = dataset.valid_lines[idx]
                 mu, logvar = model.encoder(input_tensor)
                 z = mu.clone()
@@ -89,6 +95,14 @@ def mutation_examples(
                 std = torch.exp(0.5 * logvar)
                 eps = torch.randn(1, device=device).squeeze()
                 z[0, dim] += noise_scale * std[0, dim] * eps
+                logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
+                mutated = decode_grammar_indices(logits.argmax(-1))
+            elif model_name == "vq_grammar_ae":
+                original = dataset.valid_lines[idx]
+                z = model.encoder(input_tensor)
+                z = z.clone()
+                dim = random.randint(0, z.size(1) - 1)
+                z[0, dim] += noise_scale * torch.randn(1, device=device).squeeze()
                 logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
                 mutated = decode_grammar_indices(logits.argmax(-1))
             elif model_name == "grammar_vae_masked":
