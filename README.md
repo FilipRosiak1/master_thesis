@@ -330,6 +330,8 @@ with:
 
 Checkpoint files now store both `state_dict` and `meta` (model settings and extra info like char vocab), so inference can run without rebuilding dataset objects.
 
+For newer checkpoints, metadata also includes the training `data_path`, which is used as a fallback in evaluation.
+
 ## 4) Evaluation
 
 Use the shared evaluator for either reconstruction metrics or mutation sampling.
@@ -337,7 +339,7 @@ Use the shared evaluator for either reconstruction metrics or mutation sampling.
 ### 4.1 Reconstruction mode
 
 ```bash
-python scripts/eval.py --model char_vae --weights <path_to_weights.pth> --mode reconstruct
+python scripts/eval.py --weights <path_to_weights.pth> --mode reconstruct
 ```
 
 Config-driven example:
@@ -349,7 +351,7 @@ python scripts/eval.py --config-model configs/model/char_vae.yaml --config-data 
 ### 4.2 Mutation mode
 
 ```bash
-python scripts/eval.py --model grammar_vae_masked --weights <path_to_weights.pth> --mode mutate --num-samples 10 --noise-scale 1.0
+python scripts/eval.py --weights <path_to_weights.pth> --mode mutate --num-samples 10 --noise-scale 1.0
 ```
 
 ### 4.3 All evaluation parameters
@@ -362,16 +364,16 @@ python scripts/eval.py --model grammar_vae_masked --weights <path_to_weights.pth
   - type: string (path)
   - default: `None`
   - description: YAML with dataset path
-- `--model` (required unless set in `--config-model`)
+- `--model` (optional)
   - type: choice
   - values: `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `transformer_vae`, `vq_grammar_ae`
-  - description: architecture used to load/build model
+  - description: architecture used to load/build model (fallback order: `--model` -> `--config-model` -> checkpoint metadata)
 - `--weights` (required)
   - type: string (path)
   - description: `.pth` state dict path
 - `--data-path`
   - type: string (path)
-  - default: from `--config-data` if provided, otherwise `datasets/f1/f1_dataset.txt`
+  - default: from `--config-data`, then checkpoint metadata (`data_path`), then `datasets/f1/f1_dataset.txt`
   - description: dataset used for evaluation
 - `--mode`
   - type: choice
@@ -395,19 +397,19 @@ python scripts/eval.py --model grammar_vae_masked --weights <path_to_weights.pth
   - description: latent mutation scale
 - `--latent-dim`
   - type: int
-  - default: per-model default
+  - default: from `--config-model`, then checkpoint metadata, then per-model default
   - description: override latent size when loading model
 - `--hidden-dim`
   - type: int
-  - default: per-model default
+  - default: from `--config-model`, then checkpoint metadata, then per-model default
   - description: override hidden size when loading model
 - `--embedding-dim`
   - type: int
-  - default: per-model default
+  - default: from `--config-model`, then checkpoint metadata, then per-model default
   - description: override embedding size when loading model
 - `--max-length`
   - type: int
-  - default: per-model default
+  - default: from `--config-model`, then checkpoint metadata, then per-model default
   - description: override sequence length when loading model
 
 ## 5) Latent optimization with external fitness
@@ -441,8 +443,10 @@ def fitness(genotype: str) -> float:
 Example:
 
 ```bash
-python scripts/optimize_latent.py --model grammar_vae_masked --weights <path_to_weights.pth> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 100
+python scripts/optimize_latent.py --weights <path_to_weights.pth> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 100
 ```
+
+`scripts/optimize_latent.py` and `scripts/infer.py` use the same metadata fallback order for model hyperparameters (`CLI -> config -> checkpoint meta -> defaults`).
 
 Main parameters:
 

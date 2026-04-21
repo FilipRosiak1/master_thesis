@@ -17,6 +17,7 @@ from f1vae.config.io import load_yaml, maybe_resolve_path
 from f1vae.inference.checkpoints import load_checkpoint
 from f1vae.inference.evaluate import mutation_examples, reconstruction_metrics
 from f1vae.models.registry import MODEL_NAMES, build_model, dataset_class_for_model
+from f1vae.utils import command_run_logger
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -31,6 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-items", type=int, default=None, help="Optional reconstruction sample cap")
     parser.add_argument("--num-samples", type=int, default=10, help="Mutation sample count")
     parser.add_argument("--noise-scale", type=float, default=1.0)
+    parser.add_argument("--batch-size", type=int, default=64, help="Batch size for reconstruction evaluation")
     parser.add_argument("--latent-dim", type=int, default=None)
     parser.add_argument("--hidden-dim", type=int, default=None)
     parser.add_argument("--embedding-dim", type=int, default=None)
@@ -46,22 +48,44 @@ def main() -> None:
     data_cfg = load_yaml(args.config_data)
     root_dir = str(Path(__file__).resolve().parents[1])
 
+    device = torch.device(args.device) if args.device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    state_dict, checkpoint_meta = load_checkpoint(args.weights, device)
+
     model_name = args.model if args.model is not None else model_cfg.get("model")
     if model_name is None:
-        raise ValueError("Model name is required. Provide --model or --config-model with a 'model' key.")
+        model_name = checkpoint_meta.get("model_name")
+    if model_name is None:
+        raise ValueError("Model name is required. Provide --model, --config-model with a 'model' key, or checkpoint metadata.")
 
     data_path = args.data_path if args.data_path is not None else data_cfg.get("dataset_path")
+    if data_path is None:
+        data_path = checkpoint_meta.get("data_path")
     if data_path is None:
         data_path = os.path.join(ROOT, "datasets", "f1", "f1_dataset.txt")
     data_path = maybe_resolve_path(data_path, root_dir=root_dir)
 
     defaults = DEFAULTS[model_name]
-    latent_dim = model_cfg.get("latent_dim", defaults.latent_dim) if args.latent_dim is None else args.latent_dim
-    hidden_dim = model_cfg.get("hidden_dim", defaults.hidden_dim) if args.hidden_dim is None else args.hidden_dim
-    embedding_dim = model_cfg.get("embedding_dim", defaults.embedding_dim) if args.embedding_dim is None else args.embedding_dim
-    max_length = model_cfg.get("max_length", defaults.max_length) if args.max_length is None else args.max_length
+    latent_dim = (
+        args.latent_dim
+        if args.latent_dim is not None
+        else model_cfg.get("latent_dim", checkpoint_meta.get("latent_dim", defaults.latent_dim))
+    )
+    hidden_dim = (
+        args.hidden_dim
+        if args.hidden_dim is not None
+        else model_cfg.get("hidden_dim", checkpoint_meta.get("hidden_dim", defaults.hidden_dim))
+    )
+    embedding_dim = (
+        args.embedding_dim
+        if args.embedding_dim is not None
+        else model_cfg.get("embedding_dim", checkpoint_meta.get("embedding_dim", defaults.embedding_dim))
+    )
+    max_length = (
+        args.max_length
+        if args.max_length is not None
+        else model_cfg.get("max_length", checkpoint_meta.get("max_length", defaults.max_length))
+    )
 
-    device = torch.device(args.device) if args.device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset_cls = dataset_class_for_model(model_name)
     dataset = dataset_cls(data_path, max_length)
 
@@ -74,8 +98,6 @@ def main() -> None:
         max_length=max_length,
     ).to(device)
 
-    state_dict, _ = load_checkpoint(args.weights, device)
-
     model.load_state_dict(state_dict)
     model.eval()
 
@@ -86,6 +108,7 @@ def main() -> None:
             dataset=dataset,
             device=device,
             max_items=args.max_items,
+            batch_size=args.batch_size,
         )
         print("Reconstruction results")
         print(f"  Total: {metrics['total']}")
@@ -109,4 +132,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    with command_run_logger("scripts/eval.py"):
+        main()

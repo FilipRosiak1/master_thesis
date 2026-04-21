@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import datetime
 
 import torch
@@ -27,6 +28,15 @@ def _beta_for_epoch(epoch: int, epochs: int) -> float:
 
 def _tf_ratio_for_epoch(epoch: int, epochs: int) -> float:
     return max(0.0, 1.0 - (epoch / (epochs * 0.75)))
+
+
+def _format_duration(seconds: float) -> str:
+    total = max(0, int(seconds))
+    hours, rem = divmod(total, 3600)
+    minutes, secs = divmod(rem, 60)
+    if hours > 0:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
 
 
 def train_model(
@@ -99,10 +109,12 @@ def train_model(
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     model.train()
+    train_start = time.perf_counter()
 
     checkpoint_meta = {
         "format_version": 2,
         "model_name": model_name,
+        "data_path": data_path,
         "max_length": max_length,
         "latent_dim": latent_dim,
         "hidden_dim": hidden_dim,
@@ -114,6 +126,7 @@ def train_model(
         checkpoint_meta["num_productions"] = len(dataset.productions)
 
     for epoch in range(epochs):
+        epoch_start = time.perf_counter()
         total_loss = 0.0
         total_ce = 0.0
         total_kld = 0.0
@@ -175,6 +188,20 @@ def train_model(
                 {"state_dict": model.state_dict(), "meta": checkpoint_meta},
                 os.path.join(checkpoints_dir, f"epoch_{epoch + 1}.pth"),
             )
+
+        elapsed = time.perf_counter() - train_start
+        avg_epoch_time = elapsed / (epoch + 1)
+        remaining = avg_epoch_time * (epochs - (epoch + 1))
+        if (epoch + 1) % 10 == 0 or epoch == 0:
+            eta_line = (
+                f"Progress {epoch + 1}/{epochs}"
+                f"\tEpoch time: {_format_duration(time.perf_counter() - epoch_start)}"
+                f"\tElapsed: {_format_duration(elapsed)}"
+                f"\tETA: {_format_duration(remaining)}"
+            )
+            print(eta_line)
+            with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
+                handle.write(eta_line + "\n")
 
     final_path = os.path.join(base_dir, f"{model_name}.pth")
     torch.save({"state_dict": model.state_dict(), "meta": checkpoint_meta}, final_path)

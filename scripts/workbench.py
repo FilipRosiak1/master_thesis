@@ -8,6 +8,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from f1vae.utils import command_run_logger
 
 SCRIPT_MAP = {
     "train": "train.py",
@@ -233,4 +238,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    with command_run_logger("scripts/workbench.py"):
+        main()

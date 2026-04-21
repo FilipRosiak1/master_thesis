@@ -12,6 +12,9 @@ from torch.utils.data import Dataset
 from f1vae.grammars import f1 as G
 
 
+DATASET_FORMAT_VERSION = 5
+
+
 def _file_meta(filepath: str) -> dict:
     path = Path(filepath).resolve()
     stat = path.stat()
@@ -37,11 +40,11 @@ def _meta_matches(
         and cache_meta.get("max_length") == max_length
         and cache_meta.get("source") == current
         and cache_meta.get("grammar_hash") == md5(G.gram.encode("utf-8")).hexdigest()
-        and cache_meta.get("dataset_format_version") == 4
+        and cache_meta.get("dataset_format_version") == DATASET_FORMAT_VERSION
     )
 
 
-def _parse_dataset_row(line: str) -> tuple[str, float | None]:
+def _parse_dataset_row(line: str, *, strip_internal_whitespace: bool = False) -> tuple[str, float | None]:
     row = line.strip()
     if not row:
         return "", None
@@ -50,6 +53,8 @@ def _parse_dataset_row(line: str) -> tuple[str, float | None]:
     if "\t" in row:
         genotype, fitness_raw = row.split("\t", 1)
         genotype = genotype.strip()
+        if strip_internal_whitespace:
+            genotype = "".join(genotype.split())
         fitness_raw = fitness_raw.strip()
         if not genotype:
             return "", None
@@ -61,6 +66,8 @@ def _parse_dataset_row(line: str) -> tuple[str, float | None]:
             return genotype, None
 
     # Old format: genotype only
+    if strip_internal_whitespace:
+        row = "".join(row.split())
     return row, None
 
 
@@ -79,7 +86,7 @@ class CharGenotypeDataset(Dataset):
         lines: list[str] = []
         fitnesses: list[float | None] = []
         for row in raw_rows:
-            genotype, fitness = _parse_dataset_row(row)
+            genotype, fitness = _parse_dataset_row(row, strip_internal_whitespace=False)
             if genotype:
                 lines.append(genotype)
                 fitnesses.append(fitness)
@@ -165,7 +172,7 @@ class GrammarRuleDataset(Dataset):
         lines: list[str] = []
         fitnesses: list[float | None] = []
         for row in raw_rows:
-            genotype, fitness = _parse_dataset_row(row)
+            genotype, fitness = _parse_dataset_row(row, strip_internal_whitespace=True)
             if genotype:
                 lines.append(genotype)
                 fitnesses.append(fitness)
@@ -202,7 +209,7 @@ class GrammarRuleDataset(Dataset):
                         "source": _file_meta(filepath),
                         "max_length": max_length,
                         "grammar_hash": md5(G.gram.encode("utf-8")).hexdigest(),
-                        "dataset_format_version": 4,
+                        "dataset_format_version": DATASET_FORMAT_VERSION,
                     },
                     "valid_lines": self.valid_lines,
                     "valid_fitnesses": self.valid_fitnesses,
@@ -258,7 +265,7 @@ class GrammarOneHotDataset(Dataset):
         lines: list[str] = []
         fitnesses: list[float | None] = []
         for row in raw_rows:
-            genotype, fitness = _parse_dataset_row(row)
+            genotype, fitness = _parse_dataset_row(row, strip_internal_whitespace=True)
             if genotype:
                 lines.append(genotype)
                 fitnesses.append(fitness)
@@ -301,7 +308,7 @@ class GrammarOneHotDataset(Dataset):
                         "source": _file_meta(filepath),
                         "max_length": max_length,
                         "grammar_hash": md5(G.gram.encode("utf-8")).hexdigest(),
-                        "dataset_format_version": 4,
+                        "dataset_format_version": DATASET_FORMAT_VERSION,
                     },
                     "valid_lines": self.valid_lines,
                     "valid_fitnesses": self.valid_fitnesses,

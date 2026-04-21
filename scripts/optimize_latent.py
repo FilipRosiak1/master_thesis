@@ -9,7 +9,9 @@ if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
 from f1vae.experiments.optimize_latent import main
+from f1vae.utils import command_run_logger
 
 
 if __name__ == "__main__":
-    main()
+    with command_run_logger("scripts/optimize_latent.py"):
+        main()

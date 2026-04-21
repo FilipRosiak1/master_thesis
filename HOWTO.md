@@ -85,19 +85,19 @@ Replace `<WEIGHTS_PATH>` with your `.pth` file, e.g. `models/f1/char_vae/<RUN_ID
 ### Example 1: Reconstruction metrics (char model)
 
 ```bash
-python scripts/eval.py --model char_vae --weights <WEIGHTS_PATH> --mode reconstruct
+python scripts/eval.py --weights <WEIGHTS_PATH> --mode reconstruct
 ```
 
 ### Example 2: Reconstruction on subset only
 
 ```bash
-python scripts/eval.py --model grammar_vae --weights <WEIGHTS_PATH> --mode reconstruct --max-items 500
+python scripts/eval.py --weights <WEIGHTS_PATH> --mode reconstruct --max-items 500
 ```
 
 ### Example 3: Mutation sampling (masked grammar)
 
 ```bash
-python scripts/eval.py --model grammar_vae_masked --weights <WEIGHTS_PATH> --mode mutate --num-samples 20 --noise-scale 0.8
+python scripts/eval.py --weights <WEIGHTS_PATH> --mode mutate --num-samples 20 --noise-scale 0.8
 ```
 
 ### Example 4: Config-driven evaluation + forced CPU
@@ -119,16 +119,18 @@ If you edit the dataset file, cache is automatically invalidated using file meta
 
 Replace `<WEIGHTS_PATH>` and input strings with your own values.
 
+For newer checkpoints, `--model` and model dimensions can be omitted (they are loaded from checkpoint metadata).
+
 ### Example 1: Char model reconstruction
 
 ```bash
-python scripts/infer.py --model char_vae --weights <WEIGHTS_PATH> --mode reconstruct --input-string "XRRX"
+python scripts/infer.py --weights <WEIGHTS_PATH> --mode reconstruct --input-string "XRRX"
 ```
 
 ### Example 2: Char model latent mutation
 
 ```bash
-python scripts/infer.py --model char_vae --weights <WEIGHTS_PATH> --mode mutate --noise-scale 0.7 --input-string "XRRX"
+python scripts/infer.py --weights <WEIGHTS_PATH> --mode mutate --noise-scale 0.7 --input-string "XRRX"
 ```
 
 ### Example 3: Grammar model reconstruction
@@ -150,13 +152,13 @@ Provide your own fitness function as `module:function` or `path.py:function`.
 ### Example 1: CMA-ES optimization
 
 ```bash
-python scripts/optimize_latent.py --model grammar_vae_masked --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 80
+python scripts/optimize_latent.py --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --iterations 80
 ```
 
 Use internal backend explicitly (without `python-cma`):
 
 ```bash
-python scripts/optimize_latent.py --model grammar_vae_masked --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --cma-backend internal
+python scripts/optimize_latent.py --weights <WEIGHTS_PATH> --fitness-fn my_fitness:fitness --algorithm cmaes --cma-backend internal
 ```
 
 ### Example 2: CEM optimization

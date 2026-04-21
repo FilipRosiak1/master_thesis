@@ -25,6 +25,7 @@ from f1vae.models.transformer_vae import TransformerGrammarVAE
 from f1vae.models.tree_vae import TreeGrammarVAE
 from f1vae.models.vq_grammar_ae import VQGrammarAE
 from f1vae.models.registry import MODEL_NAMES
+from f1vae.utils import command_run_logger
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -167,7 +168,7 @@ def main() -> None:
                 z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
             generated = model.decode_from_latent(z).squeeze(0)
             out = decode_char_indices(generated, idx2char)
-        elif model_name in {"grammar_vae", "tree_vae", "transformer_vae"}:
+        elif model_name in {"grammar_vae", "transformer_vae"}:
             x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
             mu, logvar = model.encoder(x)
             z = mu.clone()
@@ -176,6 +177,16 @@ def main() -> None:
                 std = torch.exp(0.5 * logvar)
                 z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
             logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
+            out = decode_grammar_indices(logits.argmax(-1))
+        elif model_name == "tree_vae":
+            x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
+            mu, logvar = model.encode(x)
+            z = mu.clone()
+            if args.mode == "mutate":
+                dim = random.randint(0, z.size(1) - 1)
+                std = torch.exp(0.5 * logvar)
+                z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
+            logits = model.decode(z, None, teacher_forcing_ratio=0.0).squeeze(0)
             out = decode_grammar_indices(logits.argmax(-1))
         elif model_name == "vq_grammar_ae":
             x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
@@ -202,4 +213,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    with command_run_logger("scripts/infer.py"):
+        main()
