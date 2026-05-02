@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A inz_csolso
-#SBATCH -w hgx1
+#SBATCH -w hgx2
 #SBATCH -n1
 #SBATCH -c1
 #SBATCH --gres=gpu:1
