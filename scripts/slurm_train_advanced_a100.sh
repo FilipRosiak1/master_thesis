@@ -2,7 +2,6 @@
 #SBATCH -A inz_csolso
 #SBATCH -w hgx2
 #SBATCH -n1
-#SBATCH -c1
 #SBATCH --gres=gpu:1
 #SBATCH --mem=128G
 #SBATCH --time=48:00:00
