@@ -12,7 +12,7 @@ set -euo pipefail
 source "$HOME/miniconda3/bin/activate"
 conda activate f1vae
 
-cd "$HOME/Magisterka"
+cd "$HOME/master_thesis"
 
 python scripts/train_advanced_models_with_validation.py \
   --data-path datasets/f1/f1_dataset.txt \
