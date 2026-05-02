@@ -25,6 +25,10 @@ def _append_line(line: str) -> None:
         handle.write(line + "\n")
 
 
+def _append_separator(tag: str) -> None:
+    _append_line(f"{'=' * 24} {tag} {'=' * 24}")
+
+
 def _ts() -> str:
     return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
 
@@ -39,6 +43,8 @@ def command_run_logger(entrypoint: str) -> Iterator[None]:
     run_id = f"{int(time.time() * 1000)}-{os.getpid()}"
     host = socket.gethostname()
     cwd = os.getcwd()
+    _append_line("")
+    _append_separator(f"START run_id={run_id}")
     _append_line(
         f"[{_ts()}] START run_id={run_id} entrypoint={entrypoint} host={host} cwd={cwd} cmd=\"{_cmdline()}\""
     )
@@ -53,3 +59,4 @@ def command_run_logger(entrypoint: str) -> Iterator[None]:
         _append_line(
             f"[{_ts()}] END   run_id={run_id} entrypoint={entrypoint} status={status} elapsed_s={elapsed:.2f}"
         )
+        _append_separator(f"END run_id={run_id}")

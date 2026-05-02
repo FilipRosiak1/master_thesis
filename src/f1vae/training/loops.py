@@ -3,13 +3,15 @@ from __future__ import annotations
 import json
 import os
 import time
+import difflib
 from datetime import datetime
 
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from f1vae.config.defaults import DEFAULTS
+from f1vae.inference.decode import decode_char_indices, decode_grammar_indices, decode_masked_deterministic
 from f1vae.models.registry import build_model, dataset_class_for_model
 from f1vae.training.losses import grammar_masked_vae_loss, sequence_vae_loss
 
@@ -39,6 +41,50 @@ def _format_duration(seconds: float) -> str:
     return f"{minutes:02d}:{secs:02d}"
 
 
+def _reconstruct_strings_from_batch(model_name: str, model, batch: torch.Tensor, idx2char: dict[int, str] | None) -> list[str]:
+    if model_name == "char_vae":
+        if idx2char is None:
+            raise ValueError("idx2char is required for char_vae reconstruction metrics")
+        mu, _ = model.encoder(batch)
+        generated = model.decode_from_latent(mu)
+        return [decode_char_indices(generated[i], idx2char) for i in range(generated.size(0))]
+
+    if model_name == "grammar_vae_masked":
+        mu, _ = model.encoder(batch)
+        generated = decode_masked_deterministic(model, mu)
+        return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
+
+    if model_name == "tree_vae":
+        mu, _ = model.encode(batch)
+        logits = model.decode(mu, None, teacher_forcing_ratio=0.0)
+        generated = logits.argmax(dim=-1)
+        return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
+
+    if model_name == "vq_grammar_ae":
+        z = model.encoder(batch)
+        logits = model.decoder(z, None, teacher_forcing_ratio=0.0)
+        generated = logits.argmax(dim=-1)
+        return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
+
+    mu, _ = model.encoder(batch)
+    logits = model.decoder(mu, None, teacher_forcing_ratio=0.0)
+    generated = logits.argmax(dim=-1)
+    return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
+
+
+def _reference_strings_from_batch(model_name: str, batch: torch.Tensor, idx2char: dict[int, str] | None) -> list[str]:
+    if model_name == "char_vae":
+        if idx2char is None:
+            raise ValueError("idx2char is required for char_vae reference decoding")
+        return [decode_char_indices(batch[i], idx2char) for i in range(batch.size(0))]
+
+    if model_name == "grammar_vae_masked":
+        targets = batch.argmax(dim=-1)
+        return [decode_grammar_indices(targets[i]) for i in range(targets.size(0))]
+
+    return [decode_grammar_indices(batch[i]) for i in range(batch.size(0))]
+
+
 def train_model(
     model_name: str,
     data_path: str,
@@ -53,6 +99,8 @@ def train_model(
     max_length: int | None = None,
     checkpoint_every: int = 50,
     seed: int | None = None,
+    val_split: float = 0.0,
+    val_every: int = 10,
 ) -> str:
     defaults = DEFAULTS[model_name]
 
@@ -66,6 +114,11 @@ def train_model(
 
     if seed is not None:
         torch.manual_seed(seed)
+
+    if val_split < 0.0 or val_split >= 1.0:
+        raise ValueError("val_split must be in range [0.0, 1.0).")
+    if val_every < 1:
+        raise ValueError("val_every must be >= 1.")
 
     base_dir, checkpoints_dir = _make_run_dir(output_root, model_name)
     config_path = os.path.join(base_dir, "run_config.json")
@@ -83,6 +136,8 @@ def train_model(
                 "max_length": max_length,
                 "checkpoint_every": checkpoint_every,
                 "seed": seed,
+                "val_split": val_split,
+                "val_every": val_every,
             },
             handle,
             indent=2,
@@ -96,7 +151,22 @@ def train_model(
     if len(dataset) == 0:
         raise RuntimeError("Dataset is empty after parsing. Check grammar/data compatibility.")
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    val_loader = None
+    train_dataset_len = len(dataset)
+    val_dataset_len = 0
+    if val_split > 0.0 and len(dataset) > 1:
+        val_size = int(len(dataset) * val_split)
+        val_size = max(1, val_size)
+        val_size = min(len(dataset) - 1, val_size)
+        train_size = len(dataset) - val_size
+        split_generator = torch.Generator().manual_seed(seed) if seed is not None else None
+        train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=split_generator)
+        dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+        train_dataset_len = len(train_dataset)
+        val_dataset_len = len(val_dataset)
+    else:
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     model = build_model(
         model_name=model_name,
@@ -122,8 +192,10 @@ def train_model(
     }
     if model_name == "char_vae":
         checkpoint_meta["vocab"] = dataset.vocabulary.vocab
+        idx2char = dataset.vocabulary.idx2char
     else:
         checkpoint_meta["num_productions"] = len(dataset.productions)
+        idx2char = None
 
     for epoch in range(epochs):
         epoch_start = time.perf_counter()
@@ -166,9 +238,9 @@ def train_model(
             total_kld += kld.item()
 
         if (epoch + 1) % 10 == 0 or epoch == 0:
-            avg_loss = total_loss / len(dataset)
-            avg_ce = total_ce / len(dataset)
-            avg_kld = total_kld / len(dataset)
+            avg_loss = total_loss / train_dataset_len
+            avg_ce = total_ce / train_dataset_len
+            avg_kld = total_kld / train_dataset_len
             if model_name == "grammar_vae_masked":
                 log_line = (
                     f"Epoch {epoch + 1}/{epochs}\tLoss: {avg_loss:.4f}\tCE: {avg_ce:.4f}"
@@ -188,6 +260,74 @@ def train_model(
                 {"state_dict": model.state_dict(), "meta": checkpoint_meta},
                 os.path.join(checkpoints_dir, f"epoch_{epoch + 1}.pth"),
             )
+
+        if val_loader is not None and ((epoch + 1) % max(1, val_every) == 0 or epoch == 0 or (epoch + 1) == epochs):
+            model.eval()
+            val_total_loss = 0.0
+            val_total_ce = 0.0
+            val_total_kld = 0.0
+            val_exact = 0
+            val_similarity_sum = 0.0
+            val_recon_total = 0
+            with torch.no_grad():
+                for val_batch in val_loader:
+                    val_batch = val_batch.to(device)
+                    if model_name == "grammar_vae_masked":
+                        val_recon_logits, val_mu, val_logvar = model(val_batch)
+                        val_loss, val_ce, val_kld = grammar_masked_vae_loss(
+                            val_recon_logits,
+                            val_batch,
+                            val_mu,
+                            val_logvar,
+                            model.masks,
+                            model.ind_of_ind,
+                            beta=beta,
+                        )
+                    else:
+                        val_recon_logits, val_mu, val_logvar = model(val_batch, teacher_forcing_ratio=0.0)
+                        val_pad_idx = dataset.pad_idx if model_name == "char_vae" else dataset.pad_rule_idx
+                        val_loss, val_ce, val_kld = sequence_vae_loss(
+                            val_recon_logits,
+                            val_batch,
+                            val_mu,
+                            val_logvar,
+                            pad_idx=val_pad_idx,
+                            beta=beta,
+                        )
+                        if model_name == "vq_grammar_ae":
+                            val_vq_loss = model.aux_loss() * val_batch.size(0)
+                            val_loss = val_loss + val_vq_loss
+                            val_kld = val_vq_loss
+
+                    val_total_loss += val_loss.item()
+                    val_total_ce += val_ce.item()
+                    val_total_kld += val_kld.item()
+
+                    originals = _reference_strings_from_batch(model_name, val_batch, idx2char)
+                    reconstructions = _reconstruct_strings_from_batch(model_name, model, val_batch, idx2char)
+                    for original, reconstructed in zip(originals, reconstructions):
+                        if original == reconstructed:
+                            val_exact += 1
+                        val_similarity_sum += difflib.SequenceMatcher(None, original, reconstructed).ratio()
+                        val_recon_total += 1
+
+            val_line = (
+                f"Val {epoch + 1}/{epochs}\tLoss: {val_total_loss / val_dataset_len:.4f}"
+                f"\tCE: {val_total_ce / val_dataset_len:.4f}\tKLD: {val_total_kld / val_dataset_len:.4f}"
+            )
+            print(val_line)
+            with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
+                handle.write(val_line + "\n")
+
+            val_recon_line = (
+                f"ValRecon {epoch + 1}/{epochs}\tExact: {val_exact}/{val_recon_total}"
+                f"\tExactAcc: {(100.0 * val_exact / max(1, val_recon_total)):.2f}%"
+                f"\tAvgSim: {(100.0 * val_similarity_sum / max(1, val_recon_total)):.2f}%"
+            )
+            print(val_recon_line)
+            with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
+                handle.write(val_recon_line + "\n")
+            model.train()
 
         elapsed = time.perf_counter() - train_start
         avg_epoch_time = elapsed / (epoch + 1)

@@ -25,6 +25,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-length", type=int, default=None)
     parser.add_argument("--checkpoint-every", type=int, default=None)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--val-split", type=float, default=None)
+    parser.add_argument("--val-every", type=int, default=None)
     return parser
 
 
@@ -59,6 +61,8 @@ def main() -> None:
     epochs = args.epochs if args.epochs is not None else train_cfg.get("epochs")
     learning_rate = args.learning_rate if args.learning_rate is not None else train_cfg.get("learning_rate")
     checkpoint_every = args.checkpoint_every if args.checkpoint_every is not None else train_cfg.get("checkpoint_every", 50)
+    val_split = args.val_split if args.val_split is not None else train_cfg.get("val_split", 0.0)
+    val_every = args.val_every if args.val_every is not None else train_cfg.get("val_every", 10)
 
     train_model(
         model_name=model_name,
@@ -73,6 +77,8 @@ def main() -> None:
         max_length=max_length,
         checkpoint_every=checkpoint_every,
         seed=args.seed,
+        val_split=val_split,
+        val_every=val_every,
     )
 
 
