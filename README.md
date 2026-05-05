@@ -64,7 +64,7 @@ python -c "import nltk; nltk.download('punkt')"
 
 - `src/f1vae/config/defaults.py`
   - per-architecture default hyperparameters
-  - defines defaults for `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `transformer_vae`, `vq_grammar_ae`
+  - defines defaults for `char_vae`, `grammar_vae`, `grammar_vae_masked`, `tree_vae`, `tree_vae_masked`, `transformer_vae`, `vq_grammar_ae`
 
 - `src/f1vae/grammars/f1.py`
   - F1 grammar definition string
@@ -89,6 +89,9 @@ python -c "import nltk; nltk.download('punkt')"
 
 - `src/f1vae/models/tree_vae.py`
   - tree-aware grammar VAE with context-enriched rule encoding
+
+- `src/f1vae/models/tree_vae_masked.py`
+  - tree-aware grammar VAE with stack-constrained masked grammar decoding
 
 - `src/f1vae/models/transformer_vae.py`
   - transformer-based grammar VAE
@@ -177,6 +180,9 @@ python -c "import nltk; nltk.download('punkt')"
 
 - `configs/model/tree_vae.yaml`
   - tree-aware grammar VAE preset values
+
+- `configs/model/tree_vae_masked.yaml`
+  - masked tree-aware grammar VAE preset values
 
 - `configs/model/transformer_vae.yaml`
   - transformer grammar VAE preset values

@@ -39,6 +39,8 @@ outputs/
 *.ckpt
 *.hdf5
 *.log
+*.tar.gz
+/exports/
 
 # Local env/config files
 .env

@@ -27,6 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--val-split", type=float, default=None)
     parser.add_argument("--val-every", type=int, default=None)
+    parser.add_argument("--schedule-epochs", type=int, default=None)
     return parser
 
 
@@ -63,6 +64,7 @@ def main() -> None:
     checkpoint_every = args.checkpoint_every if args.checkpoint_every is not None else train_cfg.get("checkpoint_every", 50)
     val_split = args.val_split if args.val_split is not None else train_cfg.get("val_split", 0.0)
     val_every = args.val_every if args.val_every is not None else train_cfg.get("val_every", 10)
+    schedule_epochs = args.schedule_epochs if args.schedule_epochs is not None else train_cfg.get("schedule_epochs")
 
     train_model(
         model_name=model_name,
@@ -79,6 +81,7 @@ def main() -> None:
         seed=args.seed,
         val_split=val_split,
         val_every=val_every,
+        schedule_epochs=schedule_epochs,
     )
 
 

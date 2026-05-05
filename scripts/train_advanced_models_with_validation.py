@@ -13,7 +13,7 @@ if SRC not in sys.path:
 
 from f1vae.utils import command_run_logger
 
-ADVANCED_MODELS = ["tree_vae", "transformer_vae", "vq_grammar_ae"]
+ADVANCED_MODELS = ["tree_vae", "tree_vae_masked", "transformer_vae", "vq_grammar_ae"]
 
 
 def _build_parser() -> argparse.ArgumentParser:

@@ -54,7 +54,7 @@ def _reconstruct_strings_from_batch(model_name: str, model, batch: torch.Tensor,
         generated = decode_masked_deterministic(model, mu)
         return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
 
-    if model_name == "tree_vae":
+    if model_name in {"tree_vae", "tree_vae_masked"}:
         mu, _ = model.encode(batch)
         logits = model.decode(mu, None, teacher_forcing_ratio=0.0)
         generated = logits.argmax(dim=-1)
@@ -101,6 +101,7 @@ def train_model(
     seed: int | None = None,
     val_split: float = 0.0,
     val_every: int = 10,
+    schedule_epochs: int | None = None,
 ) -> str:
     defaults = DEFAULTS[model_name]
 
@@ -119,6 +120,9 @@ def train_model(
         raise ValueError("val_split must be in range [0.0, 1.0).")
     if val_every < 1:
         raise ValueError("val_every must be >= 1.")
+    if schedule_epochs is not None and schedule_epochs < 1:
+        raise ValueError("schedule_epochs must be >= 1 when provided.")
+    schedule_epochs = epochs if schedule_epochs is None else schedule_epochs
 
     base_dir, checkpoints_dir = _make_run_dir(output_root, model_name)
     config_path = os.path.join(base_dir, "run_config.json")
@@ -138,6 +142,7 @@ def train_model(
                 "seed": seed,
                 "val_split": val_split,
                 "val_every": val_every,
+                "schedule_epochs": schedule_epochs,
             },
             handle,
             indent=2,
@@ -180,6 +185,8 @@ def train_model(
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     model.train()
     train_start = time.perf_counter()
+    best_val_exact = -1
+    best_val_similarity = -1.0
 
     checkpoint_meta = {
         "format_version": 2,
@@ -202,8 +209,8 @@ def train_model(
         total_loss = 0.0
         total_ce = 0.0
         total_kld = 0.0
-        beta = _beta_for_epoch(epoch, epochs)
-        tf_ratio = _tf_ratio_for_epoch(epoch, epochs)
+        beta = _beta_for_epoch(epoch, schedule_epochs)
+        tf_ratio = _tf_ratio_for_epoch(epoch, schedule_epochs)
 
         for batch in dataloader:
             batch = batch.to(device)
@@ -220,6 +227,9 @@ def train_model(
                     model.ind_of_ind,
                     beta=beta,
                 )
+            elif model_name in {"tree_vae", "tree_vae_masked"}:
+                recon_logits, mu, logvar = model(batch, teacher_forcing_ratio=tf_ratio)
+                loss, ce, kld = sequence_vae_loss(recon_logits, batch, mu, logvar, pad_idx=dataset.pad_rule_idx, beta=beta)
             else:
                 recon_logits, mu, logvar = model(batch, teacher_forcing_ratio=tf_ratio)
                 pad_idx = dataset.pad_idx if model_name == "char_vae" else dataset.pad_rule_idx
@@ -283,6 +293,16 @@ def train_model(
                             model.ind_of_ind,
                             beta=beta,
                         )
+                    elif model_name in {"tree_vae", "tree_vae_masked"}:
+                        val_recon_logits, val_mu, val_logvar = model(val_batch, teacher_forcing_ratio=0.0)
+                        val_loss, val_ce, val_kld = sequence_vae_loss(
+                            val_recon_logits,
+                            val_batch,
+                            val_mu,
+                            val_logvar,
+                            pad_idx=dataset.pad_rule_idx,
+                            beta=beta,
+                        )
                     else:
                         val_recon_logits, val_mu, val_logvar = model(val_batch, teacher_forcing_ratio=0.0)
                         val_pad_idx = dataset.pad_idx if model_name == "char_vae" else dataset.pad_rule_idx
@@ -319,14 +339,42 @@ def train_model(
             with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
                 handle.write(val_line + "\n")
 
+            val_exact_acc = val_exact / max(1, val_recon_total)
+            val_avg_similarity = val_similarity_sum / max(1, val_recon_total)
             val_recon_line = (
                 f"ValRecon {epoch + 1}/{epochs}\tExact: {val_exact}/{val_recon_total}"
-                f"\tExactAcc: {(100.0 * val_exact / max(1, val_recon_total)):.2f}%"
-                f"\tAvgSim: {(100.0 * val_similarity_sum / max(1, val_recon_total)):.2f}%"
+                f"\tExactAcc: {(100.0 * val_exact_acc):.2f}%"
+                f"\tAvgSim: {(100.0 * val_avg_similarity):.2f}%"
             )
             print(val_recon_line)
             with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
                 handle.write(val_recon_line + "\n")
+
+            if val_exact > best_val_exact or (
+                val_exact == best_val_exact and val_avg_similarity > best_val_similarity
+            ):
+                best_val_exact = val_exact
+                best_val_similarity = val_avg_similarity
+                best_meta = {
+                    **checkpoint_meta,
+                    "best_epoch": epoch + 1,
+                    "val_exact": val_exact,
+                    "val_total": val_recon_total,
+                    "val_exact_acc": val_exact_acc,
+                    "val_avg_similarity": val_avg_similarity,
+                }
+                torch.save(
+                    {"state_dict": model.state_dict(), "meta": best_meta},
+                    os.path.join(base_dir, "best_val_recon.pth"),
+                )
+                best_line = (
+                    f"BestValRecon {epoch + 1}/{epochs}\tExact: {val_exact}/{val_recon_total}"
+                    f"\tExactAcc: {(100.0 * val_exact_acc):.2f}%"
+                    f"\tAvgSim: {(100.0 * val_avg_similarity):.2f}%"
+                )
+                print(best_line)
+                with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
+                    handle.write(best_line + "\n")
             model.train()
 
         elapsed = time.perf_counter() - train_start
