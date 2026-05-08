@@ -52,7 +52,7 @@ def reconstruction_metrics(
                     if original == reconstructed:
                         exact += 1
                     similarity_sum += difflib.SequenceMatcher(None, original, reconstructed).ratio()
-            elif model_name in {"tree_vae", "tree_vae_masked"}:
+            elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
                 mu, _ = model.encode(input_tensor)
                 logits_batch = model.decode(mu, None, teacher_forcing_ratio=0.0)
                 generated_batch = logits_batch.argmax(-1)
@@ -133,7 +133,7 @@ def mutation_examples(
                 z[0, dim] += noise_scale * std[0, dim] * eps
                 logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
                 mutated = decode_grammar_indices(logits.argmax(-1))
-            elif model_name in {"tree_vae", "tree_vae_masked"}:
+            elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
                 original = dataset.valid_lines[idx]
                 mu, logvar = model.encode(input_tensor)
                 z = mu.clone()

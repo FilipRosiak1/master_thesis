@@ -162,7 +162,7 @@ def _interactive_menu() -> int:
 
     command = options[choice - 1][0]
     if command == "pipeline":
-        model = input("Model [char_vae/grammar_vae/grammar_vae_masked/tree_vae/tree_vae_masked/transformer_vae/vq_grammar_ae]: ").strip()
+        model = input("Model [char_vae/grammar_vae/grammar_vae_masked/tree_vae/tree_vae_masked/tree_vae_masked_lhs/transformer_vae/vq_grammar_ae]: ").strip()
         data_path = input("Data path [datasets/f1/f1_dataset.txt]: ").strip() or "datasets/f1/f1_dataset.txt"
         namespace = argparse.Namespace(
             model=model,

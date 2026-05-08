@@ -54,7 +54,7 @@ def _reconstruct_strings_from_batch(model_name: str, model, batch: torch.Tensor,
         generated = decode_masked_deterministic(model, mu)
         return [decode_grammar_indices(generated[i]) for i in range(generated.size(0))]
 
-    if model_name in {"tree_vae", "tree_vae_masked"}:
+    if model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
         mu, _ = model.encode(batch)
         logits = model.decode(mu, None, teacher_forcing_ratio=0.0)
         generated = logits.argmax(dim=-1)
@@ -253,7 +253,7 @@ def train_model(
                     model.ind_of_ind,
                     beta=beta,
                 )
-            elif model_name in {"tree_vae", "tree_vae_masked"}:
+            elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
                 recon_logits, mu, logvar = model(batch, teacher_forcing_ratio=tf_ratio)
                 loss, ce, kld = sequence_vae_loss(recon_logits, batch, mu, logvar, pad_idx=dataset.pad_rule_idx, beta=beta)
             else:
@@ -319,7 +319,7 @@ def train_model(
                             model.ind_of_ind,
                             beta=beta,
                         )
-                    elif model_name in {"tree_vae", "tree_vae_masked"}:
+                    elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
                         val_recon_logits, val_mu, val_logvar = model(val_batch, teacher_forcing_ratio=0.0)
                         val_loss, val_ce, val_kld = sequence_vae_loss(
                             val_recon_logits,

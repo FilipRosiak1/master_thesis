@@ -1,0 +1,5 @@
+model: tree_vae_masked_lhs
+latent_dim: 128
+hidden_dim: 512
+embedding_dim: 64
+max_length: 500

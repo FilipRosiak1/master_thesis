@@ -18,6 +18,7 @@ from f1vae.models.grammar_vae_masked import GrammarMaskedVAE
 from f1vae.models.transformer_vae import TransformerGrammarVAE
 from f1vae.models.tree_vae import TreeGrammarVAE
 from f1vae.models.tree_vae_masked import MaskedTreeGrammarVAE
+from f1vae.models.tree_vae_masked_lhs import LHSConditionedMaskedTreeGrammarVAE
 from f1vae.models.vq_grammar_ae import VQGrammarAE
 from f1vae.training.losses import grammar_masked_vae_loss, sequence_vae_loss
 
@@ -117,6 +118,29 @@ def test_tree_vae_masked_forward(tmp_path: Path):
 
     dataset = GrammarRuleDataset(str(dataset_path), max_length=defaults.max_length)
     model = MaskedTreeGrammarVAE(
+        num_classes=dataset.num_classes,
+        emb_dim=defaults.embedding_dim,
+        hidden_dim=defaults.hidden_dim,
+        latent_dim=defaults.latent_dim,
+        max_length=defaults.max_length,
+        pad_rule_idx=dataset.pad_rule_idx,
+    )
+
+    batch = dataset[0].unsqueeze(0)
+    recon, mu, logvar = model(batch, teacher_forcing_ratio=0.0)
+    loss, _, _ = sequence_vae_loss(recon, batch, mu, logvar, pad_idx=dataset.pad_rule_idx)
+    assert recon.shape[0] == 1
+    assert mu.shape[-1] == defaults.latent_dim
+    assert torch.isfinite(loss)
+
+
+def test_tree_vae_masked_lhs_forward(tmp_path: Path):
+    defaults = DEFAULTS["tree_vae_masked_lhs"]
+    dataset_path = tmp_path / "tiny.txt"
+    _write_tiny_dataset(dataset_path)
+
+    dataset = GrammarRuleDataset(str(dataset_path), max_length=defaults.max_length)
+    model = LHSConditionedMaskedTreeGrammarVAE(
         num_classes=dataset.num_classes,
         emb_dim=defaults.embedding_dim,
         hidden_dim=defaults.hidden_dim,

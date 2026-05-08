@@ -4,6 +4,7 @@ from .grammar_vae_masked import GrammarMaskedVAE
 from .transformer_vae import TransformerGrammarVAE
 from .tree_vae import TreeGrammarVAE
 from .tree_vae_masked import MaskedTreeGrammarVAE
+from .tree_vae_masked_lhs import LHSConditionedMaskedTreeGrammarVAE
 from .vq_grammar_ae import VQGrammarAE
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "TransformerGrammarVAE",
     "TreeGrammarVAE",
     "MaskedTreeGrammarVAE",
+    "LHSConditionedMaskedTreeGrammarVAE",
     "VQGrammarAE",
 ]

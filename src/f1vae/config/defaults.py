@@ -56,6 +56,15 @@ DEFAULTS = {
         learning_rate=3e-3,
         max_length=500,
     ),
+    "tree_vae_masked_lhs": ModelDefaults(
+        latent_dim=128,
+        hidden_dim=512,
+        embedding_dim=64,
+        batch_size=32,
+        epochs=1000,
+        learning_rate=1e-3,
+        max_length=500,
+    ),
     "transformer_vae": ModelDefaults(
         latent_dim=32,
         hidden_dim=256,

@@ -15,6 +15,7 @@ MODELS = (
     "grammar_vae_masked",
     "tree_vae",
     "tree_vae_masked",
+    "tree_vae_masked_lhs",
     "transformer_vae",
     "vq_grammar_ae",
 )
