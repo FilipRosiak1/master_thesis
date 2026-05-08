@@ -3,18 +3,25 @@ from __future__ import annotations
 import argparse
 import shutil
 import tarfile
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 
+@dataclass(frozen=True)
+class LogRun:
+    label: str
+    run_dir: Path
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Prepare export package with newest training logs from selected model directories"
+        description="Prepare export package with newest training logs from selected model/run directories"
     )
     parser.add_argument(
         "--models-root",
         default="models/f1_val",
-        help="Root directory containing model subdirectories",
+        help="Root directory containing model subdirectories or nested sweep directories",
     )
     parser.add_argument(
         "--exports-dir",
@@ -24,22 +31,26 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--select",
         default=None,
-        help="Comma-separated indices of models to export (example: 1,3,4). If omitted, interactive prompt is shown.",
+        help="Comma-separated indices of log runs to export (example: 1,3,4). If omitted, interactive prompt is shown.",
     )
     return parser.parse_args()
 
 
-def _list_model_dirs(models_root: Path) -> list[Path]:
+def _list_latest_log_runs(models_root: Path) -> list[LogRun]:
     if not models_root.exists() or not models_root.is_dir():
         raise FileNotFoundError(f"Models root not found: {models_root}")
-    return sorted([p for p in models_root.iterdir() if p.is_dir()], key=lambda p: p.name)
 
+    latest_by_label: dict[str, Path] = {}
+    for training_log in models_root.rglob("training.log"):
+        if not training_log.is_file():
+            continue
+        run_dir = training_log.parent
+        label = run_dir.parent.relative_to(models_root).as_posix()
+        previous = latest_by_label.get(label)
+        if previous is None or run_dir.stat().st_mtime > previous.stat().st_mtime:
+            latest_by_label[label] = run_dir
 
-def _newest_run_dir(model_dir: Path) -> Path | None:
-    run_dirs = [p for p in model_dir.iterdir() if p.is_dir()]
-    if not run_dirs:
-        return None
-    return max(run_dirs, key=lambda p: p.stat().st_mtime)
+    return [LogRun(label, latest_by_label[label]) for label in sorted(latest_by_label)]
 
 
 def _parse_selection(raw: str, max_idx: int) -> list[int]:
@@ -65,23 +76,21 @@ def main() -> None:
     exports_dir = (repo_root / args.exports_dir).resolve()
     exports_dir.mkdir(parents=True, exist_ok=True)
 
-    model_dirs = _list_model_dirs(models_root)
-    if not model_dirs:
-        raise RuntimeError(f"No model directories found in {models_root}")
+    log_runs = _list_latest_log_runs(models_root)
+    if not log_runs:
+        raise RuntimeError(f"No training logs found in {models_root}")
 
-    print("Available model directories:")
-    for idx, model_dir in enumerate(model_dirs, start=1):
-        newest = _newest_run_dir(model_dir)
-        newest_name = newest.name if newest is not None else "<no runs>"
-        print(f"  {idx}. {model_dir.name} (newest: {newest_name})")
+    print("Available latest training logs:")
+    for idx, log_run in enumerate(log_runs, start=1):
+        print(f"  {idx}. {log_run.label} (newest: {log_run.run_dir.name})")
 
     if args.select is None:
-        raw = input("Select model indices to export (example: 1,3,4): ").strip()
+        raw = input("Select log indices to export (example: 1,3,4): ").strip()
     else:
         raw = args.select.strip()
 
-    selected_indices = _parse_selection(raw, len(model_dirs))
-    selected_models = [model_dirs[i - 1] for i in selected_indices]
+    selected_indices = _parse_selection(raw, len(log_runs))
+    selected_runs = [log_runs[i - 1] for i in selected_indices]
 
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     export_folder = exports_dir / f"f1_val_logs_{stamp}"
@@ -90,26 +99,21 @@ def main() -> None:
     copied = 0
     skipped: list[str] = []
 
-    for model_dir in selected_models:
-        newest = _newest_run_dir(model_dir)
-        if newest is None:
-            skipped.append(f"{model_dir.name}: no run directories")
-            continue
-
-        training_log = newest / "training.log"
-        run_config = newest / "run_config.json"
+    for log_run in selected_runs:
+        training_log = log_run.run_dir / "training.log"
+        run_config = log_run.run_dir / "run_config.json"
         if not training_log.exists():
-            skipped.append(f"{model_dir.name}: missing training.log in {newest.name}")
+            skipped.append(f"{log_run.label}: missing training.log in {log_run.run_dir.name}")
             continue
 
-        target_dir = export_folder / model_dir.name
+        target_dir = export_folder / log_run.label
         target_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(training_log, target_dir / "training.log")
         if run_config.exists():
             shutil.copy2(run_config, target_dir / "run_config.json")
 
         source_file = target_dir / "source_run.txt"
-        source_file.write_text(str(newest) + "\n", encoding="utf-8")
+        source_file.write_text(str(log_run.run_dir) + "\n", encoding="utf-8")
         copied += 1
 
     archive_path = export_folder.with_suffix(".tar.gz")

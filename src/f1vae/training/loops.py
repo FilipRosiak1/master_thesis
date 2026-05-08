@@ -85,6 +85,30 @@ def _reference_strings_from_batch(model_name: str, batch: torch.Tensor, idx2char
     return [decode_grammar_indices(batch[i]) for i in range(batch.size(0))]
 
 
+def _reconstruction_metrics_from_loader(
+    model_name: str,
+    model,
+    loader: DataLoader,
+    device: torch.device,
+    idx2char: dict[int, str] | None,
+) -> tuple[int, int, float]:
+    exact = 0
+    total = 0
+    similarity_sum = 0.0
+
+    for batch in loader:
+        batch = batch.to(device)
+        originals = _reference_strings_from_batch(model_name, batch, idx2char)
+        reconstructions = _reconstruct_strings_from_batch(model_name, model, batch, idx2char)
+        for original, reconstructed in zip(originals, reconstructions):
+            if original == reconstructed:
+                exact += 1
+            similarity_sum += difflib.SequenceMatcher(None, original, reconstructed).ratio()
+            total += 1
+
+    return exact, total, similarity_sum / max(1, total)
+
+
 def train_model(
     model_name: str,
     data_path: str,
@@ -157,6 +181,7 @@ def train_model(
         raise RuntimeError("Dataset is empty after parsing. Check grammar/data compatibility.")
 
     val_loader = None
+    train_recon_loader = None
     train_dataset_len = len(dataset)
     val_dataset_len = 0
     if val_split > 0.0 and len(dataset) > 1:
@@ -167,6 +192,7 @@ def train_model(
         split_generator = torch.Generator().manual_seed(seed) if seed is not None else None
         train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=split_generator)
         dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        train_recon_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
         val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
         train_dataset_len = len(train_dataset)
         val_dataset_len = len(val_dataset)
@@ -331,6 +357,18 @@ def train_model(
                         val_similarity_sum += difflib.SequenceMatcher(None, original, reconstructed).ratio()
                         val_recon_total += 1
 
+                train_exact = 0
+                train_recon_total = 0
+                train_avg_similarity = 0.0
+                if train_recon_loader is not None:
+                    train_exact, train_recon_total, train_avg_similarity = _reconstruction_metrics_from_loader(
+                        model_name,
+                        model,
+                        train_recon_loader,
+                        device,
+                        idx2char,
+                    )
+
             val_line = (
                 f"Val {epoch + 1}/{epochs}\tLoss: {val_total_loss / val_dataset_len:.4f}"
                 f"\tCE: {val_total_ce / val_dataset_len:.4f}\tKLD: {val_total_kld / val_dataset_len:.4f}"
@@ -341,6 +379,16 @@ def train_model(
 
             val_exact_acc = val_exact / max(1, val_recon_total)
             val_avg_similarity = val_similarity_sum / max(1, val_recon_total)
+            train_exact_acc = train_exact / max(1, train_recon_total)
+            train_recon_line = (
+                f"TrainRecon {epoch + 1}/{epochs}\tExact: {train_exact}/{train_recon_total}"
+                f"\tExactAcc: {(100.0 * train_exact_acc):.2f}%"
+                f"\tAvgSim: {(100.0 * train_avg_similarity):.2f}%"
+            )
+            print(train_recon_line)
+            with open(os.path.join(base_dir, "training.log"), "a", encoding="utf-8") as handle:
+                handle.write(train_recon_line + "\n")
+
             val_recon_line = (
                 f"ValRecon {epoch + 1}/{epochs}\tExact: {val_exact}/{val_recon_total}"
                 f"\tExactAcc: {(100.0 * val_exact_acc):.2f}%"
@@ -358,6 +406,10 @@ def train_model(
                 best_meta = {
                     **checkpoint_meta,
                     "best_epoch": epoch + 1,
+                    "train_exact": train_exact,
+                    "train_total": train_recon_total,
+                    "train_exact_acc": train_exact_acc,
+                    "train_avg_similarity": train_avg_similarity,
                     "val_exact": val_exact,
                     "val_total": val_recon_total,
                     "val_exact_acc": val_exact_acc,
