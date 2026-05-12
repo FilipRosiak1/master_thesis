@@ -1,0 +1,101 @@
+(Ztranskrybowane przez TurboScribe.ai. Przejdź na Nielimitowany, aby usunąć tę wiadomość.)
+
+[Mówca 1]
+…, że to jest zmienna x1, x2, x3, x4 i one są w kolumnach i że mamy natywnie do czynienia z problemem, gdzie rozwiązania są o zmiennej długości. I no teraz radź sobie z tym jakoś, czyli właśnie znajdowanie tych bloków, na przykład wycinanie tych bloków, tak jak to robiło Coso albo jakieś inne pomysły, ten deseń. I dzięki temu to byłoby rzeczywiście jakiś taki przyczynek bardziej nowatorski do State of the Art.
+
+Bo na przykład to, co na przykład zrobił ten Łukasz w zeszłym roku z tym konkursem GECO, czyli zakodowanie F1 pozycyjne i użycie GPGomei, no to jest takie, no okej, działało lepiej, ale nie ma tam żadnego nowatorskiego podejścia. Więc w tę stronę bym raczej nie szedł, bo nawet jeżeli można uzyskać jakieś konkurencyjne, fajne wyniki, jak widać można, no to jest takie bardziej odtwórcze, że ktoś już coś wymyślił, no to my zrobimy to samo we framestickach. Więc tak, to byłoby mniej ciekawe.
+
+Natomiast to, co on zrobił w tym artykule, który zgłosiliśmy parę tygodni temu, czyli te N-gramy, no to już jest właśnie fajne, bo tam nawet nie było, tam nie było żadnego założenia, że mamy do czynienia z framestickami czy z czymkolwiek, to były po prostu N-gramy na sekwencjach literek i to zadziała dla dowolnego problemu, który będzie miał kompatybilną reprezentację genetyczną. Więc to było fajne podejście. No niestety nie udało nam się mieć tyle czasu, żeby to jakoś tam lepiej dopracować, więc wyniki były porównywalne z tradycyjnym algorytmem ewolucyjnym, ale i tak.
+
+No i ileś tam ciekawych wniosków było wyciągniętych, to tam jak za miesiąc Wam podeślę ten artykuł, to zobaczycie, że kilka ciekawych rzeczy tam było. Dobra, czy chcecie się umówić na jakiś kolejny termin takiej rozmowy jak dzisiaj, czy raczej chyba pewnie po prostu napiszecie, nie?
+
+[Mówca 2]
+Tak, ja myślę, że właśnie, no nie wiem Jakub, ja bym sobie właśnie coś potestował, chociaż ten autoencoder mnie trochę zainteresował.
+
+[Mówca 3]
+Tylko też sporo, tylko też sporo, tylko też sporo minus z tym autoencoderem, ale podobno te klustery obliczenia Wam można wypożyczyć od Politechniki, tak? Czy coś takiego?
+
+[Mówca 1]
+No, jest na przykład to środowisko Slerm, z którego wszyscy studenci, wszyscy moi magistranci z niego korzystają, ale ostatecznie chyba wysłaliście jakieś maile, żeby mieć dostęp, czy nie? Bo już teraz za dużo mam magistrantów i już nie pamiętam, do kogo pisałem, do kogo nie. Chyba nie.
+
+A, okej, no dobra. No w każdym razie jest dostęp i do CPU, i do GPU w postaci superkomputerów różnych, także to nie będzie...
+
+[Mówca 3]
+Trzeba czekać? W sensie z jak dużym wyprzedzeniem musimy się szykować, żeby ogarniać takie rzeczy?
+
+[Mówca 1]
+Wypełnia się tylko taki prosty formularz i czasem to jeden dzień trwa, czasem trzy dni, czasem tydzień, zależnie od tego jak ta osoba tam... Ale to od razu praktycznie, nie?
+
+[Mówca 3]
+Nie, tylko mi bardziej chodziło, czy to jest kwestia dnia, dni, tygodnia, tygodni, miesiąca?
+
+[Mówca 1]
+No z doświadczenia to trwa od jednego do kilku dni. Po prostu jest chłopak, który, admin, który po prostu musi tam kliknąć i założyć konto. Więcej czasu zajmuje nauczenie się jak tego używać, bo tam jest taki system kolejkowy i różne takie specjalne polecenia i czasem coś tam się zawiesza i takie tam różne.
+
+Więc dużo więcej czasu zajmuje poznanie infrastruktury niż samo założenie konta. Ale i tak się opłaca, bo tam jest kilkaset rdzeni, dużo tego jest. Tylko że też wiele osób tego używa i dlatego trzeba się nauczyć systemu kolejkowania i tych wszystkich rzeczy.
+
+[Mówca 2]
+Chodzi o to poznańskie centrum superkomputerowo-sieciowe, chyba widzę, tak?
+
+[Mówca 1]
+Nie, nie, nie. Akurat mówię o infrastrukturze, która stoi fizycznie u nas w instytucie. A na PCS-ie też można się ubiegać i używać, ale właśnie to już wtedy bardziej jest tak w stronę, no może nie, że miesięcy, ale nie jest to tak proste jak dostęp do tych superkomputerów lokalnych.
+
+Bo to już jest jakby pomiędzy instytucjami wtedy, a nie w ramach takiego standardowej procedury o, że jest student, potrzebuje środków obliczeniowych, na to mu dajemy. Dlatego w pierwszej kolejności właśnie sugeruję SLERN. Ale jeżeli apetyty na GPU były większe, no to pewnie można do PCS-u uderzyć też.
+
+Tak czy owak, wszelkie testowanie robi się najczęściej na własnym kompie, nawet jeżeli to jest laptop, niestety.
+
+[Mówca 2]
+Takie mniejsze testy, takie początkowe.
+
+[Mówca 1]
+W takiej małej skali, żeby się upewnić, że to podejście ma sens. I zawsze można każdy problem uprościć, czyli nie trzeba od razu startować od F1 z jakimiś tam wypasionymi symbolami, tylko właśnie wymyślić sobie jakąś najprostszą możliwą reprezentację, ograniczyć genotypy do ośmiu literek i zobaczyć, czy to w ogóle ma sens. A potem z ośmiu literek robimy 16, 25 i wymyślamy coraz więcej symboli i wtedy dopiero zaczynamy używać jakiegoś tam GPU bardziej wypasionego.
+
+Ale najpierw weryfikujemy podejście na prostym problemie. To jest też częsty grzech w magisterkach, że się zaczyna od razu od czegoś bardzo skomplikowanego, co działa lub nie działa i potem nawet nie wiemy do końca dlaczego i co się po drodze dzieje, bo system już jest tak skomplikowany, że możliwe, że nawet już nigdy nie znajdziemy, że tam gdzieś po średnich warstwach były jakieś problemy albo błędy, bo zaczęliśmy od razu od czegoś bardzo skomplikowanego. Dlatego bardzo, bardzo zachęcam do tego, żeby właśnie zaczynać od takich jakichś toy problems, malutkich problemów, gdzie wszystko można sobie na kartce jeszcze narysować i zrozumieć, jak działa. I dopiero potem skalować to w górę po prostu, jak już się upewnimy, że podejście ma sens.
+
+Dobra, to słuchajcie, czekam w takim razie na maile wasze, jak będziecie już gotowi do kolejnej tury rozmów. Niewykluczone też, że może osobno będziemy rozmawiali, bo nawet dzisiaj tak troszkę jest strata czasu pewnie, ale żeby po prostu to nie było tak, że ktoś całą godzinę słucha, jak ja mówię do tej drugiej osoby.
+
+[Mówca 2]
+Jeszcze jedno. Jakbym na przykład chciał coś tam potestować, co jest z tym autoencoderem. Trochę mnie ciekawi to.
+
+To czy pan ma jakiś taki dataset framesticków, czy to raczej musiałbym sobie sam tutaj...
+
+[Mówca 1]
+Sam autoencoder robi tylko rekonstrukcję, czyli tak naprawdę on działa na sekwencjach i nawet możemy zapomnieć w tym momencie o framestickach, tylko po prostu, że rekonstruujemy sekwencje symboli po prostu z wejścia na wyjście i ma się mylić jak najmniej. Więc to nie jest w ogóle nic framestickowego, ale może pan sobie wygenerować jakiś tam milion genotypów we framestickach legalnych po prostu je mutując w kółko na przykład i nawet nie trzeba ich oceniać.
+
+[Mówca 3]
+Ale mówimy w tej chwili o tym F9, czy o tym F1 już i dalej? Nie ma znaczenia.
+
+[Mówca 1]
+Obojętnie. Jeszcze podeślę jeden artykuł, tylko że pewnie go czytaliście, a może nie, to też ze studentem. Ja już to chyba wam wysyłałem, ale na wszelki wypadek.
+
+A propos autoencoderów i właśnie pakowania w przestrzeń o stałej wymiarowości genotypów o dowolnej długości. I to jest i dla F1, i dla F9. No, to jeżeli tego nie mieliście, to to jest do przeczytania też.
+
+I nawet mam YouTube'a, w którym opowiadam o tym, ale nie wiem, czy... Chyba nie warto, bo tam ile? Może 20 minut o tym opowiadam.
+
+Jak sobie to przeczytacie, to będziecie pewnie nawet więcej wiedzieć.
+
+[Mówca 2]
+Ode mnie już chyba wszystko, Jakub.
+
+[Mówca 3]
+Ja chyba też mam na ten moment coś więcej. Dobra.
+
+[Mówca 2]
+Dobra, to dziękujemy.
+
+[Mówca 1]
+Dziękujemy. No, dzięki. No dobra, czyli czekam na jakieś kontakty, jak będziecie mieli ochotę.
+
+[Mówca 2]
+Myślę, że tak pewnie koło... No ja spróbuję tak koło tygodnia, żeby się odezwać. Jakoś w lutym.
+
+Tak, jeszcze w lutym na pewno.
+
+[Mówca 1]
+Dobra. No to do usłyszenia w takim razie. Dzięki.
+
+Do usłyszenia. Dzięki. Do usłyszenia.
+
+Dobranoc.
+
+(Ztranskrybowane przez TurboScribe.ai. Przejdź na Nielimitowany, aby usunąć tę wiadomość.)

@@ -20,8 +20,8 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--models-root",
-        default="models/f1_val",
-        help="Root directory containing model subdirectories or nested sweep directories",
+        default="models/f1_val,models/f1_sweep,models/f1_sweep_lhs",
+        help="Comma-separated root directories containing model subdirectories or nested sweep directories",
     )
     parser.add_argument(
         "--exports-dir",
@@ -31,12 +31,47 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--select",
         default=None,
-        help="Comma-separated indices of log runs to export (example: 1,3,4). If omitted, interactive prompt is shown.",
+        help="Comma-separated indices of log runs to export, or 'all'. If omitted, interactive prompt is shown.",
     )
     return parser.parse_args()
 
 
-def _list_latest_log_runs(models_root: Path) -> list[LogRun]:
+def _root_label(root: Path, repo_root: Path) -> str:
+    models_dir = repo_root / "models"
+    try:
+        return root.relative_to(models_dir).as_posix()
+    except ValueError:
+        try:
+            return root.relative_to(repo_root).as_posix()
+        except ValueError:
+            return root.name
+
+
+def _resolve_model_roots(raw: str, repo_root: Path) -> list[Path]:
+    roots: list[Path] = []
+    for chunk in raw.split(","):
+        text = chunk.strip()
+        if not text:
+            continue
+        root = (repo_root / text).resolve()
+        if root.exists() and root.is_dir() and root not in roots:
+            roots.append(root)
+    if not roots:
+        raise FileNotFoundError(f"No model roots found from: {raw}")
+    return roots
+
+
+def _list_latest_log_runs(models_roots: list[Path], repo_root: Path) -> list[LogRun]:
+    include_root_label = len(models_roots) > 1
+    all_runs: list[LogRun] = []
+
+    for models_root in models_roots:
+        all_runs.extend(_list_latest_log_runs_for_root(models_root, repo_root, include_root_label=include_root_label))
+
+    return sorted(all_runs, key=lambda run: run.label)
+
+
+def _list_latest_log_runs_for_root(models_root: Path, repo_root: Path, *, include_root_label: bool) -> list[LogRun]:
     if not models_root.exists() or not models_root.is_dir():
         raise FileNotFoundError(f"Models root not found: {models_root}")
 
@@ -46,6 +81,8 @@ def _list_latest_log_runs(models_root: Path) -> list[LogRun]:
             continue
         run_dir = training_log.parent
         label = run_dir.parent.relative_to(models_root).as_posix()
+        if include_root_label:
+            label = f"{_root_label(models_root, repo_root)}/{label}"
         previous = latest_by_label.get(label)
         if previous is None or run_dir.stat().st_mtime > previous.stat().st_mtime:
             latest_by_label[label] = run_dir
@@ -54,6 +91,9 @@ def _list_latest_log_runs(models_root: Path) -> list[LogRun]:
 
 
 def _parse_selection(raw: str, max_idx: int) -> list[int]:
+    if raw.strip().lower() == "all":
+        return list(range(1, max_idx + 1))
+
     indices: list[int] = []
     for chunk in raw.split(","):
         text = chunk.strip()
@@ -72,20 +112,21 @@ def _parse_selection(raw: str, max_idx: int) -> list[int]:
 def main() -> None:
     args = _parse_args()
     repo_root = Path(__file__).resolve().parents[1]
-    models_root = (repo_root / args.models_root).resolve()
+    models_roots = _resolve_model_roots(args.models_root, repo_root)
     exports_dir = (repo_root / args.exports_dir).resolve()
     exports_dir.mkdir(parents=True, exist_ok=True)
 
-    log_runs = _list_latest_log_runs(models_root)
+    log_runs = _list_latest_log_runs(models_roots, repo_root)
     if not log_runs:
-        raise RuntimeError(f"No training logs found in {models_root}")
+        roots_text = ", ".join(str(root) for root in models_roots)
+        raise RuntimeError(f"No training logs found in: {roots_text}")
 
     print("Available latest training logs:")
     for idx, log_run in enumerate(log_runs, start=1):
         print(f"  {idx}. {log_run.label} (newest: {log_run.run_dir.name})")
 
     if args.select is None:
-        raw = input("Select log indices to export (example: 1,3,4): ").strip()
+        raw = input("Select log indices to export (example: 1,3,4 or all): ").strip()
     else:
         raw = args.select.strip()
 

@@ -1,0 +1,186 @@
+(Ztranskrybowane przez TurboScribe.ai. Przejdź na Nielimitowany, aby usunąć tę wiadomość.)
+
+[Mówca 1]
+aktywnie działała na reprezentacji o zmiennej długości i takiej niepozycyjnej przede wszystkim, no bo to jest w całym grze, że to są niepozycyjne reprezentacje. I po prostu tam, w tym pomyśle z tej magisterki Łukasza jest wykorzystana idea n-gramów, czyli tam dwu gramy, trzy gramy, cztero gramy, po prostu znajdujemy różne takie podsekwencje i staramy się je podmieniać i nauczyć czegoś, właśnie nauczyć tego linkage'u. Czyli to jest takie bardzo bezkontekstowe i zadziała dla dowolnej sekwencji, dowolnych symboli, niezależnie od tego, jaka jest definicja funkcji celu.
+
+I no niestety tam strasznie walczyliśmy z czasem i to jest tak bardzo niedorobiony był ten artykuł, siedzieliśmy po nocach przez ostatnie kilka dni, żeby zdążyć przed deadline'em, ale ostatecznie udało się to wysłać, chociaż tam nadzieje były nikłe, no ale coś tam wysłaliśmy, ale nie mam jakichś tam wielkich nadziei, że to zostanie przyjęte, ale kto wie. W każdym razie wyniki ogólnie były plus minus porównywalne z algorytmem ewolucyjnym, więc nie było tego efektu jak w COSO, że ewidentnie lepsze było COSO od algorytmu ewolucyjnego, pomimo tego, że ja bardzo starałem się ten algorytm ewolucyjny na wszystkie możliwe sposoby tam stringować, tam taką siatkę parametrów badaliśmy, różne presje selekcyjne, różne wielkości populacji, różne prawdopodobieństwo krzyżowania i mutacji, no i tak COSO zawsze wygrywało. A tutaj ta gomea oparta o te n-gramy była porównywalna z algorytmem ewolucyjnym, czyli ani nie lepsza, ani nie gorsza, tak jakby statystycznie nierozróżnialna, ale zakładając jak dużo rzeczy tam jeszcze można poprawić, no to tak czy owak zobaczymy jak to się jeszcze skończy po prostu.
+
+Także mamy jakby dwa artykuły do pary. Jeden to jest COSO, który ma wiedzę dziedzinową i drugi to są te n-gramy, które nie mają wiedzy dziedzinowej. I jedno i drugie działa na reprezentacji F9, czyli po prostu tam sekwencji literek.
+
+No dobra, no i teraz właśnie jak podzielić między Was, albo jakie tematy byście chcieli rozwiązywać w Waszych magisterkach. Tak jak mówię, tutaj pole jest dosyć duże do popisu i można wpaść samodzielnie, kreatywnie na najróżniejsze pomysły. Jednym z pomysłów jest to uogólnienie COSO do F1.
+
+Czyli trzeba by pomyśleć, czy w reprezentacji F1 da się w ogóle znaleźć… Bo F9 to było prosto, bo mieliśmy tego żółwia i mieliśmy te delty. Ale teraz z F1 być może analizując ten genotyp pomijamy zupełnie sieć neuronową, albo w ogóle może na początek dla prostoty w ogóle zakładamy, że nie będzie istniała sieć neuronowa.
+
+Czyli mamy tylko iksy, nawiasy, przecinki i może jakieś modyfikatory, a może na początek nawet nie mamy tych takich literek wydłużających, skręcających, żeby nie mącić. Można by na początku ograniczyć się tylko do nawiasów, przecinków i iksów. I pytanie, czy można zrobić coś analogicznego do F9, czyli znaleźć w dwóch genotypach takie podsekwencje, które przemieszczają…
+
+A, tutaj będzie trudniej, bo w F9 mieliśmy pozycję żółwia, która w dodatku pozycja żółwia i nieważna była jego orientacja, tego żółwia, czy on tam skręca na północ czy na południe, bo to wszystko te literki załatwiały. Czyli żółw tak naprawdę nie miał orientacji i te literki tylko przemieszczały go, a we F1 jest troszkę trudniej, bo jak sobie wytniemy jakąś podsekwencję, ale nie. Bo we F1 też jest tak, że mamy jakiś konkretny punkt wzrostu i kierunek wzrostu.
+
+[Mówca 3]
+A w F1 jest tak, że możemy jakiś egzotyczny kąt nadać kolejnej tej kostce, tej prostej części robaczka, czy one dalej będą takie wszystkie prostopadły do siebie?
+
+[Mówca 2]
+Tak, nawiasy ci rozgałęziają, więc jak tam…
+
+[Mówca 1]
+Za pomocą przecinków, za pomocą przecinków, przecinki…
+
+[Mówca 2]
+Jak dasz odpowiedź na przecinków, to skręcisz o jakiś kąt.
+
+[Mówca 3]
+A, czyli będzie gorzej niż same dziewięćdziesiątki, dobra.
+
+[Mówca 1]
+No ale właśnie dzięki temu to jest w ogóle ciekawe, bo dzięki temu F1 potrafi ciekawsze konstrukcje budować niż F9, bo F9, te kostki składane w nieskończoność, no to jest trochę nudne. I F1 też przebija F9 we wszystkich takich zadaniach, gdzie trzeba jakiś ciekawy kształt wyhodować. No więc to jest jakby cena, którą płacimy za to.
+
+Oczywiście można by też w ogóle inną reprezentację wymyślić, bo to, że ja sobie kiedyś wymyśliłem F9 jako taką zabawkę, no to równie dobrze można na przykład wymyślić taki odpowiednik F9, który będzie miał więcej kątów. I to też może… No to jest łatwo do zrobienia i nawet można w Pythonie wszystko implementować, nie trzeba w ogóle dotykać framesticków.
+
+[Mówca 3]
+Ale to by była jakaś nakładka… A nie, to by był po prostu jakiś taki translator, który by przekładał tą nową notację na to F1 albo F0? Na F0.
+
+[Mówca 1]
+Aha. Na F0, bo F0 może wszystko, więc do framesticków już by trafiał genotyp F0, a sam Python by działał na jakimś wyższym poziomie abstrakcji z jakąś inną reprezentacją zupełnie wymyśloną, nie? Ale to tylko mówię, żebyście jakby mieli świadomość, że taka opcja również istnieje.
+
+No ale można się ograniczyć to F1 z nawiasami i przecinkami i może tutaj coś spróbować wymyślić, czy właśnie da się zidentyfikować podsekwencje, które po przeklejeniu albo po takim replace'ie, że mamy jeden genotyp, mamy drugi genotyp, wycinamy sobie fragment z jednego, fragment z drugiego, podmieniamy i on jest tak jakby kontekstowo neutralny. To znaczy on nie zaburza tego, co było później i to, co było wcześniej. Bo taka była idea w ogóle tych delt, że po prostu zamieniamy podfragment genotypu na inny podfragment i reszta konstrukcji na tym nie cierpi.
+
+I tak jakby można...
+
+[Mówca 2]
+Tak właśnie chodziło o tą epistazę trochę, nie? Tak, tak, tak, dokładnie.
+
+[Mówca 1]
+Chodziło o to, że każdy fragment genotypu, my sobie wyobrażamy, że ma jakiś przyczynek do funkcji celu i jeżeli dokonujemy takiej neutralnej podmianki, to tylko ta podmianka coś wnosiła, a reszta genotypu cały czas wnosi to samo do tej funkcji celu. To tak jakby założenie takiej addytywności, że mamy jakiś prefiks, jakiś fragment w środku i jakiś suffix i sobie wyobrażamy, że one wszystkie wpływają, czy wnoszą coś do funkcji celu, więc jeżeli my ten środek podmienimy na coś innego, to nie zepsujemy wpływu tego początku i wpływu tego końca. To jest właśnie ta wiedza dziedzinowa, która mi się nie podoba w ogólności.
+
+Nie, że mam jakieś pretensje do tego, ale fajnie byłoby wymyślić kiedyś... Dlatego właśnie mówię o tym uczeniu maszynowym i o tych jakichś transformerach, że fajnie byłoby zautomatyzować cały ten mechanizm, że jeżeli na przykład napuścimy taki automatyczny, machine learningowy mechanizm na konkretne to zadanie we framestickach vert, pos i f9, to ono sobie wymyśli odpowiednik tych neutralnych podmianek i na przykład tej koncepcji delty, ale jeżeli jakieś inne zadanie będziemy mieli, gdzie będziemy też mieli rozwiązanie w postaci sekwencji literek o dowolnej długości, to wtedy ta sieć neuronowa nauczy się jakiejś innej koncepcji, która akurat się nadaje do tego innego zadania. Więc to wiadomo, fajniej byłoby jakąś automatyczną maszynkę tutaj zaproponować.
+
+I pewnie można nawet stopniowo dojść do takiej maszynki optymalizującej, po prostu wyobrażając sobie, jak można by uogólnić tę koncepcję delt, że wyobrażamy sobie jakiś bardziej ogólny mechanizm, który w szczególnym przypadku zamienia się na koncepcję delt i ten mechanizm ma jakieś parametry. No i potem po prostu optymalizujemy te parametry i tak coraz bardziej uogólniając, uogólniając, dochodzimy pewnie do sieci neuronowej, która wszystko może i w szczególnym przypadku może nauczyć się tej koncepcji delt. Ale to nie trzeba tak nawet myśleć o machine learningu, bo machine learning to jest szczególny przypadek optymalizacji, więc można właśnie po prostu wprowadzać kolejne parametry do koncepcji delt i potem założyć, że istnieje jakiś optymalizator, który te parametry dobierze odpowiednio do problemu.
+
+No ale dobra, to cały ten wątek, o którym mówiliśmy do tej pory, to była idea uogólnienia COSO na F1. Oprócz tego jak najbardziej walid podejściem, takim sensownym podejściem, o którym chyba mówiliśmy od początku, to było właśnie użycie tej GP-GOMEI do F1. No i to już zostało właśnie przez tego Łukasza, przez tego studenta, z którym teraz zgłaszaliśmy ten artykuł, no to on rok temu wygrał ten konkurs optymalizacyjny, właśnie robiąc to, o czym mówimy.
+
+I chyba Wam wspominałem o tym, że w tym PDF-ie jest tak skrótowo opisane. Zaraz Wam tutaj, zaraz Wam wyślę, jeżeli nie było czasu, żeby to wysłać. To znaczy tę stronę konkursu optymalizacyjnego to już znacie, bo ona była linkowana tutaj na czacie, na czacie we meetingu Wam wysłałem.
+
+Ona była tam podlinkowana do kursów. I teraz tutaj na tej stronie, jak otworzycie, to jest taka sekcja zatytułowana Previous Editions. Widzicie ją?
+
+[Mówca 2]
+Jest, tak.
+
+[Mówca 1]
+Previous Editions i tutaj jest The Results from Previous Years are Here i Here jest linkiem i potem są dwa PDF-y tylko wymienione z nazwy, bo nie chciałem już ich linkować. No i one są nawet na szczycie gdzieś tam. Tak, tak, drugi i trzeci.
+
+Jako druga i trzecia pozycja, no. I ta druga pozycja ma 4 MB, a trzecia ma tylko 314 kg, bo w tej trzeciej już nie chciało mi się opisywać zasad tego konkursu, więc zasady konkursu i wszystko są w tym 2024. A w 2025, jak sobie klikniecie, to tutaj jest Participants i w 2024 jest Participants, są trzy algorytmy.
+
+W 2025 jest właśnie tylko GP GOMEA Island Mood. I potem na kolejnym slajdzie, to jest slajd dziesiąty, jest zwycięzca z zeszłego roku, a na slajdzie 11 czy tam 12 jest właśnie ta GP GOMEA Island Mood i ona jest na dwóch slajdach podsumowana. Widzę, że oni tutaj jeszcze te wyspy wprowadzili, ale te wyspy to tam nie były jakoś szczególnie istotne, więc ewentualnie możecie sobie poczytać tylko, właśnie te dwa konkretne slajdy, czyli 11, 12 albo 12, 13, zależnie od tego, jak tam PDF je numeruje.
+
+W każdym razie tutaj jest tak podsumowane w tych buletach mniej więcej, jak działała ta GP GOMEA na F1. No i tam, aha, potem na ostatnich slajdach jest taki ranking z takimi rozkładami normalnymi i to jest ta zielona linia, czyli ona jest gorsza od F0, bo taką przerywaną czerwoną linią jest zwycięzca z zeszłego roku, czy tam z poprzedniego roku jeszcze z F0, ale na F1 była lepsza niż ten zwycięzca z poprzedniego roku na F1. Przy czym znowuż tutaj ten Łukasz tam, znowuż to była walka z czasem i to było tak trochę byle jak zrobione i on potem ma całą listę rzeczy do poprawienia, które były po prostu źle zrobione.
+
+I było wiadomo, że one są źle zrobione, ale już nie było czasu tego… A, no właśnie, są chyba jeszcze dwa miesiące na zgłoszenie, na tegoroczny konkurs, więc jeżeli wymyślicie cokolwiek fajnego, to jeszcze dwa miesiące są czasu na zgłoszenie. Tylko że w tym konkursie nie można wignorować sieci neuronowej, bo tam idea jest taka, że ci agenci muszą coś robić w środowisku, gdzieś tam biegać, zbierać i nieznane są dla was funkcje celu, ale jak to zwykle w konkursach, że zgłasza się na nieznane benchmarki, ale zgłasza się algorytm przeszukujący i to może być dowolny algorytm przeszukujący, więc tam sieć neuronowa w każdym razie musi być też optymalizowana w jakikolwiek sposób, ale jakoś tam musi.
+
+No, w każdym razie to tylko wam wysłałem po to, żeby wskazać, że wątek Gomei opartej o drzewa i o operatory GP dla reprezentacji F1 framstikowej już został napoczęty rok temu, tak trochę byle jak, bo byle jak, czyli właśnie używając tego podejścia spaddingiem, takiego najbardziej naiwnego, no ale jak widać, to wystarczyło, żeby wygrać z tymi natywnymi operatorami framstikowymi i na pewno jest jeszcze tutaj wiele do ulepszenia.
+
+A w operatorach framstikowych już niewiele można ulepszać, więc to jest jakby ciekawa droga, która ma duży potencjał na przyszłość.
+
+[Mówca 2]
+Ja tu widzę właśnie, że jak jest ten padding dodany, to potem jest to właśnie ten mixing i padding jest usuwany, tylko że wtedy na przykład, powiedzmy, że z tego mixu wyjdzie, że zrobimy... Nawiasy są niedopchnięte. O, nawiasy też mogą być problemem, ale na przykład właśnie niedopchnięte nawiasy albo na przykład jakiś, ten symbol paddingu pojawi się w środku, więc po prostu usuwany jest sklejany i sprawdzany, czy tam rozwiązanie jest legalne.
+
+[Mówca 1]
+Tak, domyślam się, że wszystkie symbole paddingowe są po prostu usuwane z genotypu. Tak jak zresztą robiliście, jak było to laboratorium z epistazą i tam wstawialiśmy takie spacje po prostu w środek, potem te spacje usuwaliśmy. Tak, tak.
+
+Wiem, że z tym paddingiem to był jakiś taki myk, że potem rozmawialiśmy z Łukaszem i doszliśmy do wniosku, że coś jest bardzo, bardzo źle zrobione i można to zrobić lepiej, ale to było tak na byle jak i na szybko, żeby po prostu cokolwiek zgłosić na ten konkurs. Ogólnie to podejście z paddingiem jest takie... No...
+
+Dużo bardziej mi się podobają te podejścia typu COSO albo typu te N-gramy, bo one robią z gomei, one zachowują ideę gomei, a zarazem tak jakby natywnie wspierają reprezentacje niepozycyjne. Natomiast jak... Jak przeczytałem o tym, że ci, którzy wymyślili GP-gomeę, to oni po prostu kodują liniowo drzewo do stringa i potem robią ten padding, to w ogóle aż mi się nie chciało wierzyć, że to sensownie działa.
+
+No, ale nawet na framestickach widać, że o dziwo to działa całkiem sensownie. Ale tylko można sobie wyobrażać, o ile sensowniej to mogłoby działać, gdyby nigdy nie robić w ogóle takiego kroku, żeby drzewo kodować liniowo do sekwencji symboli. Bo przecież wiele...
+
+Może nie we framestickach, ale w takim tradycyjnym GP no to kolejność gałęzi nie ma znaczenia. Jeżeli mamy na przykład operator dodawania albo mnożenia, no bo przy dzieleniu to akurat ma znaczenie, ale przy dodawaniu, przy mnożeniu, przy wielu innych operatorach kolejność nie ma znaczenia. Więc istnieje wiele sposobów na zakodowanie drzewa, które będzie robiło to samo w różne stringi.
+
+W różne takie te sekwencje, nie? Więc to moim zdaniem jest bardzo słabe, żeby to sobie tak zakodować, bo jedno drzewo się przekształci do stringa w taki sposób, inne się przekształci w inny sposób i potem one wszystkie są padowane po prawej stronie i potem ten mixing już jest pozycyjny. Więc to takie jest trochę o dupę potut, za przeproszeniem, i bezsensowne.
+
+No ale z drugiej strony, mając świadomość tego, że gomea już nie wprowadza żadnych nowych genów, tylko miesza to, co jest na wszystkie możliwe sposoby i się zbiega, no to chyba to jest czynnik, który ratuje jakby to podejście, jeżeli chodzi o sensowność. I my się nie przejmujemy, że się zakodowało akurat tak i inaczej, bo mamy taki a taki zestaw genów do dyspozycji i teraz tylko jedyne, co robimy, to je mieszamy właśnie w kolumnach. Czyli już nie przesuwamy nic z lewo w prawo, jeżeli się zakodowało tak, no to bierzemy to z dobrodziejstwem inwentarza i już zawsze w trzeciej kolumnie będzie takie, a nie inne poddrzewo i zawsze będziemy je mieszali z jakimś tam innym.
+
+No więc taka to, tak sobie to wymyślili.
+
+[Mówca 2]
+Aha, czyli to w ogóle powiedzmy, że jakby nawet na przypadku tego F9, jakby ten gen U był tylko na pierwszym miejscu, to ten jakby on już nie przejdzie dalej, on będzie tylko na pierwszym mógł się pojawić.
+
+[Mówca 1]
+No, koso i w tym podejściu M-gramowej.
+
+[Mówca 2]
+Tak, to tam może się zmienić.
+
+[Mówca 1]
+Tam jest elegancko. Natomiast gdyby zastosować takie naiwne podejście z paddingiem, no to bierzemy te genotypy F9, w ogóle nic z nimi nie zrobimy, nie robimy, tylko je padujemy, a padujemy je tylko dlatego, że potem będziemy używali tej pozycyjnej gomei, która musi mieć jakąś wartość w każdej kolumnie, no więc wprowadzamy jakieś neutralne symbole, żeby mieć z czym mieszać, no i tak, i potem mieszamy kolumnami. I to prawdopodobnie też by jakoś tam działało.
+
+Nie wiem, czy by działało lepiej niż algorytm ewolucyjny, pewnie akurat nie, ale jak widać w GP, jakoś tam to się sprawdza i w ogóle, bo czytaliście chyba ten artykuł GP, no to tam autorzy chyba się chwalą, zakładam, że się chwalą, czy może to działa lepiej niż takie tradycyjne GP, czy nie.
+
+[Mówca 2]
+Być może wcześniej, na pewno ostatnio tego nie powtarzałem.
+
+[Mówca 1]
+No, bo to GP gomea, nie?
+
+[Mówca 2]
+Tak, jest repozytorium w ogóle chyba od tego też.
+
+[Mówca 1]
+No to można by właśnie, można by zobaczyć, co autorzy piszą o...
+
+[Mówca 2]
+Standard tree based GP, no chyba coś jest, chyba znalazłem jakieś repozytorium.
+
+[Mówca 1]
+No ale nie mówię o repozytorium, tylko czy w artykule oni się chwalili, czy przebili programowanie genetyczne, takie klasyczne, z operatorami typu wytnij drzewo, zamień pod drzewo, bo te operatory na pewno dają więcej swobody i przede wszystkim nie kodują nic liniowo i nie zakładają, że na przykład przy operatorze dodawania lewe pod drzewo i prawe pod drzewo ma jakąkolwiek ustaloną kolejność.
+
+[Mówca 2]
+A operatory o GP chodzi o?
+
+[Mówca 1]
+No czy oni w tym artykule GP Gomea zrobili porównanie z tradycyjną... z tradycyjnym GP? Ale na pewno zrobili, no bo inaczej by nie pisali tego artykułu, więc musieli się z czymś porównać i zakładam, że skoro przyjęli im ten artykuł, no to dlatego, że im lepiej to działało niż tradycyjne GP.
+
+Artykuł chyba nie widzę tak na szybko teraz. Natomiast odwołując się znowu do tego konkursu z zeszłego roku, gdzie podejście bardzo podobne do GP, czyli traktowanie genotypów F1 jako drzewa zadziałało lepiej, nawet właśnie z tym głupim paddingiem dla tych natywnych operatorów F1 we framestickach, no to pokazuje, że to może działać nawet przy takim właśnie głupim postępowaniu. I dlatego najchętniej bym to jeszcze zestawił z takim mądrzejszym postępowaniem, czyli czymś à la COSO dla F1, gdzie nie mamy w ogóle potrzeby paddingu, bo out of the box zdajemy sobie sprawę z tego, że mamy do czynienia z reprezentacją niepozycyjną i z genotypem o zmiennej długości i nie musimy tego na siłę pakować w taki prostokąt, że wszystkie genotypy mają tą samą długość i geny w kolumnach znaczą to samo, no bo nie znaczą to samo.
+
+[Mówca 2]
+Zaciekawiło mnie trochę to właśnie z tym paddingiem i engramami, bo to mi się, i padding, i engrami mi się kojarzą z NLP.
+
+[Mówca 1]
+A ten artykuł z engramami to w sumie mógłbym Wam wysłać, znaczy właśnie mógłbym i nie mógłbym, bo przez to, że on jest teraz w recenzji, ale już za miesiąc będę mógł Wam wysłać, jak będziemy mieli decyzję. Ale może jakiś taki draft albo coś. Tylko, że też mówię, no tam wyniki nie były w żaden sposób konkurencyjne, znaczy były konkurencyjne w tym sensie, że ani lepiej, ani gorzej nie działało od ewolucyjnych.
+
+Natomiast sama idea tego, żeby mieć genotypy niepozycyjne o zmiennej długości i przekształcić je na wektor cech właśnie o stałej długości, czyli te engramy. I potem idea była taka, że miksujemy engramy, czyli robimy optimal mixing na poziomie engramów, a potem z powrotem transformujemy to do tych oryginalnych genotypów, które są o zmiennej długości. Czyli z punktu widzenia GOMEI jakby, no właśnie, tam jest bardziej reprezentacja taka pozycyjna dla GOMEI i to jest taka pośrednia warstwa, którą sobie wytwarzamy operując na genotypach niepozycyjnych o zmiennej długości.
+
+I dlatego właśnie to podejście z autoencoderami i w ogóle z uszczelnieniem maszynowym, gdzie mamy na przykład jakiś tam latent space i na przykład w tym latent spacie można by użyć tej real value GOMEI, bo latent space ma sztywną pojemność, w sensie sztywną wymiarowość. Czyli na przykład sobie robimy 16 wymiarów albo 32 wymiary i możemy potem jakiś tam encoder i dekoder użyć, żeby pakować genotypy, które mają zmienną długość do latenta o już stałej wymiarowości. Potem w tym latentcie możemy używać rvGOMEI i tylko musimy zrobić dobry autoencoder, żeby potem każdy punkt w tym latentcie móc zdekodować do valid genotypu poprawnego o zmiennej długości na przykład, nie?
+
+Więc to jest jeden z wielu pomysłów do przemyślenia.
+
+[Mówca 2]
+Dużo tutaj pomysłów może być.
+
+[Mówca 1]
+No, no to jest właśnie plus wejścia na teren, który nie jest jeszcze taki wyeksplorowany bardzo. Czyli generalnie optymalizacja rozwiązań o zmiennej długości niepozycyjnych. To też nie jest takie popularne, dlatego może to nie jest tak super wyeksplorowane, ale GP jest takim bardzo znanym i dosyć popularnym kejsem właśnie takiej konkretnej sytuacji, gdzie mamy genotypy o zmiennej długości ewidentnie, bo mamy to jest takie bardzo naturalne, że mamy programy czy wyrażenia, no to niektóre wyrażenia, niektóre programy są prostsze, niektóre bardziej skomplikowane.
+
+Aha, tak samo grafy, nie? Bo chyba w biologii tam jest dosyć dużo tych grafowych optymalizacji grafowej generalnie, ale nie tylko w biologii, no bo grafy to w ogóle bardzo popularna reprezentacja i też mogą być grafy bardziej i mniej skomplikowane i nie wiem, czy jest jakaś tam gomea grafowa, chyba jest, nie? Nie wiem, czy pan Jakub potem wspominał w tym review różnych czy tam coś o grafach było, czy nie, już nie pamiętam.
+
+[Mówca 3]
+Zaraz, zaraz zapatrzę. Znaczy, no w sensie graf, no to i tak można w formie macierzy wpiąć do tego mei, tak? W sensie, bo jakąś podobną pracę chyba coś tam pan podsyłał kiedyś.
+
+[Mówca 1]
+No grafy można reprezentować w postaci macierzy incydencji, która ma stałą wielkość, czyli jak mamy N wierzchołków, tylko, że tutaj zakładamy, że nie mamy N wierzchołków, tylko mamy zmienną liczbę wierzchołków, bo mogą być mniejsze grafy i większe grafy. I już wtedy podejście macierzowe nas nie ratuje, chyba, że znowuż sobie chamsko założymy, że istnieje maksymalne N i będziemy robili padding, że tak jakby istnieją wierzchołki do niczego niepodłączone, ale to ciągle nie jest wystarczające, bo my zakładamy, że te wierzchołki mogą być, a może ich nie być w ogóle, więc jeszcze musielibyśmy mieć jakąś taką specjalną flagę, czy w ogóle wierzchołek istnieje, czy nie istnieje.
+
+No ale to są właśnie takie podejścia nieeleganckie, bo one za wszelką cenę starają się zrobić problem pozycyjny z problemu, który nie jest pozycyjny, bo na przykład w grafie nie jest dla nas istotne, że ten wierzchołek ma numer 0, ten ma numer 1, ten ma numer 2, po prostu mamy graf, który wygląda jak trójkąt albo jak kwadrat, albo jak kwadrat z przekątną i nie numerujemy wierzchołków, bo w ogóle nie istnieje coś takiego w teorii grafów, że, znaczy, okej, możemy sobie ponumerować, ale to tylko tak na chwilę, na potrzeby czegoś tam. Ale ogólnie to grafy, to są po prostu grafy, gdzie wierzchołki nie mają numerków i mają tylko jakąś topologię. I ta topologia jest istotna, a nie to, jak obrócimy graf albo w jakiej kolejności będziemy przechodzili przez jego wierzchołki.
+
+No więc znowuż jest to... Tak sobie myślę, że pewnie ci autorzy GOME i ci różni ludzie idą właśnie po najmniejsze linii oporu, czyli robią problemy pozycyjne z niepozycyjnych i cieszą się, że to działa, ale mam wrażenie, że można to zrobić dużo lepiej. I właśnie COSO jest przypadkiem zrobienia tego lepiej, bo tam nigdzie nie musimy zakładać...
+
+Nie robimy problemu pozycyjnego z niepozycyjnego po prostu. No dobra, tak czy owak, cała ta nasza dzisiejsza rozmowa to taki bardziej food for thought i żeby mniej więcej was nakierować na różne ścieżki myślenia i w którą stronę można pójść. Zastanawiam się tylko czy...
+
+Bo chyba nie ma sensu dzisiaj już tak jakby ograniczać się, że o, to tutaj pan Jakub będzie robił to, a pan Filip będzie robił to. Tylko może...
+
+[Mówca 2]
+Ja ogólnie chciałem właśnie teraz jeszcze zaliczyć ostatnie zajęcia w poniedziałek i potem zacząć sobie właśnie potestować, w sensie odpalić sobie lokalnie czy to zwykłą Gome, czy to GP Gome i sobie popatrzeć, popatrzeć i właśnie tak... Bo ja tak lubię zobaczyć faktycznie jak to działa, a nie tak teoretycznie patrzeć na to. Więc to miałem...
+
+Taki miałem pomysł na początek lutego, żeby sobie właśnie popatrzeć i czy wtedy może by mi wpadł jakiś jakiś ciekawy pomysł, co można zrobić tam.
+
+[Mówca 1]
+Ok. Myślę, że przyszłościowe pomysły to są właśnie bardziej te... Nie żeby robić to, co inni zrobili, czyli problem pozycyjny z niepozycyjnego i padding, tylko bardziej w stronę COSO lub nawet tego, co mówiłem, że nie mogę Wam jeszcze podesłać, czyli tych engramów, czyli bardziej, żeby Gomea natywnie polubiła i pogodziła się z tym, że reprezentacja jest niepozycyjna, że nie możemy przypisać do konkretnych pozycji semantyki, że to jest zmienna X1, X2, X3, X4 i one są w kolumnach i że mamy natywnie do czynienia z problemem, gdzie rozwiązania są o zmiennej długości i no teraz radź sobie z tym jakoś, czyli właśnie znajdowanie tych bloków, na przykład wycinanie tych bloków, tak jak to robiło COSO albo jakieś inne pomysły, ten deseń.
+
+I dzięki temu to byłoby rzeczywiście jakiś taki przyczynek bardziej nowatorski do State of the Art. Bo na przykład to, co na przykład zrobił ten Łukasz w zeszłym roku z tym konkursem GECO, czyli zakodowanie F1 pozycyjnie i użycie GP Gomei, no to jest takie no ok, działało lepiej, ale nie ma tam żadnego nowatorskiego podejścia. Więc w tę stronę bym raczej nie szedł, bo nawet jeżeli można uzyskać jakieś konkurencyjne
+
+(Ten plik jest dłuższy niż 30 minut. Przejdź na Nielimitowany na TurboScribe.ai, aby transkrybować pliki do 10 godzin.)

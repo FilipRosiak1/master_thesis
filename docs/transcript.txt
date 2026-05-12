@@ -1,0 +1,867 @@
+00:00:00,140 --> 00:00:08,020 [speaker_0]
+Dobry wieczór. [chrząknięcie] Bo waszym pierwotnym pomysłem było chyba to, żeby pisać pracę razem,
+tak? Jeżeli się uda.
+
+00:00:08,080 --> 00:00:13,880 [speaker_1]
+No, z takim zamysłem przyszedłem wtedy jako reprezentant.
+
+00:00:13,900 --> 00:00:57,400 [speaker_0]
+Mhm. Bo ja rozmawiałem z dziekanem na ten temat i tak, tak jak wam mówiłem, on, on mówił,
+że w sumie to się, no, nie-- unikają takich sytuacji i zniechęcają i że to niedobrze, i tak dalej,
+
+00:00:57,460 --> 00:01:01,880 [speaker_1]
+Tak, tak się rzuciliśmy na dwa oddzielne tematy, już typowo z AI.
+
+00:01:01,940 --> 00:02:06,480 [speaker_0]
+No, no, ale chodzi o to, że jeden i drugi jest z AI, a nie, że, nie, że specjalność tutaj pomaga,
+że, nie wiem, ktoś jest na przykład, zajmuje się sprzętem, bo jest robotykiem albo coś tam, nie? No,
+
+00:02:06,740 --> 00:02:12,760 [speaker_1]
+Znaczy, no, ja już tam zacząłem trochę... Nie wiem, czy pan czytał już wstęp, który wysłałem?
+
+00:02:12,800 --> 00:02:13,740 [speaker_0]
+Ten PDF?
+
+00:02:13,780 --> 00:02:15,960 [speaker_1]
+Tak.
+
+00:02:18,200 --> 00:02:21,630 [speaker_0]
+Zerknąłem na niego jeszcze raz. Teraz zobaczę.
+
+00:02:21,640 --> 00:02:36,840 [speaker_1]
+Ja tam nie opisywałem, ale już zacząłem właśnie, yy, trenować ten autoencoder właśnie na F1.
+Tak z główną myślą w to F1 celowałem.
+
+00:02:36,880 --> 00:03:01,660 [speaker_0]
+No bo, znaczy, chodziło mi o to, że jeżeli rzeczy, które robicie, mają jakiś wspólny mianownik,
+na przykład, na przykład F1, w sumie nie wiadomo, no bo może się okazać,
+
+00:03:01,700 --> 00:03:10,680 [speaker_1]
+Tylko teraz, tak jak pan wcześniej powiedział,
+musiałby być jakiś aspekt wyczuwalny tych technologii przetwarzania danych, żeby było widać,
+
+00:03:10,720 --> 00:03:30,440 [speaker_0]
+Nie, nie, nie. To, to ten dziekan powiedział, że on tak zrobił i że to ma największy sens,
+i że wtedy da się to obronić. Ale nie sądzę, żeby to byłooo, no, wymagany aspekt.
+
+00:03:30,460 --> 00:03:32,880 [speaker_1]
+No, tam w zasadzie ten wstęp, tylko.
+
+00:03:32,920 --> 00:03:45,250 [speaker_0]
+Ten wstęp. Mhm, mhm, mhm, mhm. I tutaj pisał pan o tym RVGOMEA. Yy.
+
+00:03:45,320 --> 00:03:50,880 [speaker_1]
+Tak, rozmawialiśmy właśnie o tym wtedy, na początku lutego też.
+
+00:03:52,680 --> 00:04:46,320 [speaker_0]
+Ale, ale! Bo robi pan autoencoder. Autoencoder ma latent. W ogóle śmiesznie,
+że pan w tytule napisał coś tam la- latentna. Chyba po polsku się mówi ukryta,
+
+00:04:46,460 --> 00:04:50,450 [speaker_1]
+W zasadzie tak. Dostałaby-
+
+00:04:50,520 --> 00:04:51,300 [speaker_0]
+No, tak, nawet-
+
+00:04:51,340 --> 00:04:52,900 [speaker_1]
+Funkcję fitnessu.
+
+00:04:53,180 --> 00:05:24,060 [speaker_0]
+Tak, tak, pan pisze, że wariant RVGOMEA może operować na wektorze C o stałej długości,
+które po zdekodowaniu reprezentują i tak dalej. Czyli krótko mówiąc, jak już mamy latent,
+
+00:05:24,700 --> 00:05:25,180 [speaker_1]
+Mhm.
+
+00:05:25,190 --> 00:05:35,590 [speaker_0]
+Tylko po prostu, po prostu out of the box się użyje jakiegoś algorytmu. Najciekawszy jest ten as-
+aspekt właśnie w ogóle wpakowania tego w latent i czy to się uda? A i-
+
+00:05:35,960 --> 00:05:37,190 [speaker_1]
+Bo właśnie trenowałem.
+
+00:05:37,200 --> 00:05:39,650 [speaker_0]
+No właśnie! Tak, tak. Mówi pan, że coś-
+
+00:05:40,980 --> 00:05:47,140 [speaker_1]
+Znaczy, na początku trenowałem taki zwykły. Mam dosyć mały zbiór,
+bo tam jest niecałe dwa tysiące tych framesticków.
+
+00:05:48,120 --> 00:05:48,320 [speaker_0]
+Mhm.
+
+00:05:48,420 --> 00:05:59,880 [speaker_1]
+Do powiększenia na pewno. Ale zacząłem na początku trenować taki zwykły, trochę z NLP,
+od machine learningu, seq2seq, po prostu, który z sekwencji generuje sekwencje.
+
+00:05:59,920 --> 00:06:00,500 [speaker_0]
+Mhm.
+
+00:06:00,620 --> 00:06:38,636 [speaker_1]
+Yy, no i tam w zasadzie-... około piętnastu procent odtwarzał dokładnie tych framsticków, yy,
+a jakośśś chyba koło siedemdziesięciu procent były podobne,
+
+00:06:38,656 --> 00:06:39,236 [speaker_0]
+Mhm.
+
+00:06:39,336 --> 00:06:53,096 [speaker_1]
+I też to sobie wczoraj puściłem. Znaczy dzisiaj przez noc akurat i z rana, z rana sprawdziłem,
+i tam już, yy, odtwarzało z tych dwóch tysięcy framsticków czterdzieści procent. Dokładnie.
+
+00:06:53,116 --> 00:07:01,156 [speaker_0]
+Mhm. Mm. No, na pewno tam warto, warto mieć pewnie se-se-setki tysięcy, pewnie w datasetcie.
+
+00:07:01,166 --> 00:07:02,656 [speaker_1]
+Na pewno, mhm.
+
+00:07:02,696 --> 00:07:22,536 [speaker_0]
+Ale myk też polega na tym, że dla nas bardziej interesujące jest to,
+czy jeżeli my będziemy się poruszali po latencie w miejscach, w których,
+
+00:07:22,556 --> 00:07:23,176 [speaker_1]
+Tak.
+
+00:07:23,196 --> 00:07:34,176 [speaker_0]
+To, czy, to czy po de-po dekodowaniu będą powstawały po pierwsze legalne genotypy F1, poprawne,
+a po drugie różne od tych, które tam w okolicach były.
+
+00:07:34,296 --> 00:07:35,616 [speaker_1]
+Yy, tak-
+
+00:07:35,636 --> 00:07:36,416 [speaker_0]
+I!
+
+00:07:36,456 --> 00:07:42,316 [speaker_1]
+To też delikatnie weryfikowałem. I właśnie ten pierwszy autoencoder, yy-
+
+00:07:42,376 --> 00:07:57,356 [speaker_0]
+Ale jeszcze tylko chciałem wspomnieć, że w tym artykule, mm, o LSTM-ach,
+tam było to pojęcie takiego, takie trzy literki, już tam nie pamiętam, ale to chyba mówiliśmy o tym,
+
+00:07:57,366 --> 00:08:01,776 [speaker_1]
+Tam context free, o to chodzi? O CFG.
+
+00:08:01,876 --> 00:08:04,796 [speaker_0]
+Nie, już patrzę, już patrzę.
+
+00:08:05,496 --> 00:08:31,556 [speaker_1]
+To ja może powiem tą część, bo ten właśnie autoencoder z, z tych związków chemicznych.
+On właśnie uczy się, on, on uczy się gramatyki też. Więc on jakby... No, jak, jak zerknąłem na to,
+
+00:08:31,576 --> 00:08:32,296 [speaker_0]
+Mhm.
+
+00:08:32,556 --> 00:08:51,336 [speaker_1]
+A z tego seq2seq, to z tego pierwszego też tam zerknąłem i, yy, no, w większości tych,
+które sprawdziłem, to nawet, yy, framsticki proponowały, że one mogą naprawić ten genotyp,
+
+00:08:51,376 --> 00:09:06,266 [speaker_0]
+Mhm. Framsticki potrafią naprawiać nawiasy i potrafią-- znaczy, jak tam otwarte,
+zamknięte nawiasy s-, się nie sparowały. No i potrafią w sieci neuronowej naprawiać połączenia,
+
+00:09:06,376 --> 00:09:08,856 [speaker_1]
+Bez, bez sieci neuronowej na razie robiłem, tak.
+
+00:09:08,956 --> 00:09:34,176 [speaker_0]
+Robimy, żeby nie komplikować. No, no, no. W tym artykule, co teraz skleiłem na czacie, tak,
+to chodzi mi właśnie o to SLP. Mm, czyli to jest na stronie siódmej. Na stronie siódmej,
+
+00:09:34,196 --> 00:09:34,676 [speaker_1]
+Mhm.
+
+00:09:35,236 --> 00:10:17,956 [speaker_0]
+I tam jest takie, że SLP to jest encoder od dekodera, od P. I jakieś tutaj były pomysły.
+Ostatecznie czy te SLP były tutaj testowane? Chyba były, bo potem na tym wykresie na końcu... O!
+
+00:10:17,976 --> 00:10:18,536 [speaker_1]
+Tak.
+
+00:10:18,556 --> 00:11:37,096 [speaker_0]
+Bo właśnie to, to jest problem, że mapujemy z przestrzeni ciągłej do, do takiej dyskretnej,
+symbolicznej. Więc może tutaj da się coś mądrzejszego wymyślić. No, najfajniej właśnie byłoby,
+
+00:11:37,116 --> 00:11:38,996 [speaker_1]
+Mhm.
+
+00:11:39,016 --> 00:12:09,696 [speaker_0]
+I jak rozumiem, wtedy robicie dokładnie tak, jak w inżynierce.
+Tak jak inżynierka miała czterech tam, czy tam trzech, czy ilu wam wypadło współautorów,
+
+00:12:12,456 --> 00:12:15,976 [speaker_1]
+... No, tutaj byłoby pytanie, jaki wtedy temat, czy-
+
+00:12:16,016 --> 00:12:30,096 [speaker_2]
+Jaki temat i jak, ile bardziej pewnie musiałby być jakiś, no może nie konkretny,
+tylko trochę bardziej rozbudowana pewnie by musiała być ta praca, nie? Niż tak,
+
+00:12:30,136 --> 00:13:11,696 [speaker_0]
+No, część, część eksperymentalno-wynikowa i tak robicie, mm, osobne pomysły,
+więc tutaj nic się jakby nie różni. Je-- w stosunku, gdybyście pisali dwie prace.
+
+00:13:11,736 --> 00:13:11,876 [speaker_2]
+Ale-
+
+00:13:11,996 --> 00:13:12,756 [speaker_0]
+bo nie jest jeszcze-
+
+00:13:13,176 --> 00:13:18,496 [speaker_2]
+Jest jakaś zasada albo jakiś wymóg? Czy to jest znowu dowolność na język pracy? Bo-
+
+00:13:18,536 --> 00:13:36,416 [speaker_0]
+No, właśnie, ponieważ żaden z was nie jest z anglojęzycznej AI,
+no to w sumie macie wybór zupełnie dowolny, który język wam pasuje.
+
+00:13:36,436 --> 00:13:39,216 [speaker_2]
+Wszystko, wszystko jest do zrobienia.
+
+00:13:39,316 --> 00:13:49,806 [speaker_0]
+Zresztą, bo większość źródłowych materiałów też jest po angielsku, więc szczerze mówiąc,
+nawet poniekąd prościej się pisze po angielsku. Na przykład nie trzeba pisać „latentnej” [śmiech]
+
+00:13:49,806 --> 00:13:52,396 [speaker_1]
+No, ale chyba jest to. Chyba to jest faktyczne słowo.
+
+00:13:52,516 --> 00:13:57,626 [speaker_2]
+Właściwie to brzmi tak, to brzmi tak nietypowo, ale chyba jest polskie coś.
+
+00:13:58,476 --> 00:13:59,766 [speaker_0]
+Jest brzydkie, nie?
+
+00:13:59,796 --> 00:14:02,276 [speaker_2]
+No, wszyscy, wszyscy wiedzą, o co chodzi.
+
+00:14:02,336 --> 00:14:04,936 [speaker_1]
+To najważniejsze.
+
+00:14:06,236 --> 00:14:08,056 [speaker_0]
+Mm. [śmiech] Wszyscy-
+
+00:14:08,096 --> 00:14:10,526 [speaker_2]
+Którzy wiedzą, czym jest latent space. [śmiech]
+
+00:14:10,536 --> 00:14:17,296 [speaker_0]
+Właśnie, właśnie. No, no, no. [chrząknięcie] No, ale-
+
+00:14:17,316 --> 00:14:26,016 [speaker_2]
+Tylko teraz tak jeszcze jakbyśmy mieli jako jedną pracę to robić, no to tak czy siak,
+poza tą literaturą, to nadal by były jakby dwie oddzielne rzeczy, tak? Czyli-
+
+00:14:26,036 --> 00:14:30,496 [speaker_1]
+Tak by wtedy ja bym robił ten na przykład autoencoder, a Jakub to COSO by musiał.
+
+00:14:31,276 --> 00:14:34,976 [speaker_2]
+Ja tak jak tutaj się wrzucam na te, mhm.
+
+00:14:35,216 --> 00:15:30,406 [speaker_0]
+No, ja w ogóle na razie myślę, ponieważ dopiero zaczęliście eksperymenty,
+że jeszcze może się zdarzyć tak, że na etapie tej eksploracji okaże się, że to, to działało słabo,
+
+00:15:30,416 --> 00:15:30,976 [speaker_2]
+Mhm, jasne
+
+00:15:31,616 --> 00:15:34,716 [speaker_0]
+... żeby komisja po prostu mogła osobno to ocenić.
+
+00:15:34,736 --> 00:15:36,216 [speaker_2]
+Mhm.
+
+00:15:36,316 --> 00:17:25,756 [speaker_0]
+Więc to, ta część eksperymentalna, tak jak mówię, nie, czy piszecie dwie prace, czy jedną pracę,
+to to będzie bardzo podobnie wyglądało. Po prostu jedna praca to będzie sklejka tych dwóch części.
+
+00:17:25,836 --> 00:17:33,176 [speaker_2]
+Bo teraz czy byśmy robili jedną, czy dwie oddzielne prace, że każdy swoją,
+to byśmy musieli podjąć decyzję do tej, do kiedy? Do soboty jest tak czy-
+
+00:17:33,216 --> 00:17:35,266 [speaker_1]
+No, tak by wychodziło, tak.
+
+00:17:35,276 --> 00:17:41,656 [speaker_0]
+Aa, te terminy to tam bym się aż tak nimi nie przejmował.
+
+00:17:41,696 --> 00:18:26,808 [speaker_2]
+Ja tam się bardziej boję konsekwencji [śmiech] niż terminów. Nie,
+bo też tak sobie teraz myślę nawet po tym, no, bo pisałem do pana maila z tym pytaniem,
+
+00:18:26,828 --> 00:18:28,068 [speaker_0]
+Które fragmenty są-
+
+00:18:28,288 --> 00:18:29,128 [speaker_2]
+Tak, tak.
+
+00:18:29,188 --> 00:18:30,088 [speaker_0]
+Równoważne.
+
+00:18:30,128 --> 00:18:55,948 [speaker_2]
+Tak. I sprawdzić, czy te, jak te różne metody wpływają na, nie wiem, na wyniki,
+jak dobrze się to uczy wszystko i tak dalej. I się zastanawiam,
+
+00:18:56,068 --> 00:19:20,358 [speaker_0]
+Nie, no, to połączyć to nie jest najmniejszy problem, nie? Bo,
+bo wymyślam różne operatory czy tam spo- sposoby podróżowania poprzez ceni przeszukiwania w progra,
+
+00:19:20,408 --> 00:19:22,768 [speaker_2]
+Tak, jest jakiś formularz.
+
+00:19:23,368 --> 00:19:48,568 [speaker_0]
+No, właśnie, właśnie! To jest ten formularz, yy, który musimy wypełnić. Tutaj się wybiera temat,
+potem jest tytuł po angielsku. Znaczy, o ile język będzie angielski. Tytuł po angielsku,
+
+00:19:48,708 --> 00:19:51,028 [speaker_2]
+Yy, czy da się-
+
+00:19:51,048 --> 00:20:08,448 [speaker_0]
+Czy ja mogę? Czy ja mogę zapisać taki... O, dobra. A zobaczymy potem, jak to jest Signature.
+Chyba wszyscy musimy ten i trzeba jeszcze ten board wypełnić. No dobra, aleee, czyli-
+
+00:20:11,208 --> 00:20:15,058 [speaker_2]
+Nie, bo już się bałem, że nie będzie żadnego guzika od edycji. [śmiech]
+
+00:20:15,148 --> 00:20:15,568 [speaker_1]
+No to-
+
+00:20:15,888 --> 00:21:24,688 [speaker_0]
+No ale, ale też na razie nikogo tutaj w ogóle jeszcze nie podałem, nie?
+Więc to by się nic nie stało. Yy, dobra, ale bo teraz muszę zobaczyć właśnie, jak to wygląda,
+
+00:21:25,088 --> 00:21:27,528 [speaker_2]
+Dobrze, że chociaż z jednego kierunku jesteśmy.
+
+00:21:27,608 --> 00:21:28,148 [speaker_1]
+No.
+
+00:21:31,318 --> 00:21:52,528 [speaker_0]
+„Ale proszę pamiętać o wybraniu specjalności studenta.
+Niestety nie jest to intuicyjne w interfejsie.
+
+00:22:08,568 --> 00:22:10,228 [speaker_1]
+Ze zdjęciem.
+
+00:22:11,608 --> 00:22:19,768 [speaker_2]
+Jak szukałem swojego profilu po książce telefonicznej, to mnie nie znajdowało.
+I po tych użytkownikach na USOS-ie.
+
+00:22:30,828 --> 00:22:46,348 [speaker_0]
+O, i teraz tutaj sz... Chyba taaak. Na wszelki wypadek kliknę „Save”, bo... może będzie przypadło.
+
+00:22:46,488 --> 00:23:00,108 [speaker_1]
+Tak. Nie masz nowej USOS-owi.
+
+00:23:06,348 --> 00:23:20,088 [speaker_0]
+I tutaj już drugi raz się pojawia to seminarium, bo tutaj było seminar,
+a tutaj jest jeszcze coauthor seminar, ale chyba. [głośne westchnienie]
+
+00:23:20,168 --> 00:23:40,628 [speaker_2]
+Nie ten Stefański. I to jeszcze taki z jedynką po mailu, więc nie, nie unikatowy. O,
+ten ze zdjęciem. [śmiech]
+
+00:23:41,668 --> 00:23:52,628 [speaker_0]
+I teraz klikamy „Add”. Aha, bo computing, dobra zostaje i teraz TPD, ale właśnie. O, dobra.
+Data Processing Technologies.
+
+00:23:52,728 --> 00:23:54,528 [speaker_2]
+Sprytna ta wyszukiwarka.
+
+00:23:55,028 --> 00:23:56,748 [speaker_1]
+No nie no, aliasy zwykłe.
+
+00:23:56,808 --> 00:23:58,528 [speaker_2]
+No, nie to.
+
+00:23:58,548 --> 00:24:52,838 [speaker_0]
+Dobra, kliknij na wszelki wypadek „Save”. No właśnie,
+czyli teraz to wygląda tak jak taka dwuosobowa inżynierka. Dobra, jeszcze raz,
+
+00:24:53,878 --> 00:24:56,078 [speaker_1]
+To nie byłoby to board, co wcześniej było?
+
+00:24:56,998 --> 00:25:01,958 [speaker_0]
+No tak, tak, ale teraz tego, tego nie widać. Chyba muszę zrobić back.
+
+00:25:01,998 --> 00:25:09,998 [speaker_2]
+O, to teraz mi się kolejny w sumie pomysł nasunął. Znaczy może nie pomysł, tylko pytanie,
+bo jakbyśmy teraz robili jedną pracę-
+
+00:25:10,958 --> 00:25:12,398 [speaker_0]
+O, właśnie, wow!
+
+00:25:12,518 --> 00:25:16,288 [speaker_2]
+Skład komisji by był, pod którą specjalizację? [śmiech]
+
+00:25:16,318 --> 00:25:36,598 [speaker_0]
+No, no właśnie dokładnie. Właśnie dokładnie to pytałem dziekana i on powiedział,
+że się wybiera komisję, która jest bardziej adekwatna do tematyki pracy. No i akurat przez to,
+
+00:25:36,658 --> 00:25:39,118 [speaker_2]
+No to informatyka pewnie normalnie.
+
+00:25:41,398 --> 00:25:46,378 [speaker_0]
+Bo to jest tak śmiesznie, że, że napisali kierunek es, a, bo to jest kierunek SI, SI.
+
+00:25:46,578 --> 00:25:46,878 [speaker_1]
+Tak.
+
+00:25:46,938 --> 00:25:47,478 [speaker_0]
+No właśnie.
+
+00:25:47,538 --> 00:25:48,648 [speaker_1]
+Jest taki kierunek, tak.
+
+00:25:49,678 --> 00:25:53,908 [speaker_0]
+Czyli to jest dla tych angielskich, ta, ta trzecia na dole, ta ostatnia w ogóle nie wiem, czy-
+
+00:25:53,958 --> 00:25:55,458 [speaker_1]
+Po polsku nawet też jest chyba.
+
+00:25:55,498 --> 00:25:58,438 [speaker_2]
+Po polsku jest sztuczna inteligencja SI.
+
+00:25:58,448 --> 00:25:59,218 [speaker_1]
+Ale my jesteśmy na tym-
+
+00:25:59,258 --> 00:25:59,648 [speaker_2]
+No tak.
+
+00:25:59,648 --> 00:26:00,918 [speaker_1]
+Informatyka.
+
+00:26:00,998 --> 00:26:04,978 [speaker_2]
+Normalnie zwykła, najzwyklejsza.
+
+00:26:06,838 --> 00:26:09,588 [speaker_0]
+A w ogóle widzicie, tak? Na ekranie tą listę, bo czasem, bo czasem-
+
+00:26:09,588 --> 00:26:12,038 [speaker_2]
+Radio komunikacja, telekomunikacja, sieci.
+
+00:26:12,058 --> 00:26:21,658 [speaker_0]
+Tak, tak, bo czasem listy się nie ten, jakoś nie łapią na to współdzielenie ekranu. No dobra,
+no to wybieram, to wybieram po prostu ten. Kliknę na razie „Zapisz".
+
+00:26:21,698 --> 00:26:34,798 [speaker_2]
+Też bym tak strzelił. No to, no dobra, rozumiem, że komisja by była bardziej pod AI.
+To wtedy powiedzmy, że cała komisja to wtedy na egzaminie mam zagadnienia pod specjalizację AI,
+
+00:26:34,878 --> 00:26:46,238 [speaker_0]
+A, okej, teraz pan mówi o komisji, bo to są, są inne komisje. To jest komisja,
+ten board to jest komisja, która w ogóle akceptuje wniosek o pracę magisterską.
+
+00:26:46,278 --> 00:26:46,518 [speaker_2]
+Mhm.
+
+00:26:46,658 --> 00:26:49,778 [speaker_0]
+Natomiast komisja, która potem będzie na obronie-
+
+00:26:49,838 --> 00:26:49,968 [speaker_2]
+I na egzaminie.
+
+00:26:49,978 --> 00:26:54,638 [speaker_0]
+Czyli przewodni, przewodniczący, recenzent i, i promotor.
+
+00:26:54,658 --> 00:26:56,118 [speaker_2]
+Mhm.
+
+00:26:56,138 --> 00:27:17,718 [speaker_0]
+To oni, mm, no to już ich się wybiera później, ale prawdopodobnie to powinni być ludzie, którzy tak,
+znają się na AI. Ale nawet jeżeli pan jest w TPD, no to obowiązuje pana lista TPD,
+
+00:27:17,758 --> 00:27:21,358 [speaker_1]
+Aha. [śmiech] No i git.
+
+00:27:21,858 --> 00:27:23,058 [speaker_2]
+Ale, ale-
+
+00:27:23,158 --> 00:27:23,248 [speaker_0]
+No.
+
+00:27:23,248 --> 00:27:24,378 [speaker_2]
+Opcja.
+
+00:27:25,258 --> 00:27:26,198 [speaker_0]
+Nie, wcale nie.
+
+00:27:26,238 --> 00:27:27,738 [speaker_1]
+To się po prostu.
+
+00:27:27,748 --> 00:27:29,338 [speaker_0]
+To się często zdarza.
+
+00:27:29,558 --> 00:27:34,678 [speaker_1]
+Tak, żeby wszystko, wszystko na pewno zrozumieć. Teraz jakbyśmy właśnie pisali jedną pracę-
+
+00:27:34,738 --> 00:27:34,888 [speaker_0]
+Mhm.
+
+00:27:34,898 --> 00:27:56,498 [speaker_1]
+To teraz ja na przykład, jak sobie siedziałem w tych autoenkoderach, to zamiast pisać tam,
+że drugi rozdział to była teoria, trzeci rozdział, że sprawdzałem takie autoenkodery,
+
+00:27:56,578 --> 00:28:18,458 [speaker_0]
+Jeżeli na przykład macie drugi... Hipotetycznie,
+jeżeli pan będzie dalej kontynuował podejście autoenkoderowe, a kolega koso,
+
+00:28:18,468 --> 00:28:18,678 [speaker_1]
+Mhm.
+
+00:28:19,658 --> 00:28:41,318 [speaker_0]
+Wszystkie elementy, które są potrzebne do zrozumienia pracy, więc tam każdy napisze tą część,
+która jest dla niego niezbędna.
+
+00:28:41,338 --> 00:28:42,618 [speaker_1]
+Tak.
+
+00:28:42,658 --> 00:28:43,518 [speaker_0]
+No, czyli to-
+
+00:28:43,558 --> 00:28:55,478 [speaker_1]
+O co chodzi, że po prostu tam w eksperymentach zamiast pisać same eksperymenty,
+eksperymenty o autoenkoderze, to tam po prostu na przykład podrozdział, że tam metody,
+
+00:28:55,498 --> 00:28:56,248 [speaker_0]
+Mhm.
+
+00:28:56,258 --> 00:28:58,058 [speaker_1]
+No okej.
+
+00:28:58,078 --> 00:29:04,798 [speaker_0]
+Tak, tak, tak. Także to, to się bardzo ładnie akurat skleja tutaj. Mm.
+
+00:29:04,938 --> 00:29:14,138 [speaker_2]
+Trzeba będzie jednego wieczoru posiedowę zrobić i finalnie zdecydować, o czym w końcu będzie praca.
+[śmiech] Tak zbiorczo.
+
+00:29:15,698 --> 00:29:29,158 [speaker_0]
+No, ja myślę, że, że możemy tak zrobić, że postaracie się do jutra na tym Overleafie,
+na przykład wspólnym, na którymś z tych waszych-
+
+00:29:29,238 --> 00:29:29,498 [speaker_2]
+Mhm
+
+00:29:30,058 --> 00:30:25,968 [speaker_0]
+Napisać kilka propozycji tematów po polsku, po angielsku. I właśnie taki jeden akapit,
+co będzie w pracy wykonywane. Ja strasznie ubolewam nad tym,
+
+00:30:26,018 --> 00:30:26,738 [speaker_1]
+Mi się podobał ten-
+
+00:30:26,778 --> 00:30:27,008 [speaker_0]
+No, bo-
+
+00:30:27,018 --> 00:30:29,608 [speaker_1]
+Optymalizacji konstrukcji trójwymiarowych.
+
+00:30:30,198 --> 00:31:00,438 [speaker_0]
+Tak, tak, tak, nie? I że tam jakaś reorganizacja przestrzeni,
+że testowanie różnych pomysłów na sąsiedztwo.... No, be-bez opisywania kto co robi oczywiście,
+
+00:31:00,458 --> 00:31:06,718 [speaker_2]
+To jeszcze mam szybkie pytanie. Jeżeli wieczorem, to jak późny wieczór dla pana wchodziłby w grę?
+
+00:31:06,798 --> 00:31:11,538 [speaker_0]
+A ja tu siedzę praktycznie do rana, także dla mnie godziny są-
+
+00:31:11,598 --> 00:31:12,338 [speaker_2]
+A, no dobra.
+
+00:31:12,398 --> 00:31:43,218 [speaker_0]
+Im, im późniejsze, tym lepsze, więc to się nie ma co przejmować. Mm,
+taka jest głupia troszkę może ograniczenie techniczne, że Overleaf jest super fajny i zajebisty,
+
+00:31:43,598 --> 00:31:44,248 [speaker_1]
+Na przykład.
+
+00:31:44,278 --> 00:32:06,478 [speaker_0]
+Znaczy nie tyle wyrzucić, tylko przełączyć go na, na read-only, na czytelnika,
+a mnie na edytującego, nie? No ale to się tam dogadamy, bo to ja będę takie tury czytania urządzał,
+
+00:32:06,538 --> 00:32:16,358 [speaker_2]
+My tą inżynierkową książeczkę robiliśmy na jakiejś zewnętrznej stronie, nie?
+Bo specjalnie szukaliśmy takiego, co się do wczórki robić. To chyba było, nie?
+
+00:32:16,378 --> 00:33:16,078 [speaker_0]
+Taa, ale to tam. No, można też w Google Docu oczywiście robić, yy,
+bo taki zwykły tekst to tam do Techa się przenosi jeden do jeden. Gorzej jakieś tam wykresy,
+
+00:33:16,138 --> 00:33:20,498 [speaker_1]
+No, ja jestem dostępny tak samo jak dzisiaj po osiemnastej, bo wtedy z pracy wracam.
+
+00:33:21,058 --> 00:33:30,658 [speaker_2]
+Ja się jeszcze zorientuję, bo mnie przez popołudnie nie będzie, to ja się spróbuję dowiedzieć,
+o której godzinie mniej więcej by mi się dostępność otworzyła,
+
+00:33:30,778 --> 00:33:46,758 [speaker_0]
+Może być po dwudziestej pierwszej spokojnie, yy, tylko też musicie mieć czas na to,
+żeby kilka propozycji sobie wymyślić i ten akapit tutaj tego opisać tak,
+
+00:33:46,798 --> 00:33:52,158 [speaker_2]
+To najprawdopodobniej, najprawdopodobniej nie wiem. Jeszcze dzisiaj spróbujemy to zrobić?
+
+00:33:52,358 --> 00:33:53,978 [speaker_1]
+Myślę, że może- możemy coś pomyśleć.
+
+00:33:54,038 --> 00:34:00,578 [speaker_0]
+Tak. Chyba zróbcie dzisiaj taki draft,
+żeby jutro wieczorem jeszcze na świeżo go przeczytać i ulepszyć, nie?
+
+00:34:00,598 --> 00:34:03,078 [speaker_2]
+Mhm, dobra.
+
+00:34:03,088 --> 00:34:12,038 [speaker_0]
+I potem wspólnie, wspólnie na to zerkniemy i jakoś zoptymalizujemy, żeby było bezpiecznie.
+
+00:34:17,998 --> 00:34:19,398 [speaker_2]
+No dobra.
+
+00:34:21,298 --> 00:35:46,658 [speaker_0]
+W przypadku autoenkodera rzeczywiście przechodzimy do nowej przestrzeni. W przypadku KOSO i--
+którego ciągle nie wiemy, no, nie wiemy w tym momencie... Bo teraz tak kombinuję,
+
+00:35:47,218 --> 00:36:13,078 [speaker_2]
+W sensie, no, ja tutaj od pierwszego maila, no to zrobiłem sobie niby jakiś taki szkic tego wstępu,
+żeby to nie wiem, czy panu pokazać, czy podesłać. No, ja miałem, zapisałem sobie taki tytuł:
+
+00:36:13,158 --> 00:36:54,246 [speaker_0]
+Znaczy to, co pan przeczytał, to już spoko. Oczywiście jest to trzy ra,
+trzy razy za długie na tytuł, ale przynajmniej zawiera w tym momencie, to,
+
+00:36:54,286 --> 00:36:58,006 [speaker_1]
+Pewnie to COSO też wyleci dopiero tam w dalszym rozwinięciu, że-
+
+00:36:59,306 --> 00:37:04,926 [speaker_0]
+Tak, COSO musi wylecieć w imię tego uwspólniania, że ani COSO, ani. Chociaż, jeżeli, bo można-
+
+00:37:04,966 --> 00:37:07,506 [speaker_1]
+Ja chcę tego wspólnego. Ja chcę ten mój na razie. No i to.
+
+00:37:07,526 --> 00:37:27,906 [speaker_0]
+No, ja wiem, wiem, wiem. Można by też wymienić i jedno, i drugie,
+czyli na przykład porównanie podejścia autoencoderowych i algorytmu COSO do... I tak dalej, nie?
+
+00:37:27,926 --> 00:37:28,766 [speaker_1]
+Mhm.
+
+00:37:28,786 --> 00:38:12,906 [speaker_0]
+To musi być zrobione, a nie wiemy jeszcze wtedy na milion procent, czy to będzie zrobione.
+No ale może zaryzykować. To nie jest tak, że ta, tego tytułu nie da się potem zmienić.
+
+00:38:13,046 --> 00:38:30,036 [speaker_1]
+No, ja właśnie jak myślałem, to, yy, miałem trochę taką tunelwizję na tą RVGOMEA,
+ale no teraz i myślałem tylko po prostu,
+
+00:38:31,126 --> 00:38:32,386 [speaker_0]
+Mhm, to na pewno.
+
+00:38:32,406 --> 00:38:39,386 [speaker_1]
+To równie dobrze można połączyć i dodać jeszcze te różne algorytmy poza RVGOMEA właśnie i sprawdzić
+ogólnie.
+
+00:38:39,396 --> 00:39:11,846 [speaker_0]
+No bo dla mnie, dla mnie RVGOMEA jest jakby zupełnie nieważna w tej pracy,
+bo to są algorytmy już działające w tej przestrzeni latent i one są out of the...
+
+00:39:11,926 --> 00:39:36,026 [speaker_1]
+Jak patrzyłem, to ogólnie ciężko znaleźć cokolwiek.
+Znaczy przynajmniej ja nie widziałem za bardzo różnych, yy, rzeczy o tym właśnie,
+
+00:39:36,986 --> 00:43:36,326 [speaker_0]
+Zastanawiam się, czy w tym artykule, który podesłałem na czacie, skopiuję go.
+Copy link i teraz tutaj wkleję zamiast tego. I tutaj na końcu w literaturze. Nie,
+
+00:43:37,946 --> 00:44:15,146 [speaker_1]
+Tak, bo tam się w ogóle do tego trzeba było niestety ręcznie.
+Znaczy są chyba jakieś automatyczne sposoby. I ja wykorzystałem tego automatycznego LLMa,
+
+00:44:15,246 --> 00:44:46,046 [speaker_0]
+A, czyli to jest taka trochę wiedza dziedzinowa, bo na przykład w tym COSO nie ma tego problemu,
+bo on tam te neutralne podmianki może w nieskończoność podmieniać,
+
+00:44:46,066 --> 00:45:15,566 [speaker_1]
+Tak, ale ten, ten pierwszy, ten pierwszy autoenkoder, o którym mówiłem,
+ten z sekwencji na sekwencję. On też mógł generować dłuższe, niż widział. Tam dopiero na początku,
+
+00:45:15,606 --> 00:45:15,876 [speaker_0]
+Mhm.
+
+00:45:15,906 --> 00:45:17,066 [speaker_1]
+To problematyczne.
+
+00:45:17,446 --> 00:45:58,766 [speaker_0]
+Natomiast pytanie, czy to jest jakkolwiek kompatybilne? Jak teraz sobie wyobrazimy. Okej,
+mamy autoenkoder, który się nauczył gramatyki F1. Czy w ogóle realne jest oczekiwanie,
+
+00:45:58,786 --> 00:45:59,866 [speaker_1]
+Przetestować właśnie.
+
+00:46:01,106 --> 00:46:57,466 [speaker_0]
+No tak, tak. I tam też pisałem, że na przykład w F1, jak dokładamy...
+Bo to tak à propos COSO i tego maila, co pisałem o tym, o tej wiedzy dziedzinowej F1,
+
+00:46:57,486 --> 00:47:04,826 [speaker_1]
+Znaczy no, to by zależało od tego, jak z Jakubem będzie,
+bo ja tam po tej osiemnastej też mogę być do rana.
+
+00:47:06,486 --> 00:47:10,406 [speaker_2]
+Ja się... No nie wiem, nie chcę się wstępnie deklarować, ale to dwudziesta pierwsza.
+
+00:47:10,426 --> 00:47:11,106 [speaker_0]
+Dobra.
+
+00:47:11,145 --> 00:47:17,046 [speaker_2]
+Tak bezpiecznie. No to nie wiem. Ja zorientuję się. No i jeszcze nie wiem. Maila.
+
+00:47:17,106 --> 00:47:32,366 [speaker_0]
+Jutro, nawet jutro po dwudziestej może pan wysłać maila bez problemu. Pamiętajcie tylko,
+że najważniejsze, żebyśmy się spotkali wtedy,
+
+00:47:32,436 --> 00:47:39,766 [speaker_1]
+Tak. No, w zasadzie mamy rozpisać to, co ten właśnie taki ogólny tytuł i-
+
+00:47:39,786 --> 00:47:42,246 [speaker_0]
+Kilka pomysłów, kilka różnych odmiennych pomysłów.
+
+00:47:42,306 --> 00:47:49,496 [speaker_1]
+Co ja bym chciał robić z tymi autoenkoderami i... No, bo ja na razie o niczym innym nie myślę.
+To tak zakładam.
+
+00:47:49,506 --> 00:47:57,186 [speaker_2]
+Mamy kilka tytułów i do każdego tytułu propozycję tego opisu do przyklejenia do APD, tak?
+
+00:47:57,386 --> 00:47:59,986 [speaker_0]
+Mi się wydaje, że propozycja opisu może być jedna.
+
+00:48:00,006 --> 00:48:00,886 [speaker_1]
+No, no.
+
+00:48:00,906 --> 00:48:08,866 [speaker_0]
+A, bo to jest, bo to jest jakby już bezpieczniejsze. No, zakładając,
+że będziecie robili to COSO i i autoenkodery. Trudno, jeżeli się-
+
+00:48:08,906 --> 00:48:09,546 [speaker_1]
+Co byśmy chcieli.
+
+00:48:09,566 --> 00:48:23,886 [speaker_0]
+Jeżeli się okaże. Jeżeli się okaże, że jedno z nich wyleci,
+no to będziemy musieli co najwyżej zgłosić od nowa, ten wyklikać, nie? Ale tak jak mówię,
+
+00:48:23,926 --> 00:48:25,846 [speaker_1]
+Dobra.
+
+00:48:25,986 --> 00:48:33,226 [speaker_0]
+Bo tutaj to jest pewne wyzwanie, żeby w siedem, siedem wyrazów no skompresować tą treść pracy.
+
+00:48:33,246 --> 00:48:41,966 [speaker_1]
+A może być jakby jedno wyleciało, ale na przykład nie możemy napisać, że po prostu to nie wyszło?
+
+00:48:42,606 --> 00:48:47,906 [speaker_0]
+Wyleciało. Mam na myśli nie, że nie wyszło, tylko że zupełnie nie ma nawet eksperymentów z tego.
+
+00:48:47,946 --> 00:48:49,846 [speaker_1]
+Okej, okej, czyli że jakby nie mieli-
+
+00:48:50,126 --> 00:48:52,186 [speaker_2]
+Już praktycznie fizycznie dalej.
+
+00:48:52,510 --> 00:49:22,830 [speaker_0]
+... że hipo- hipotetycznie, hipotetycznie na przykład, yy, jeden z was zaczyna zajmować się KOSO,
+a drugi autoenkoderami, ale potem okazuje się, że z KOSO jest za trudno, a autko-, auto-,
+
+00:49:22,870 --> 00:49:24,080 [speaker_1]
+Dobra, dobra.
+
+00:49:24,090 --> 00:49:39,190 [speaker_0]
+Bo praca, praca nie jest oceniana pod kątem sukcesu,
+tylko pod kątem jakości wykonanych eksperymentów, nie? Tak jak zwykle. O! A jeszcze jedną rzecz,
+
+00:49:39,330 --> 00:49:45,010 [speaker_1]
+Yy, mogę sprawdzić w planie, bo dostałem maila, że już są już wprowadzone.
+
+00:49:46,610 --> 00:49:48,670 [speaker_2]
+Ale mogą się zmienić.
+
+00:49:48,730 --> 00:49:54,570 [speaker_1]
+Mogą, bo dwa tygodnie temu jeszcze miałem angielski w poniedziałek o ósmej. Teraz nie miałem.
+
+00:49:54,590 --> 00:49:57,590 [speaker_2]
+A to co rok ma ten wykład angielski, nie? Ten wykład, czy nie?
+
+00:49:57,630 --> 00:50:07,010 [speaker_1]
+Przyszły tydzień. Yy, widzę wykład o piętnastej. „Sztuczna inteligencja w grach".
+
+00:50:08,770 --> 00:50:24,930 [speaker_0]
+Tak, piętnasta dziesięć wykład i potem laby. Okej, bo laby są przeplatane co dwa tygodnie.
+Ja chyba będę chciał to jakoś scalić. To znaczy albo żeby wszyscy po wykładzie zostawali na labach,
+
+00:50:24,950 --> 00:50:30,230 [speaker_1]
+Nie wiem, ale dałoby się na przykład przed? Bo wtedy okienko mamy nawet.
+
+00:50:30,250 --> 00:50:35,790 [speaker_0]
+Znaczy, jeżeli już, to może co dwa tygodnie, bo jest wykład i potem laby są dla tej drugiej połówki.
+
+00:50:36,190 --> 00:50:36,300 [speaker_1]
+No.
+
+00:50:36,300 --> 00:51:01,730 [speaker_0]
+No to może, może wtedy obydwie połówki mogłyby przyjść po prostu, nie? Mm, tak, bo zakładając,
+że na wykłady nie wszyscy będą chcieli chodzić, to te laboratoria od siedemnastej do... Aha,
+
+00:51:01,750 --> 00:51:15,710 [speaker_1]
+A to będzie podobnie jak teraz właśnie na... na algorytmach i, yy, na tych,
+co mieliśmy teraz i w pierwszym semestrze, że też takie, yy,
+
+00:51:15,770 --> 00:51:25,150 [speaker_0]
+Nie, nie, nie, to będzie dużo luźniej. To znaczy, to będzie tak,
+że każdy sobie wybierze jakąś grę i będzie po znanymi algorytmami ją rozwiązywał przez większość
+
+00:51:25,210 --> 00:51:28,250 [speaker_1]
+Aha! Grę w sensie. Dobra, dobra, dobra, no.
+
+00:51:28,290 --> 00:51:38,310 [speaker_0]
+No, bo to jest sztuczna inteligencja w grach, nie? Także,
+także laby będą raczej większą frajdą i mniej takie mniej będą zarządzane z tygodnia na tydzień.
+
+00:51:38,330 --> 00:51:42,330 [speaker_1]
+Czyli coś typu, że będziemy chcieli zrobić gracza w Go. W Go.
+
+00:51:42,370 --> 00:52:21,940 [speaker_0]
+No właśnie, właśnie! Gracza. Ka- każdy sobie wybierze taką grę,
+którą lubi i będzie ją rozwiązywał własnymi metodami.
+
+00:52:21,940 --> 00:52:22,890 [speaker_1]
+W poniedziałek, mm.
+
+00:52:22,950 --> 00:52:26,610 [speaker_0]
+A za kolejny, a w kolejny poniedziałek ma pan właśnie laby.
+
+00:52:26,630 --> 00:52:27,230 [speaker_1]
+Tak.
+
+00:52:27,250 --> 00:52:37,130 [speaker_0]
+I pyta, i pytanie właśnie, co wtedy robi ta druga połówka? Kiedy pan ma laby, czy,
+czy ma wtedy okienko, czy ma jakieś inne laby, czy coś tam, nie?
+
+00:52:37,150 --> 00:52:38,870 [speaker_1]
+Mhm.
+
+00:52:38,890 --> 00:53:03,370 [speaker_0]
+No, ale właściwie to równie dobrze możemy mieć dwa osobne laby. Najczęściej jak są, jak jest jedna,
+bo nie, nie jest was aż, was aż tak dużo. [śmiech] Więc jak wszyscy siedzą w jednej sali,
+
+00:53:03,850 --> 00:53:05,210 [speaker_1]
+Chyba tak.
+
+00:53:05,250 --> 00:53:22,830 [speaker_0]
+Jak, jak będziecie wymyślali te pomysły na tytuły, to tylko pamiętajcie,
+żeby właśnie to nie były takie jakieś drobne tuningi typu, że pominiemy jedno słowo,
+
+00:53:22,870 --> 00:53:23,930 [speaker_1]
+Dobra.
+
+00:53:23,970 --> 00:53:37,430 [speaker_0]
+Na przykład od wygła, wygładzanie krajobrazu czy, czy fitness distance correlation,
+czy jakieś takie różne pomysły. No dobra, no do usłyszenia jutro.
+
+00:53:37,470 --> 00:53:40,070 [speaker_2]
+Do usłyszenia.
+
+00:53:40,080 --> 00:53:47,870 [speaker_1]
+Do usłyszenia. [dźwięk kończenia połączenia]
