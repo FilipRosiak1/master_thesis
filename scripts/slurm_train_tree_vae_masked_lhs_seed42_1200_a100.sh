@@ -2,7 +2,7 @@
 #SBATCH -J lhs_s42_1200
 #SBATCH -A inz_csolso
 #SBATCH -p hgx
-#SBATCH -w hgx1
+#SBATCH -w hgx2
 #SBATCH -n1
 #SBATCH --gres=gpu:1
 #SBATCH --mem=128G
