@@ -68,7 +68,7 @@ def _list_latest_log_runs(models_roots: list[Path], repo_root: Path) -> list[Log
     for models_root in models_roots:
         all_runs.extend(_list_latest_log_runs_for_root(models_root, repo_root, include_root_label=include_root_label))
 
-    return sorted(all_runs, key=lambda run: run.label)
+    return sorted(all_runs, key=lambda run: run.run_dir.stat().st_mtime, reverse=True)
 
 
 def _list_latest_log_runs_for_root(models_root: Path, repo_root: Path, *, include_root_label: bool) -> list[LogRun]:

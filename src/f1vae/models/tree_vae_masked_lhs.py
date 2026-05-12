@@ -27,6 +27,11 @@ class LHSConditionedMaskedTreeAwareDecoder(MaskedTreeAwareDecoder):
         lhs_indices = [stack[-1] if stack else self.finished_lhs_idx for stack in stacks]
         return torch.tensor(lhs_indices, dtype=torch.long, device=device).unsqueeze(1)
 
+    def _decoder_input(self, input_rule: torch.Tensor, stacks: list[list[int]], z_step: torch.Tensor) -> torch.Tensor:
+        rule_embedded = self.embedding(input_rule)
+        lhs_embedded = self.lhs_embedding(self._lhs_input_from_stacks(stacks, z_step.device))
+        return torch.cat([rule_embedded, lhs_embedded, z_step], dim=-1)
+
     def forward(
         self,
         z: torch.Tensor,
@@ -43,9 +48,7 @@ class LHSConditionedMaskedTreeAwareDecoder(MaskedTreeAwareDecoder):
         step_logits: list[torch.Tensor] = []
 
         for t in range(steps):
-            rule_embedded = self.embedding(input_rule)
-            lhs_embedded = self.lhs_embedding(self._lhs_input_from_stacks(stacks, z.device))
-            decoder_in = torch.cat([rule_embedded, lhs_embedded, z_step], dim=-1)
+            decoder_in = self._decoder_input(input_rule, stacks, z_step)
             gru_out, hidden = self.gru(decoder_in, hidden)
             logits = self.fc_out(gru_out.squeeze(1))
             valid_mask = self._valid_mask_from_stacks(stacks, z.device)
@@ -69,6 +72,33 @@ class LHSConditionedMaskedTreeAwareDecoder(MaskedTreeAwareDecoder):
         return torch.cat(step_logits, dim=1)
 
 
+class LHSDepthConditionedMaskedTreeAwareDecoder(LHSConditionedMaskedTreeAwareDecoder):
+    def __init__(
+        self,
+        num_classes: int,
+        emb_dim: int,
+        hidden_dim: int,
+        latent_dim: int,
+        max_length: int,
+        pad_rule_idx: int,
+        lhs_vocab_size: int,
+    ) -> None:
+        super().__init__(num_classes, emb_dim, hidden_dim, latent_dim, max_length, pad_rule_idx, lhs_vocab_size)
+        self.max_depth = max_length + 1
+        self.depth_embedding = nn.Embedding(self.max_depth, emb_dim)
+        self.gru = nn.GRU((emb_dim * 3) + latent_dim, hidden_dim, batch_first=True)
+
+    def _depth_input_from_stacks(self, stacks: list[list[int]], device: torch.device) -> torch.Tensor:
+        depth_indices = [min(len(stack), self.max_depth - 1) for stack in stacks]
+        return torch.tensor(depth_indices, dtype=torch.long, device=device).unsqueeze(1)
+
+    def _decoder_input(self, input_rule: torch.Tensor, stacks: list[list[int]], z_step: torch.Tensor) -> torch.Tensor:
+        rule_embedded = self.embedding(input_rule)
+        lhs_embedded = self.lhs_embedding(self._lhs_input_from_stacks(stacks, z_step.device))
+        depth_embedded = self.depth_embedding(self._depth_input_from_stacks(stacks, z_step.device))
+        return torch.cat([rule_embedded, lhs_embedded, depth_embedded, z_step], dim=-1)
+
+
 class LHSConditionedMaskedTreeGrammarVAE(MaskedTreeGrammarVAE):
     def __init__(
         self,
@@ -81,6 +111,28 @@ class LHSConditionedMaskedTreeGrammarVAE(MaskedTreeGrammarVAE):
     ) -> None:
         super().__init__(num_classes, emb_dim, hidden_dim, latent_dim, max_length, pad_rule_idx)
         self.decoder = LHSConditionedMaskedTreeAwareDecoder(
+            num_classes=num_classes,
+            emb_dim=emb_dim,
+            hidden_dim=hidden_dim,
+            latent_dim=latent_dim,
+            max_length=max_length,
+            pad_rule_idx=pad_rule_idx,
+            lhs_vocab_size=len(self.lhs_map),
+        )
+
+
+class LHSDepthConditionedMaskedTreeGrammarVAE(MaskedTreeGrammarVAE):
+    def __init__(
+        self,
+        num_classes: int,
+        emb_dim: int,
+        hidden_dim: int,
+        latent_dim: int,
+        max_length: int,
+        pad_rule_idx: int,
+    ) -> None:
+        super().__init__(num_classes, emb_dim, hidden_dim, latent_dim, max_length, pad_rule_idx)
+        self.decoder = LHSDepthConditionedMaskedTreeAwareDecoder(
             num_classes=num_classes,
             emb_dim=emb_dim,
             hidden_dim=hidden_dim,

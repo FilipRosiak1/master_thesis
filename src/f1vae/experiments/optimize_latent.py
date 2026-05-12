@@ -22,7 +22,10 @@ from f1vae.models.registry import MODEL_NAMES
 from f1vae.models.transformer_vae import TransformerGrammarVAE
 from f1vae.models.tree_vae import TreeGrammarVAE
 from f1vae.models.tree_vae_masked import MaskedTreeGrammarVAE
-from f1vae.models.tree_vae_masked_lhs import LHSConditionedMaskedTreeGrammarVAE
+from f1vae.models.tree_vae_masked_lhs import (
+    LHSConditionedMaskedTreeGrammarVAE,
+    LHSDepthConditionedMaskedTreeGrammarVAE,
+)
 from f1vae.models.vq_grammar_ae import VQGrammarAE
 from f1vae.optimization import CEMConfig, CMAESConfig, optimize_latent_cem, optimize_latent_cmaes
 
@@ -166,6 +169,18 @@ def _build_model(
             ),
             None,
         )
+    if model_name == "tree_vae_masked_lhs_depth":
+        return (
+            LHSDepthConditionedMaskedTreeGrammarVAE(
+                num_classes=num_rules + 1,
+                emb_dim=int(embedding_dim),
+                hidden_dim=int(hidden_dim),
+                latent_dim=latent_dim,
+                max_length=max_length,
+                pad_rule_idx=num_rules,
+            ),
+            None,
+        )
     if model_name == "transformer_vae":
         return (
             TransformerGrammarVAE(
@@ -204,7 +219,7 @@ def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, 
         if model_name == "grammar_vae_masked":
             tokens = decode_masked_deterministic(model, z_tensor).squeeze(0)
             return decode_grammar_indices(tokens)
-        if model_name in {"tree_vae_masked", "tree_vae_masked_lhs"}:
+        if model_name in {"tree_vae_masked", "tree_vae_masked_lhs", "tree_vae_masked_lhs_depth"}:
             logits = model.decode(z_tensor, None, teacher_forcing_ratio=0.0).squeeze(0)
             return decode_grammar_indices(logits.argmax(dim=-1))
         logits = model.decoder(z_tensor, None, teacher_forcing_ratio=0.0).squeeze(0)

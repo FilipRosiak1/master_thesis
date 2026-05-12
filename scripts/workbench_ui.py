@@ -16,6 +16,7 @@ MODELS = (
     "tree_vae",
     "tree_vae_masked",
     "tree_vae_masked_lhs",
+    "tree_vae_masked_lhs_depth",
     "transformer_vae",
     "vq_grammar_ae",
 )

@@ -24,7 +24,10 @@ from f1vae.models.grammar_vae_masked import GrammarMaskedVAE
 from f1vae.models.transformer_vae import TransformerGrammarVAE
 from f1vae.models.tree_vae import TreeGrammarVAE
 from f1vae.models.tree_vae_masked import MaskedTreeGrammarVAE
-from f1vae.models.tree_vae_masked_lhs import LHSConditionedMaskedTreeGrammarVAE
+from f1vae.models.tree_vae_masked_lhs import (
+    LHSConditionedMaskedTreeGrammarVAE,
+    LHSDepthConditionedMaskedTreeGrammarVAE,
+)
 from f1vae.models.vq_grammar_ae import VQGrammarAE
 from f1vae.models.registry import MODEL_NAMES
 from f1vae.utils import command_run_logger
@@ -111,6 +114,20 @@ def _build_model(model_name: str, *, latent_dim: int, hidden_dim: int | None, em
         num_rules = len(G.GCFG.productions())
         return (
             LHSConditionedMaskedTreeGrammarVAE(
+                num_classes=num_rules + 1,
+                emb_dim=int(embedding_dim),
+                hidden_dim=int(hidden_dim),
+                latent_dim=latent_dim,
+                max_length=max_length,
+                pad_rule_idx=num_rules,
+            ),
+            None,
+        )
+
+    if model_name == "tree_vae_masked_lhs_depth":
+        num_rules = len(G.GCFG.productions())
+        return (
+            LHSDepthConditionedMaskedTreeGrammarVAE(
                 num_classes=num_rules + 1,
                 emb_dim=int(embedding_dim),
                 hidden_dim=int(hidden_dim),
@@ -208,7 +225,7 @@ def main() -> None:
                 z[0, dim] += args.noise_scale * std[0, dim] * torch.randn(1, device=device).squeeze()
             logits = model.decoder(z, None, teacher_forcing_ratio=0.0).squeeze(0)
             out = decode_grammar_indices(logits.argmax(-1))
-        elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs"}:
+        elif model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs", "tree_vae_masked_lhs_depth"}:
             x = encode_grammar_rule_string(args.input_string, int(max_length)).to(device)
             mu, logvar = model.encode(x)
             z = mu.clone()

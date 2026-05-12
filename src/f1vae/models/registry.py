@@ -6,6 +6,7 @@ from f1vae.models import (
     GrammarMaskedVAE,
     GrammarRuleVAE,
     LHSConditionedMaskedTreeGrammarVAE,
+    LHSDepthConditionedMaskedTreeGrammarVAE,
     MaskedTreeGrammarVAE,
     TransformerGrammarVAE,
     TreeGrammarVAE,
@@ -20,6 +21,7 @@ MODEL_NAMES = (
     "tree_vae",
     "tree_vae_masked",
     "tree_vae_masked_lhs",
+    "tree_vae_masked_lhs_depth",
     "transformer_vae",
     "vq_grammar_ae",
 )
@@ -32,7 +34,14 @@ def dataset_class_for_model(model_name: str):
         return GrammarRuleDataset
     if model_name == "grammar_vae_masked":
         return GrammarOneHotDataset
-    if model_name in {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs", "transformer_vae", "vq_grammar_ae"}:
+    if model_name in {
+        "tree_vae",
+        "tree_vae_masked",
+        "tree_vae_masked_lhs",
+        "tree_vae_masked_lhs_depth",
+        "transformer_vae",
+        "vq_grammar_ae",
+    }:
         return GrammarRuleDataset
     raise ValueError(f"Unsupported model: {model_name}")
 
@@ -86,6 +95,16 @@ def build_model(model_name: str, dataset, latent_dim: int, hidden_dim: int | Non
 
     if model_name == "tree_vae_masked_lhs":
         return LHSConditionedMaskedTreeGrammarVAE(
+            num_classes=dataset.num_classes,
+            emb_dim=int(embedding_dim),
+            hidden_dim=int(hidden_dim),
+            latent_dim=latent_dim,
+            max_length=max_length,
+            pad_rule_idx=dataset.pad_rule_idx,
+        )
+
+    if model_name == "tree_vae_masked_lhs_depth":
+        return LHSDepthConditionedMaskedTreeGrammarVAE(
             num_classes=dataset.num_classes,
             emb_dim=int(embedding_dim),
             hidden_dim=int(hidden_dim),
