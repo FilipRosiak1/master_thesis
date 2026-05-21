@@ -18,7 +18,7 @@ python scripts/train_fitness_guided_vae.py \
   --mode conditional \
   --model tree_vae_masked_lhs_struct_cond \
   --data-path datasets/f1/f1_dataset.txt \
-  --run-dir models/f1_guided/struct_conditional_lhs_seed42 \
+  --output-root models/f1_guided/struct_conditional_lhs_seed42 \
   --latent-dim 128 \
   --hidden-dim 512 \
   --embedding-dim 64 \

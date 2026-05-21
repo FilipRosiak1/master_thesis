@@ -18,7 +18,7 @@ python scripts/train_fitness_guided_vae.py \
   --mode auxiliary \
   --model tree_vae_masked_lhs \
   --data-path datasets/f1/f1_dataset.txt \
-  --run-dir models/f1_guided/fitness_aware_lhs_seed42 \
+  --output-root models/f1_guided/fitness_aware_lhs_seed42 \
   --latent-dim 128 \
   --hidden-dim 512 \
   --embedding-dim 64 \
