@@ -1,0 +1,35 @@
+class:
+name:Thr
+longname:Threshold
+description:if (input>=t) then output=hi else output=lo
+prefinputs:-1
+prefoutput:1
+icon:~
+24,3,3,25,0,25,100,75,50,25,0,1,75,50,100,50,3,30,75,40,75,40,40,60,40~
+code:~
+function init()
+{}
+
+function go()
+{
+	if (Neuro.weightedInputSum >= NeuroProperties.t)
+		Neuro.state = NeuroProperties.hi;
+	else
+		Neuro.state = NeuroProperties.lo;
+}
+~
+
+property:
+id:t
+name:Threshold
+type:f
+
+property:
+id:lo
+name:Low output value
+type:f
+
+property:
+id:hi
+name:High output value
+type:f

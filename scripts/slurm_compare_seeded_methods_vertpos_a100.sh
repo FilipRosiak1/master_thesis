@@ -2,11 +2,10 @@
 #SBATCH -J compare_seeded
 #SBATCH -A inz_csolso
 #SBATCH -p hgx
-#SBATCH -w hgx2
 #SBATCH -n1
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
-#SBATCH --time=08:00:00
+#SBATCH --time=48:00:00
 
 set -euo pipefail
 

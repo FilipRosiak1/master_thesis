@@ -1,0 +1,124 @@
+show:
+name:Benthic foraminifera
+info:~
+There are two species of Foraminiera: longitudal and coiled. The first chamber of the longitudal species has orange marks. Haploid and diploid generations alternate in both species. All chambers of the haploid generation have the same size. In the diploid generation, subsequent chambers are bigger than their predecessors. 
+
+Nutrients are shown as tiny green cylinders. Foraminifers move towards nearest nutrients and this way they can accumulate enough energy to reproduce.
+
+When the "Enhance visualization" option is enabled, reticulopodia are shown as large disks and positions of nutrients are indicated by cuboids.  
+
+More information at www.framsticks.com/foraminifera
+~
+expdef:foraminifera
+code:~
+
+global Params; //to easily transfer changes in identical properties from this show to expdef
+global last_simspeed; //to display time scale when it changes significantly
+
+function onLoad()
+{
+	// Since Theater is mostly for demos and visualization, we make the world smaller (than set by expdef) for clarity, and adjust other parameters accordingly
+	World.wrldsiz = 100;
+	var nutrient_multiple = 200;
+	Params = { "foodflux" : [0.000000037815, 0.000000075631, 0.00000015126], "feedtrans" : [0.0005, 0.001, 0.002], "energy_nut" : [nutrient_multiple * 144.54, nutrient_multiple * 544.54, nutrient_multiple * 944.54], "stress" : [0, 1], "visualize" : [0, 1]}; //a set of smaller food fluxes because of the smaller world
+	//larger initial energies result in fewer individuals that do not overcrowd the small world:
+	ExpProperties.energies0_haplo = 60;
+	ExpProperties.energies0_diplo = 3.75;
+	ShowProperties_foodflux_set(); //force call of the value change handler
+
+	ShowProperties.visualize = 1; //calls value change handler
+	ExpProperties.secPerStep = 50;
+
+	Simulator.init(); //calculates some parameters based on the current world size
+	last_simspeed = 0;
+	GLDisplay.desiredsimspeed = 50;
+	GLDisplay.minfps = 10;
+	TrackingCam.cam_h = 15; //more side view
+
+	//useful for screenshots:
+	//GLDisplay.world_visibility=2+4; //show only environment and creatures (no background)
+	//GLDisplay.bgcolor=0xffffffff; //white background
+}
+
+function timeScale()
+{
+	//just a draft, this function and all constants in expdef need serious review
+	var localDriveMicronsPerStep = framsToMicrons(getMovePerStep());
+	var foramSpeedMmPerSec = ExpProperties.foramSpeedMmPerMin / 60;
+	var localDriveMmPerStep = localDriveMicronsPerStep / 1000;
+	var localDriveMmPerSec = localDriveMmPerStep * Simulator.simspeed;
+	return localDriveMmPerSec / foramSpeedMmPerSec;
+}
+
+function updateBanner()
+{
+	GLDisplay.banner = "World size is %g mm." % (framsToMicrons(World.wrldsiz) / 1000);
+	GLDisplay.banner += "\nShowing real-time x %g." % timeScale();
+}
+
+function onShowStep()
+{
+	if (Simulator.simspeed < last_simspeed * 0.9 || Simulator.simspeed > last_simspeed * 1.1) //significant change
+	{
+		updateBanner();
+		last_simspeed = Simulator.simspeed;
+	}
+}
+
+function setShowParam(param_id)
+{
+	ExpProperties.[param_id] = Params[param_id][ShowProperties.[param_id]];
+}
+
+function ShowProperties_foodflux_set()
+{
+	setShowParam("foodflux");
+}
+
+function ShowProperties_feedtrans_set()
+{
+	setShowParam("feedtrans");
+}
+
+function ShowProperties_energy_nut_set()
+{
+	setShowParam("energy_nut");
+}
+
+function ShowProperties_stress_set()
+{
+	setShowParam("stress");
+}
+
+function ShowProperties_visualize_set()
+{
+	setShowParam("visualize");
+}
+
+~
+
+property:
+id:foodflux
+name:Food flux
+type:d 0 2 1 ~Low~Medium~High
+
+property:
+id:feedtrans
+name:Energy transfer per second
+type:d 0 2 1 ~0.0005~0.001~0.002
+
+property:
+id:energy_nut
+name:Nutrient energy [ng Corg]
+# shorter approximate values instead of precise picograms ~28908~108908~188908. Details in http://dx.doi.org/10.1016/j.jocs.2016.09.009
+type:d 0 2 1 ~≈29~≈109~≈189
+
+property:
+id:stress
+name:Stress 
+type:d 0 1 1
+
+property:
+id:visualize
+name:Enhance visualization
+type:d 0 1 0

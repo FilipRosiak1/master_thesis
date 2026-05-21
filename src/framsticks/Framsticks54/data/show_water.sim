@@ -1,0 +1,9 @@
+# configure "standard AL water"
+sim_params:
+wrldwat:20
+creath:-0.5
+
+Population:
+name:Creatures
+initial_nn_active:1
+initial_perf_measuring:1

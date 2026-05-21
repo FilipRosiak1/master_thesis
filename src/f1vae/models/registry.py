@@ -9,6 +9,7 @@ from f1vae.models import (
     LHSConditionedMaskedTreeGrammarVAE,
     LHSDepthConditionedMaskedTreeGrammarVAE,
     MaskedTreeGrammarVAE,
+    StructuralConditionedLHSMaskedTreeGrammarVAE,
     TransformerGrammarVAE,
     TreeGrammarVAE,
     VQGrammarAE,
@@ -24,6 +25,7 @@ MODEL_NAMES = (
     "tree_vae_masked_lhs",
     "tree_vae_masked_lhs_depth",
     "tree_vae_masked_lhs_cond",
+    "tree_vae_masked_lhs_struct_cond",
     "transformer_vae",
     "vq_grammar_ae",
 )
@@ -42,6 +44,7 @@ def dataset_class_for_model(model_name: str):
         "tree_vae_masked_lhs",
         "tree_vae_masked_lhs_depth",
         "tree_vae_masked_lhs_cond",
+        "tree_vae_masked_lhs_struct_cond",
         "transformer_vae",
         "vq_grammar_ae",
     }:
@@ -118,6 +121,16 @@ def build_model(model_name: str, dataset, latent_dim: int, hidden_dim: int | Non
 
     if model_name == "tree_vae_masked_lhs_cond":
         return FitnessConditionedLHSMaskedTreeGrammarVAE(
+            num_classes=dataset.num_classes,
+            emb_dim=int(embedding_dim),
+            hidden_dim=int(hidden_dim),
+            latent_dim=latent_dim,
+            max_length=max_length,
+            pad_rule_idx=dataset.pad_rule_idx,
+        )
+
+    if model_name == "tree_vae_masked_lhs_struct_cond":
+        return StructuralConditionedLHSMaskedTreeGrammarVAE(
             num_classes=dataset.num_classes,
             emb_dim=int(embedding_dim),
             hidden_dim=int(hidden_dim),

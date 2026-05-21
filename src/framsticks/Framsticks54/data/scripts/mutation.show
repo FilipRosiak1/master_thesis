@@ -1,0 +1,216 @@
+show:
+name:Mutation chain
+info:Presents a chain of subsequent mutants.
+expdef:standard
+code:~
+
+const MAXCREATURES = 5;
+
+global g_last_step_number;
+global g_lastdif;
+global g_circle;
+
+function onLoad()
+{
+	GenePools[0].clear();
+	Populations[1].clear();
+	Populations[0].clear();
+	g_last_step_number = Simulator.stepNumber;
+	g_circle = 0.0;
+	TrackingCam.cam_zoom = 0.3;
+	TrackingCam.cam_chspeed = 0.5;
+	TrackingCam.cam_change = 2;
+	ShowProperties_restart_f1_call();
+	ShowProperties.differ = 1;
+	World.wrldtyp = 0;
+	World.wrldsiz = 40;
+	World.wrldwat = -1.0;
+	World.wrldbnd = 0;
+	ExpProperties.feed = 0;
+	ExpProperties.MaxCreated = 1;
+	GLDisplay.desiredsimspeed = 30;
+}
+
+function restartWith(gen)
+{
+	g_last_step_number = Simulator.stepNumber;
+	g_circle = 0.0;
+	var pop = Populations[0];
+	pop.clear();
+	pop.add(gen);
+	pop.death = 0;
+	pop.energy = 0;
+	pop.selfmask = 0x10001;
+	pop.othermask = 0x20000;
+	makeSelection();
+	updateBanner();
+}
+
+function restartWithSimplest(format)
+{
+	var simplest = GenMan.getSimplest(format);
+	restartWith(simplest.genotype);
+}
+
+function updateBanner()
+{
+	if (CreatureSelection.count > 1)
+	{
+		var curr = CreatureSelection.get(0); //in the selection, current is #0, previous is #1; see function makeSelection()
+		var prev = CreatureSelection.get(1);
+		GLDisplay.banner = "Previous genotype:\n" + prev.genotype + "\nNew mutant created (phenetic difference = " + g_lastdif + "):\n" + curr.genotype;
+	}
+	else if (CreatureSelection.count > 0)
+	{
+		var initial = CreatureSelection.get(0);
+		GLDisplay.banner = "This is the initial genotype:\n" + initial.genotype;
+	}
+	else
+		GLDisplay.banner = "?!";
+}
+
+function createMutant(threshold) //same function in mutation.show, biomorph.show and AL-biomorph.show :/
+{
+	var pop = Populations[0];
+	var cr = pop[pop.size - 1];
+	var parentx = cr.bboxLow.x + (cr.bboxSize.x / 2.0), parenty = cr.bboxLow.y + (cr.bboxSize.y / 2.0);
+	var mut_count = 0;
+	var distance;
+	var original_g = cr.geno; // previous genotype
+	var new_g = original_g;
+	var max_retry = 20;
+	if (original_g.format == "F") //'F' format for which 1) structural similary is not very useful and 2) conversion fF->f0 takes a lot of time for multiple-Part creatures, so let's not do this many times here
+		max_retry = 5;
+	for(var retry = 0; retry < max_retry; retry++)
+	{
+		// CLI.println("mutating "+retry+": "+new_g.genotype);
+		new_g = GenMan.mutate(new_g);
+		mut_count++;
+		if (!new_g.is_valid)
+		{
+			// CLI.println("invalid mutant: "+new_g.genotype);
+			new_g = original_g;
+			mut_count = 0;
+			continue;
+		}
+		//	CLI.println(original_g.genotype+" ... "+new_g.genotype);
+		if (threshold < 0.001) //no threshold
+			break;
+		distance = SimilMeasureHungarian.evaluateDistance(original_g, new_g);
+		//	CLI.println("distance="+distance);
+		if (distance >= threshold)
+			break;
+	}
+	if (mut_count > 1) //when there was a sequence of many mutations, we don't know how many % of genotype mutated, so the information in new_g.info is useless (it only concerns the last mutation in the sequence, and creature names in the sequence are not auto-generated).
+		new_g.info = "'" + original_g.name + "' after " + mut_count + " mutations";
+	if (!new_g.is_valid)
+	{
+		CLI.println("invalid mutant!");
+	}
+	else
+	{
+		g_lastdif = distance;
+		var cr = pop.add(new_g);
+		g_circle = g_circle + 0.3;
+		var dst = (cr.bboxSize.x + cr.bboxSize.y + cr.bboxSize.z) / 3.0 + 2.0;
+		var px = (parentx + Math.sin(g_circle) * dst) * 0.9 + 0.1 * (World.wrldsiz / 2);
+		var py = (parenty + Math.cos(g_circle) * dst) * 0.9 + 0.1 * (World.wrldsiz / 2);
+		cr.locationSetBboxLow(px - cr.bboxSize.x / 2, py - cr.bboxSize.y / 2, cr.bboxGroundOffset);
+		makeSelection();
+		updateBanner();
+	}
+}
+
+function onShowStep()
+{
+	TrackingCam.cam_dir += 0.01;
+	if ((Simulator.stepNumber - g_last_step_number) > 80) //80 adjusted so that for Normal speed, mutant creation rate is comfortable for a user
+	{
+		createMutant([0, 0.5, 2.0, 10.0][ShowProperties.differ]);
+		g_last_step_number = Simulator.stepNumber;
+		var pop = Populations[0];
+		if (pop.size > MAXCREATURES)
+			pop.delete(0);
+	}
+}
+
+global itsmyselection;
+
+function makeSelection()
+{
+	CreatureSelection.clear();
+	var pop = Populations[0];
+	var n = pop.size;
+	if (n > 0)
+	{
+		itsmyselection = 1;
+		CreatureSelection.add(pop[n - 1]);
+	}
+	if (n > 1)
+	{
+		itsmyselection = 1;
+		CreatureSelection.add(pop[n - 2]);
+	}
+}
+
+function onSelectionChange()
+{
+	if (CreatureSelection.count > 0)
+	{
+		if (itsmyselection)
+		{
+			itsmyselection = 0;
+			return ;
+		}
+		makeSelection();
+	}
+}
+
+function ShowProperties_restart_f1_call() { restartWithSimplest("1"); }
+function ShowProperties_restart_f9_call() { restartWithSimplest("9"); }
+function ShowProperties_restart_f4_call() { restartWithSimplest("4"); }
+function ShowProperties_restart_f0_call() { restartWithSimplest("0"); }
+function ShowProperties_restart_fF_call() { restartWithSimplest("F"); }
+
+
+function ShowProperties_restartquadruped_call()
+{
+	restartWith("MX[@*:-.4,2:-2.890,1 :-1.808](RX(FX,),MX[@-1 :1.849,0:3.094,0:-1.387][|-1 :1.287,0:.5](rX(,X),,RX(X,)),rX(,FX))");
+}
+
+~
+
+property:
+id:differ
+name:Mutant variation
+type:d 0 3 ~Single mutation~Forced: small~Forced: medium~Forced: big
+
+property:
+id:restartquadruped
+name:Restart with a quadruped creature
+type:p
+
+property:
+id:restart_f1
+name:Restart with a simple f1 genotype (recurrent encoding)
+type:p
+
+property:
+id:restart_f9
+name:Restart with a simple f9 genotype (perpendicular encoding)
+type:p
+
+property:
+id:restart_f4
+name:Restart with a simple f4 genotype (developmental encoding)
+type:p
+
+property:
+id:restart_f0
+name:Restart with a simple f0 genotype (low-level encoding)
+type:p
+
+property:
+id:restart_fF
+name:Restart with a simple fF genotype (Foraminifera encoding)
+type:p

@@ -1,0 +1,1368 @@
+# Gene pool: "walking"
+# Creatures which walk, jump, etc. (land environment)
+#
+# Downloaded on 2025-01-01 from Framsticks Experimentation Center
+
+org:
+name:Slow, smelling puller
+genotype:~
+gGX[N,1:-1,5:1]rr(XfffflCX[S1],X[|,r:1.0,-2:1]rrLLLLFFFFMMMX[Sin,f0:0.1,t:1,t:0.5][|,r:1,-1:1],XfffflCX[S1])~
+info_timestamp:1068508800.0
+info_author:Manuel
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:my first food try of food finding
+info_performance:strange moving, smelling.
+num:55
+instances:0
+data:
+
+org:
+name:Caterpillar
+genotype:(rrX(lX(llX[T:1],),lXMMMMX[|1:2,-1:-3]rrX[T:-0.407](LlX,,LlX),))
+info_timestamp:1071014400.0
+info_author:Whoot
+info_author_ispublic:1
+info_email:Whoot1@hotmail.com
+info_email_ispublic:1
+info:A wurm like movement.
+info_origin:1
+info_how_created:~
+I begon with an idea of making a wurm. simple. I went to work and got results almost in a day.~
+info_performance:~
+The movement is verry unique. I love it when it crawls accross the 3D world in there :)~
+num:56
+instances:0
+data:
+
+org:
+name:Basic Quadruped
+genotype:~
+GGMX[@*:-.4, 2:-2.890, 1:-1.808]Ggb(RX(FX, ), MX[@-1:1.849, 0:3.094, 0:-1.387][|-1:1.287, 0:.5]Gg(rX(, X), , RX(X, )), rX(, FX))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+A walking example.
+Manually created physical and neural structure, NN engram evolved.~
+info_performance:
+num:58
+instances:0
+data:
+
+org:
+name:Walking Lizard
+genotype:~
+GGlllllffffXM(, , , , , , , lllllffffX, X[@1:1.272](RlllX[|=:0, 4:0.931][-2:-1.664, 4:4.985]M(llllFGGgbddDX[|-1:3.094][-1:109.385][-3:-0.322, T:-5.074], ), LfffX[1:-11.876, =:0, -1:8.608, -1:-3.403][|8:-2.496, 1:-2.898][@/:-2.809, -1:3.489](rllllGGgbddDX[@=:0.000, -1:-7.75][|=:0](, , lllllFX[0:-0.375, 1:4.712][@0:-27.137, -1:0.916][|G:-8.69, 2:14.084], ), ffffMGgGbX[@1:10.332, 1:-13.801, 1:0.545][|-9:-2.985]ffffMGGgX, RllllX(, lllllFgdDdDX, )), rllX(, lllllFGGgbddDX)))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+A walking example. 
+Manually created physical and neural structure, NN engram evolved.
+
+2024-04, Maciej Komosinski: evolved weights of the NN for speed (in the direction of body main axis) after f1 modifiers changed slightly their behavior. One "broken leg" left unfixed (to fix its angle, just add one comma) because after such a fix, even though all four legs look identical, due o asymmetry in muscles, the movement trait does not look attractive (even if the NN is evolved to walk exactly in the direction of the initial body main axis, the middle part of the body is skewed, thus walking a bit sideways).~
+info_performance:
+num:59
+instances:0
+data:
+
+org:
+name:Fast Lizard
+genotype:~
+GGDDblfffffMMMMMX(FFFMMMMMgbX[|0:0.145, T:1.914], lfffffMMMMMgX[0:5.481](, lfffffMMMMMX[@0:1.146, 1:-1.346, 7:-2.556](FFFMMMMMX[|3:-2.455, T:3.481], fffffMMMMMX[@1:23.478][0:-11.575][0:2.888, T:26.593]fffffMMMMMdbgX[|-1:2.880, -1:-2.879], FFFMMMMMX[G:243.696, 1:6.374][|-3:2.112, 0:-1.234, T:-4.583]), ), FFFMMMMMgbX[|T:-1.441, 0:-0.095, -1:-0.231])~
+info_timestamp:946684800.0
+info_author:Ander Taylor
+info_author_ispublic:1
+info_email:Ander_Taylor@hotmail.com
+info_email_ispublic:1
+info:
+info_origin:2
+info_how_created:~
+I fist made the Framstick with 8 legs, I then realised that if I removed some of the legs that it would make quite a natural looking lizard.
+2025-01, Maciej Komosinski: evolved weights for a more reliable movement (previously it would occasionally permanently "freeze").~
+info_performance:It looks natural and is fast.
+num:60
+instances:0
+data:
+
+org:
+name:Speedy
+genotype:~
+bGgLLLLfffMMMMM(,  LLcffffMMMMQ(, lX[0:2.420, 1:-0.626, 1:-1,fo:0.04,fo:0.04][-1:1, 0:1, 0:-1,s:0.577][@-1:1.283,fo:0.041]Mq(RMMMMFX[|-1:1.537, 1:2.088]lqX[|-2:-1.094,s:0], RmmDDXfMMMFfMmFX[@T:0.128]), RRlffMX[|-6:-0.703,si:2]lFFFFFX[|-6:-0.696]))~
+info_timestamp:978307200.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+I took the 4 legged food finder and evolved it for speed for a long time.
+
+2024-04, Maciej Komosinski: further evolved to simplify and to adjust for the new behavior of modifiers in f1.~
+info_performance:~
+A great velocity.
+
+This creature was awarded.
+~
+num:61
+instances:0
+data:
+
+org:
+name:Hopping Spider 2 legs
+genotype:~
+bDdg(, X(X[@0:-1.449, 0:-8.199][|1:-569.681], rrLC(rX[|T:2.114], rrrLX[|T:3.939], rMX[|T:2.936, -1:-0.812], rLCCMXFFX[@0:1.744][|G:1.810][T:2.368], rLCMXFX[@0:-2.811, -1:-483.403, 1:-822.175][|G:2.389], X)))~
+info_timestamp:915148800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:An evolved for speed example
+info_performance:
+num:62
+instances:0
+data:
+
+org:
+name:Hopping Spider 3 legs
+genotype:~
+bDdgX(X[@0:1.524][|1:-2.379], rrLC(rX[|T:2.114], rrrLX[|T:2.114], rrrLX[|T:3.939], rLMX[|T:2.936, -1:-0.812], rLMXFX[@1:-1.040][0:-1.331][|G:1.849][T:-2.607], rLMXFcCX[@1:2.227][0:-1.331][|G:1.849], rLMXFcCX[@0:-2.675, -1:-483.403, 1:-822.175][|G:2.389], X))~
+info_timestamp:915148800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:An evolved for speed example
+info_performance:
+num:63
+instances:0
+data:
+
+org:
+name:Hopping Spider 5 legs
+genotype:~
+bDdglllX[S:4](, RXMMMCccX[|1:.5, T:-0.616], RRXMMMCCccX[|1:.1, T:5], , , RRXMMMCccX[|1:.1, T:5], llX[S:4], RXMMMCccX, RRXMMMCccX[|0:.1, T:5])~
+info_timestamp:946684800.0
+info_author:Troy Jenkins
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Evolved from four legged spider design.
+~
+info_performance:~
+The fifth leg which does not move seems to add stability to the creature's jump.
+This creature was awarded.~
+num:64
+instances:0
+data:
+
+org:
+name:Bugsy
+genotype:~
+llllGX[1:.5, *:.5, /:200][5:.2, 8:.2, 11:.2, 14:.2, 17:.2, *:-.8, /:200](RRllllDX[|1:.4]LLLcCcX[T:200][|-4:.2, 8:-.13], , RRllllbbDdggX[|1:3.592]LLLLcCcX[T:200][|11:-.13], , RRllllGX[|1:.4]LLLLLcCcX[T:200][|5:-.13], , RRllllDX[|1:-.4]LLLLLcCcX[T:200][|-7:-.13], , RRllllbbDdggX[|1:-129.673]LLLLcCcX[T:200][|-13:-.13], , RRllllGX[|1:-.4]LLLcCcX[T:200][|-10:-.13])~
+info_timestamp:946684800.0
+info_author:Al Tyler
+info_author_ispublic:1
+info_email:Alan.Tyler@Verizon.net
+info_email_ispublic:1
+info:
+info_origin:1
+info_how_created:~
+Body designed manually. Neural network designed manually. Neural network further evolved.
+~
+info_performance:~
+All other walkers I have seen do so by flopping. This framstick walks by lifting its legs.
+This creature was awarded.~
+num:65
+instances:0
+data:
+
+org:
+name:Turanjaguar
+genotype:~
+GgbllllX[/:200, 5:.15, 11:.15, 14:.15, 17:.15, 24:.15](RRllllMMX[|1:-1.442]LLLLcMMX[T:1.750][|-3:.2], , RRllllMMX[|2:1]LLLLcMMX[T:1, -1:6.529][|-4:-.15], , RRllllMMX[|1:1]LLLLcMMX[T:2.150][|-4:-.15], , RRllllMMX[|1:-0.755]LLLLcMMX[T:1][|-4:-.15], , RRllllMMX[|1:-1]LLLLcMMX[T:1.532][|-4:-.15], , RRllllMMX[|1:-1]LLLLcMMX[T:1][|-4:-.15], , RRllllMMX[|1:-1]LLLLcMMX[T:1][|-4:-.15], , RRllllMMX[|1:-1]LLLLcMMX[T:0.651][|-4:-.15])~
+info_timestamp:946684800.0
+info_author:Al Tyler
+info_author_ispublic:1
+info_email:Alan.Tyler@Verizon.net
+info_email_ispublic:1
+info:
+info_origin:2
+info_how_created:Neural network designed manually. Neural network further evolved.
+info_performance:~
+It makes my wife say eeks.
+This creature was awarded.~
+num:66
+instances:0
+data:
+
+org:
+name:2-leg Rammer
+genotype:~
+(RRX[6:-0.783][-1:2][-1:2][-1:2][-1:2][-1:2][-1:2](RRllMMMX[|-1:10][@0:0.737, -1:-10](RRlllX(fffX, , , , , , fffX), , RRlllX(fffX, , , , , , fffX)), , ), , RRX(RRllMMMX[|-3:-10][@!:0.046, -1:10](RRlllX(fffX, , , , , , fffX), , RRlllX(fffX, , , , , , fffX)), , ))~
+info_timestamp:946684800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:2-leg walking creature
+info_performance:
+num:67
+instances:0
+data:
+
+org:
+name:Dancer
+genotype:~
+X[@0:4.271][0:1.815, 1:-0.893][|1:-2.986][T:-2.394][T:1.150][0:4.271][T:-2.394][0:1.815, 1:-0.893][1:-2.986][0:4.271][1:-2.986][T:-2.394][T:1.150][0:4.271][0:1.815, 1:-0.893][1:-2.986][T:-2.394][T:1.150][0:4.271][1:-2.986][T:2.641][T:1.150]~
+info_timestamp:946684800.0
+info_author:Jeff Weber
+info_author_ispublic:1
+info_email:crashlander2000@hotmail.com
+info_email_ispublic:1
+info:
+info_origin:3
+info_how_created:Started with X, and selected for Vertical position and Vertical velocity.
+info_performance:It's a one stick framstick that... well, dances!
+num:68
+instances:0
+data:
+
+org:
+name:Walker Handicapped
+genotype:~
+gG(, m(X, LMXRlccCc(, , , MMMMXLLLLLLqX[@0:1.357, =:0.728][0:4.301][|1:-0.321, 1:478.220, /:-0.701, -1:-0.647, 1:2.454][G:876.564])))~
+info_timestamp:915148800.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:
+info_performance:
+num:69
+instances:0
+data:
+
+org:
+name:Walker With a Little Tail
+genotype:~
+F(FFMMGX[|0:-5.597][1:813.700, 1:2.867][0:-1.724, 0:-0.403]D(, RFX[@-1:-3.137]fMcCcX[0:-1.017, 0:-2.111][|1:-1.069, -1:-2.643][@G:-463.037, 2:-4.526], , LLFFX[T:-1.443][@-2:-0.320]MX[-1:-1.178][T:1.69]))~
+info_timestamp:915148800.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:
+info_performance:
+num:70
+instances:0
+data:
+
+org:
+name:Jumper
+genotype:~
+gb(X, RMMMM(, , , , LLLLLfMMMX[=:0.912, 0:1.391, 0:-2.727]CcX[|G:-3.459]rlQqX[|-1:-2.801]MQqX[@1:2.098][0:-0.892], LX))~
+info_timestamp:915148800.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Evolved for speed
+info_origin:4
+info_how_created:
+info_performance:
+num:71
+instances:0
+data:
+
+org:
+name:Sleeper
+genotype:~
+llfffldgXGB(llrrXFFFlllcX, ffflllXllfffMMMDX[|1:0.7][@-1:1.7, 1:1.2, 3:-1, 2:0.5, 4:-2](llrrXFFFlllcX[T:1][S:-0.1], fffLlllDDDDGX, llRRXFFFlllCX[T:1][S:-0.1]), llrrXFFFlllcX)~
+info_timestamp:946684800.0
+info_author:Klay Williams
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:~
+2025-01, Maciej Komosinski: updated weights for a more reliable behavior; note that the "waking up" stage depends on smell receptors, i.e., other scent-emitting objects nearby.~
+info_performance:
+num:72
+instances:0
+data:
+
+org:
+name:Food Finder, 4 legs
+genotype:~
+lllfffX[0:2.420, 2:-2, 1:-1][-1:1, 0:1, 0:-1][-1:1](RRlllfffMMMX[|-1:-10]lllFFFMMMX[|-2:-1], fffIXlllfffMMMX[|6:10, 3:-10](RRlllfffMMMIX[|-4:-10]lllFFFMMMIX[|-5:-1][S1:1], , RRlllfffMMMIX[|-7:10]lllFFFMMMIX[|-8:-1][S1:1]), RRlllfffMMMX[|-10:10]lllFFFMMMX[|-11:-1.784])~
+info_timestamp:946684800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Land food finder
+info_origin:2
+info_how_created:
+info_performance:
+num:73
+instances:0
+data:
+
+org:
+name:Food Finder Worm
+genotype:~
+fffX(fffIX[S1:1.017], RRlFFFMMMX[|-1:-10,
+3:9.501,in:0]llllFFMMMX[|1:-7.207]RlllFFFMMMX[|G:-5.088], fffIX[S1:1.145])~
+info_timestamp:946684800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Worm-like land food finder.
+2006, Maciej Komosinski: evolved for better behavior.~
+info_performance:
+num:74
+instances:0
+data:
+
+org:
+name:Lame Antelope
+genotype:FFX[G:-2.171]MMX[|-1:-0.896]X[|-1:-2.878]RRX(X, X)
+info_timestamp:852076800.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:mutation of 'antelope'
+info_performance:
+num:75
+instances:0
+data:
+
+org:
+name:Blender
+genotype:X(X, RRMMX[@G:.5](X[@G:.5], X))
+info_timestamp:915148800.0
+info_author:Jeff Weber
+info_author_ispublic:1
+info_email:jeff.weber@born.com
+info_email_ispublic:1
+info:
+info_origin:1
+info_how_created:~
+Designed rolling blender critter. Not evolved. You have to drag it to activate rolling.~
+info_performance:
+num:76
+instances:0
+data:
+
+org:
+name:Rolling Blender #1
+genotype:RRMMX[@0:-0.703](X, RRMMX[@G:-0.606](X[@G:2.445], X[@-1:2.153]))
+info_timestamp:915148800.0
+info_author:Zac Elston
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:'Blender' with evolved brain, rolls on his own.
+info_performance:
+num:77
+instances:0
+data:
+
+org:
+name:Rolling Blender #2
+genotype:RRRRMMMMX[@0:-1.383](X, RRMMX[@G:-0.606](X, X))
+info_timestamp:915148800.0
+info_author:Zac Elston
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:'Blender' with evolved brain, rolls on his own.
+info_performance:
+num:78
+instances:0
+data:
+
+org:
+name:Frog
+genotype:~
+(LFMX[@1:1.332][|1:9.878], LfX[@1:1.003, 1:3.477][|G:-0.753, 1:-4.748], X[G:1.250][@/:0.170], LfX[@T:-4.887, -2:739.006][-1:-4.149], LFMX[@-1:-0.460][|-1:4.206])~
+info_timestamp:915148800.0
+info_author:Zac Elston
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:79
+instances:0
+data:
+
+org:
+name:Frog #2
+genotype:~
+(FMX[@2:1.230][|1:3.934, 1:3.045], FMX[@1:2.310][|1:-2.060], X[G:0.725][@!:0.080, /:999.000], FMX[|-2:2.695][@-1:3.174], FMX[-1:-0.639][|-2:3.934, -2:2.884][@-4:3.208])~
+info_timestamp:915148800.0
+info_author:Zac Elston
+info_author_ispublic:1
+info_email:Zelston@aol.com
+info_email_ispublic:1
+info:
+info_origin:3
+info_how_created:~
+I started with 6 legs... evolution dropped one and it started hopping. I created several different versions of the NN after the initial evolution. This one has the jumping style I like.~
+info_performance:~
+Locomotion via jumps. rotation of hind legs forces head up. back legs push. front legs provide landing stability.~
+num:80
+instances:0
+data:
+
+org:
+name:Centipede
+genotype:~
+GgbXX[10:-1.1][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2][-1:1.2](RRlllGDDX[|-1:1]cFFFX[|-11:0.3, *:0.2], X[|0:0](RRlllX[|-5:1]cFFFGDDX[|-15:0.3, *:0.2], X[|0:0](RRlllX[|-9:1]cFFFGDDX[|-19:0.3, *:0.2], X[|0:0](RRlllX[|-13:1]cFFFGDDX[|-23:0.3, *:0.2], X[|0:0](RRlllX[|-17:1]cFFFGDDX[|-27:0.3, *:0.2], X[|0:0](RRlllX[|-21:1]cFFFGDDX[|-31:0.3, *:0.2], X[|0:0](RRlllX[|-25:1]cFFFGDDX[|-35:0.3, *:0.2], X[|0:0](RRlllX[|-29:1]cFFFGDDX[|-39:0.3, *:0.2], X[|0:0](RRlllX[|-33:1]cFFFGDDX[|-43:0.3, *:0.2], X[|0:0](RRlllX[|-37:1]cFFFGDDX[|-47:0.3, *:0.2], X[|0:0], RRlllX[|-40:-1]cFFFGDDX[|-50:0.3, *:0.2]), RRlllX[|-41:-1]cFFFGDDX[|-51:0.3, *:0.2]), RRlllX[|-42:-1]cFFFGDDX[|-52:0.3, *:0.2]), RRlllX[|-43:-1]cFFFGDDX[|-53:0.3, *:0.2]), RRlllX[|-44:-1]cFFFGDDX[|-54:0.3, *:0.2]), RRlllX[|-45:-1]cFFFGDDX[|-55:0.3, *:0.2]), RRlllX[|-46:-1]cFFFGDDX[|-56:0.3, *:0.2]), RRlllX[|-47:-1]cFFFGDDX[|-57:0.3, *:0.2]), RRlllX[|-48:-1]cFFFGDDX[|-58:0.3, *:0.2]), RRlllX)~
+info_timestamp:883612800.0
+info_author:Kwant
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:81
+instances:0
+data:
+
+org:
+name:Scorpion
+genotype:FFX[G:-5.141,in:0]MMX[|-1:8.097,in:0.8,fo:0.04]X[|-1:1.768,fo:1]RRX(X, X)
+info_timestamp:915148800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:2006, Maciej Komosinski: evolved for better behavior.
+info_performance:
+num:82
+instances:0
+data:
+
+org:
+name:Kicker
+genotype:(, rm(, , LMMMMMMXf(X, RRLLMMMMMMX[|G:4.779, *:-0.938](LLX, LLX))))
+info_timestamp:946684800.0
+info_author:Jeff Weber
+info_author_ispublic:1
+info_email:crashlander2000@hotmail.com
+info_email_ispublic:1
+info:
+info_origin:2
+info_how_created:~
+I evolved my Blender creature while varying the selection parameters.
+
+2002-05, Szymon Ulatowski: updated for compatibility with Framsticks 2.x.~
+info_performance:Just has a odd way of moving...
+num:83
+instances:0
+data:
+
+org:
+name:One-Stick Wanderer
+genotype:X[|1:-0.782][@G:-741.994][G:294.200]
+info_timestamp:915148800.0
+info_author:Alain BarBason
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:
+info_performance:
+num:84
+instances:0
+data:
+
+org:
+name:Tailhopper
+genotype:~
+(X[@=:1.0][1:1.270][1:0.926, -2:4.660]X[@1:-552.426][|0:-0.937, -1:-2.710]X[@1:1.270][1:1.771, -1:3.632]X[|0:2.188, -1:-0.967])~
+info_timestamp:915148800.0
+info_author:Adam Rotaru
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:4
+info_how_created:~
+It was evolved for speed on ground. Evolution lasted 100M steps (10000gens). Its early form appeared quite early.
+~
+info_performance:~
+It moves by the means of a single limb, its tail. It is interesting how it manages to raise the whole body only by the tail. Avg. speed is 0.0072, max. 0.012.~
+num:85
+instances:0
+data:
+
+org:
+name:Bulldog
+genotype:~
+(ffffffffffffffffMMMMMMMMMMMMX[1:2.550][@1:0.673][1:2.788, 1:-0.985, -1:1.386][|2:1.357]FFFFFMMMMMMMMMMMMX[@0:-2.161][|-5:-0.920], , rrrrrLLLLLLLLLLLLLLLLfffffffMMMMMMMMMMMMMMMMX[|1:3.845][@!:1.000][!:0.297][2:2.525][/:999.000][-9:1.957], , FFFMMMMMMMMMMMMMMMMX[0:-1.483, -1:-715.104][@=:0.000][!:0.182][|3:1.557]RRRRFFFFFFFFFFFFFFFFMMMMMMX[@/:-0.603, -1:0.924][/:0.026][|-9:-0.399], , LLLLLLLLLLLLLMMMMMMMMMMMMMMMMX[@-1:0.363][G:-1.820][1:0.976][*:-1.212][0:1.114](rrlMMMMMMMMMMMMMMX[|-6:-2.867](, , lFFFX[@2:2.966][|=:0.000]), , rrlMMMMMMMMMMMMMMX[|-9:-2.945](, , lFFFX[@-1:1.418])))~
+info_timestamp:946684800.0
+info_author:Ander Taylor
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+I built its ancestor and evolved it for evolved for 4 days, I then added the front shoulders without the legs and evolved for 3 more days. Finally I added the front legs and evolved for 4 days. The simulator settings have been changed several times. And I have modified it on several occasions to keep the body symmetrical.~
+info_performance:It is quick,it keeps its body off the ground and it looks good!
+num:86
+instances:0
+data:
+
+org:
+name:Inchworm
+genotype:~
+LLLX(, LLLX, RRFFX(, rrrrMX[|0:-2.458, 2:-2.900](, MX[|-1:-2.769][G:-2.663](, rrX(LLLX, , LLLX)))))~
+info_timestamp:978307200.0
+info_author:Jon Bochar
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:4
+info_how_created:~
+Created basic structure & neuron net, evolved with no morphology, and changed neuron INPUT WEIGHT VALUES ONLY.
+Weights further evolved by Maciej Komosinski for compatibility with Framsticks 2.x.~
+info_performance:~
+Interesting movement - only one true 'leg' - had to add the horizontal sticks for balance, though.~
+num:87
+instances:0
+data:
+
+org:
+name:Torso Walker
+genotype:~
+(GBgbX[|0:-3.371, 4:8.679], RRDX(, RRGX(RRRGGGX[@0:-1.04](, , , rrLX[|0:0.666](, llMMX[|0:-18.51, -1:-1.908])), RX[@0:2.623, G:-4.432](, , , RRLX[|0:-10.005](, llMMX[|0:-5.857, -1:-11.962])))), GBgbX[|0:-293.858, -3:948.92])~
+info_timestamp:978307200.0
+info_author:Jon Bochar
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Created basic architecture, then evolved neural net only. No new neurons, only changed input values/weights.
+2025-01, Maciej Komosinski: evolved weights for a more reliable movement (previously it would often slow down or permanently "freeze").~
+info_performance:~
+Interesting because of the relationship between front/back 'legs,' also takes a 'break' every so often and then restarts.~
+num:88
+instances:0
+data:
+
+org:
+name:Rototiller
+genotype:~
+qq(llGX, MMMMX[@0:2.408, 1:-0.812, /:1.879](llgGX, MMMMX[@0:-1.016, 1:4.817, /:-3.350](llggGX, MMMMDX[@0:-1.241, /:4.937, -2:-0.611](llGX, , llGX), llggGX), llgGX), llGX)~
+info_timestamp:978307200.0
+info_author:Jon Bochar
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Designed basic body & neural architecture, and evolved neural net over several million steps. This is the first creature I have built using the 'qQ' modifier set for the body. Also, included sigmoid values in the neural net as I was not sure how the neuron 'delay' would have to work for the creature to roll as I wanted it to. It seems to have worked out fine!~
+info_performance:~
+The creature rolls. First one leg 'set,' then the next will go in turn, etc etc. Have not seen a creature do this yet with flat legs, and I was worried that it would be impossible.~
+num:89
+instances:0
+data:
+
+org:
+name:Pokahontas
+genotype:~
+llfffDGX[0:2.420, 2:-2, 1:-1][-1:1, 0:1, 0:-2.234][-1:1](RRllfffMMMX[|-1:-2.338, -1:-1.970](X, llXllXllX), fffXllfffMMMbDX[-1:1.653][|8:10, 6:-10, 9:-10, 7:10](RRllfffMMMX[|-5:1.167]llFFFMMMX[|-6:-1], fffXllfffMMMX[|5:10, 3:-10, 6:-10, 4:10](RRllfffMMMX[|-7:-1.959]llFFFMMMX[|-9:-1.444], LfffffX(RffffX[S1:1]lCX[T:1], , , , , LLLfffffgbDX, , , , , rffffX[S1:1]lcX[@T:1]), RRllfffMMMX[|-14:10]llFFFMMMX[|-15:-1]), RRllfffMMMX[|-16:10]llFFFMMMX[|-17:-1.662]), RRllfffMMMX[|-10:2.878, 0:-4.846](X, llXllXllX))~
+info_timestamp:978307200.0
+info_author:Pete Mandik
+info_author_ispublic:1
+info_email:mandikp@wpunj.edu
+info_email_ispublic:1
+info:
+info_origin:1
+info_how_created:~
+Means of locomotion and stimulus orientation based largely on the design principles of Miron Sadziak's 4 legged food finder. It was designed to incorporate obstacle avoidance with foodfinding. It was also designed to destroy other battleframs in destructive collisions.
+~
+info_performance:~
+This is a battlefram. It finds food and other creatures. Named "Pokahontas" because of large offensive poker on head. Has heavy armor on front and rear. The turning muscles that make it orient toward food make it turn away from fences and obstacles due to inputs from the touch sensors on its antennae.
+
+2024-04, Maciej Komosinski: updated for the new behavior of f1 modifiers. "heavy armor" no longer applies (removed the "S"tamina modifiers). The original creature had only minor tendency to turn, but after manually adjusting LlCc modifiers in 2024 to match more or less the original stick lengths and orientations, this creature now has a stronger tendency to turn, and walks in circles. Investigated why but did not find the cause (apart from asymmetries in the neural network). The old phenotype and behavior can be recreated by using the pre-2024 genotype and setting old conversion rules in the f1->f0 converter settings.~
+num:90
+instances:0
+data:
+
+org:
+name:Reptilian Walker
+genotype:~
+db(, rrlMMMMXlFFFFCgX[|T:10.159, /:-1.442, 1:3.562][@0:-51.595], FFFFlLX[|0:2.744, -2:-3.181, -1:1.151][8:2.682], rrMMXlFFFFMMMMCgX[|T:-162.172, -1:8.977][@4:-0.573, 3:0.724,fo:1], , , LLLXMMM(rrlMXlFFFFCgX[|T:-80.858, 0:4.784][@*:8.62], , , gX[0:657.704, -1:-3.466, -1:-346.898][|-6:2.895,fo:0.208], , , rrlMXlFFFFCgX[N,si:999][|T:-78.873, 0:2.585, -1:-2.867]))
+~
+info_timestamp:978307200.0
+info_author:Nick Rose
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+From a simple cross, with touch sensors at the end of each 'arm' together with some muscle and a couple of neurons; the design was evolved under 'speed' parameters for several weeks (>thousand million steps).
+Even though it's a bit asymmetrical, and has some redundant neurons, I've left it as it evolved rather than tweak it.
+
+2024-04, Maciej Komosinski: updated f1 modifiers in the genotype after their behavior was changed, tried to retain the original phenotype shape, then evolved further and preserved reptilian-like movement.~
+info_performance:~
+The way it moves reminds me of something like a primitive reptile - throwing it's legs forward and swinging it's body from side to side to maximise gait. It takes a while to warm up, but appears to self-regulate it's movements into a pattern which gets it up to a decent speed (only 0.03, but quick compared to it's ancestors).
+On the downside, you can't pick it up, as the legs contract the moment they are out of contact with the ground and it cannot reset itself.
+I think Framsticks is fantastic! The main reason I'm sending you this 'hopeful monster' is by way of fan mail :)~
+num:91
+instances:0
+data:
+
+org:
+name:Insecty
+genotype:~
+DG(RRLlMMX[4:0.821, 5:-0.37, 6:0, 7:-1.49,fo:1][3:2.151, 4:-0.255, 5:2.605, 6:1.71][2:-0.023, 3:-782.046, 4:-5.435, 5:2.813,in:0.942,fo:0.176][1:2.61, 2:0, 3:-1.183, 4:-5.527,si:2][-1:0, -2:0, -3:0, -4:5.088, 4:1.128, 6:3.002, 8:-3.205, 9:-3.439, 11:-888.921, 13:345.806, 14:3.706, 16:5.398, 18:-4.708, 19:0.663, 21:845.772, 23:0.401, 24:0, 26:86.615, 28:-0.097, 29:-1.031, 31:0, 33:1.875,si:4.507,fo:0.04,in:0.8][-2:0, -3:-0.315, -4:0, -5:0, 3:0.391, 5:5.564, 7:5.248, 8:1.772, 10:-0.523, 12:0.8, 13:0, 15:1.075, 17:-5.018, 18:-0.77, 20:0.243, 22:-1.073, 23:0, 25:0.74, 27:0, 28:-2.794, 30:-3.771, 32:-3.321,in:0.844,fo:0.04][-3:0, -4:3.544, -5:-0.218, -6:-565.582, 2:0, 4:-0.012, 6:-0.863, 7:-0.057, 9:-0.368, 11:-2.032, 12:3.819, 14:0.448, 16:-0.867, 17:921.025, 19:-5.366, 21:-0.075, 22:5.146, 24:-1.351, 26:3.76, 27:3.546, 29:3.984, 31:4.532,fo:0.026,in:0,si:2][-4:6.328, -5:-3.631, -6:-2.283, -7:1.416, 1:1.523, 3:3.122, 5:-5.125, 6:3.626, 8:-0.421, 10:2.231, 11:1.687, 13:7.717, 15:-0.308, 16:-0.432, 18:-3.661, 20:1.529, 21:-925.316, 23:2.404, 25:-1.937, 26:0.777, 28:-4.369, 30:-4.31][G:0.571][|-5:0.085, -4:0, -3:0, -2:-0.081,in:0.907]lMMcCccdbbgX[S1:4.078][|-7:-0.012, -6:0, -5:0, -4:0,si:-4.178,in:0.878,fo:0.04][T:0,fo:1], MMIIIIX(RRLlMMX[G:-0.111,fo:0.629][|-10:0, -9:1.753, -8:0, -7:2.147,in:0.948]lMMcCccdbbgX[S1:-1.872,in:0.8][|-12:0, -11:-0.118, -10:0, -9:0.372,fo:0.04][T:0,in:0.862,fo:0.514], MMIIIIX(RRLlMMIIX[G:-4.814,in:0,si:2][|-15:0, -14:0, -13:-0.86, -12:-0.077,fo:0.41,in:0.8][S1:-2.678,fo:0.04]lMMcCccdbbgX[|-17:-1.768, -16:0, -15:0.453, -14:4.457,si:4.058,in:0.8][T:0,fo:1], , RRLlMMIIX[G:0,in:0.783,fo:0.04,si:2][|-20:1.664, -19:-0.347, -18:-5.015, -17:362.516,in:0,fo:0.18][S1:4.355,fo:1,si:2,fo:1]lMMcCccdbbgX[|-22:-2.053, -21:0, -20:0, -19:-1.818,in:0.82,fo:0.04][T:0,fo:0.04,in:0.8]), RRLlMMX[G:3.96][|-25:-154.793, -24:0, -23:4.382, -22:-309.655,fo:1,in:0.777,si:999]lMMcCccdbbgX[S1:-1.293,in:0,fo:0.04][|-27:1.137, -26:0, -25:0, -24:-3.407,si:2][T:4.666,fo:0.04,si:2,in:0.8]), RRLlMMX[G:-1.035,si:2,in:0.8,fo:0.04][|-30:-0.041, -29:0, -28:0, -27:-1.726,in:0.8,fo:0.04]lMMcCccdbbgX[S1:0.856][|-32:0, -31:0.045, -30:0, -29:0,fo:0.763,in:0.819][T:0,si:1.833])~
+info_timestamp:978307200.0
+info_author:Pete Mandik and Shawn Gaston
+info_author_ispublic:1
+info_email:mandikp@wpunj.edu
+info_email_ispublic:1
+info:A land foodfinder.
+info_origin:2
+info_how_created:~
+The body and neural network were hand coded. The body was created by Shawn Gaston, brain created by Pete Mandik. Evolution introduced changes only to neural connection weights. Selected for distance in a world populated with food.
+
+2024-04, Maciej Komosinski: after the behavior of f1 modifiers was changed, updated the modifiers in this genotype to resemble the original shape. Evolved neural network weights a bit for speed (thus ignoring/losing food finding ability and likely discovering a new movement style), but the original genotype, even when converted to f0 with pre-2023 behavior of modifiers, hardly walked at all.~
+info_performance:~
+This is an excellent land foodfinder. In a world size of 50, auto feeding of 4, ball energy of 1000, it exhibits incredibly precise ability to orient toward a food stimulus.~
+num:92
+instances:0
+data:
+
+org:
+name:Die-hard
+genotype:XrrX[G:1][-1:100][|-1:0.8]X[|-2:0.8]
+info_timestamp:1041379200.0
+info_author:Szymon Ulatowski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Try to knock it down (with manipulator) and it will stand up again!
+info_origin:1
+info_how_created:
+info_performance:note that it has two distinct stable states.
+num:93
+instances:0
+data:
+
+org:
+name:Cheeta
+genotype:~
+RRllFFFFFMMMGDXRm(fffMMMMbbX[|1:1.204][G:733.580, 0:56.035, *:-2.343, -1:3.663, -1:4.010], RLLLLfffffMMMMMggbbdX[|-1:-2.204][!:0.564, -2:-202.739](ffffGGGDDDX, LLLLfffMX[|G:1.637, -1:-0.384]))~
+info_timestamp:978307200.0
+info_author:Pete Yurtin
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:~
+Downloaded your program & used Kicker. Evolved for speed and distance. Then looked for a muscle to develop in front limbs. Evolved more from there.~
+info_performance:~
+It is fast, run in an interesting way, kicks with back leg and front arms asist in running. I believe it can go even faster if the front limbs are evolved more.
+This creature was awarded.~
+num:94
+instances:0
+data:
+
+org:
+name:Roller
+genotype:~
+bgDDD(, LFM(LLX[|1:3.455, 0:1.453][1:-509.744, -1:1.033][@9:-1], , rrdgGBBX[/:2.834](rrX[G:0.827](RLLX[|9:-1], LLX[@G:93.351, -1:727.177]), rrfMX[G:1](LLMX[@0:2.095][|8:-1], LLfX[|7:1]), rrX[G:1.151, -1:1.629]F(LLfX[|8:-0.859], LLX[|7:1.482]), rrbGGX[G:3.254]F(LLX[|9:-2.621], LLX[|8:0.783]), rrbGGX[G:1]F(LLX[|9:-1], LLX[|1:1.221, -1:-3.208]), rrbGGX[G:1.052](LLFX[@1:1.601][|-20:-0.665], LLX[!:1.000]), rrbbggDDX[G:0.757, -1:-2.644]f(rLLMMX[|-21:-1.377], LLX[|-22:0.984]), rrbbggDDX[G:0.887, -1:0.750](LLX[|G:-0.930], LLX[|-22:2.345])), , LLX[|-19:-4.840, -1:-0.757]))~
+info_timestamp:946684800.0
+info_author:Dominik Kapusta
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+It was simply projected on paper and then coded (also neurons connections were projected).~
+info_performance:~
+For long distance it is faster than Speedy!
+~
+num:95
+instances:0
+data:
+
+org:
+name:Champ
+genotype:DDM(rrrLLLdGGXrrrFCX[|G:-1][@G:-1], GBXLLLfX, rLLLXFCX[|G:-1][@G:1])
+info_timestamp:946684800.0
+info_author:Ronny Schlegel
+info_author_ispublic:1
+info_email:RoySchl@gmx.net
+info_email_ispublic:1
+info:I wanted to design a 4-legged running creature.
+info_origin:2
+info_how_created:~
+I build the bones with a few sensors and a few simple neurons and muscels...
+I evolved it mostly only in speed and thats what came out...
+A very fast one i think.~
+info_performance:very small, but a velocity of 0.045
+num:96
+instances:0
+data:
+
+org:
+name:Amphibian jumper
+genotype:~
+((rrLLLFW(LFMMMMX[@,6:1][T:-10]LLLLFFFFMMMMX[|T:-2.463, 1:-0.315,si:2][@-1:-4.982,in:0.8],MMMMFFFFLLLLW((rrLLLLFFFFMMMMX[@T:-7.828][|T:-1.711, 1:1.121]LLLLFFFFMMMMX[@T:-8.193][|T:-4.35, 1:-0.906,fo:0.04][N,-1:-3.228,si:2], )))))~
+info_timestamp:1076630400.0
+info_author:Victor Myagkov
+info_author_ispublic:1
+info_email:victormnet@mtu-net.ru
+info_email_ispublic:1
+info:Jumps on land and in a shallow water
+info_origin:2
+info_how_created:~
+First, is created exactly half (one leg). She was created breeding from one X, and was completely function and by leaps and bounds moved. Then received code of the leg was mirror is stuck with itself. Was it evolved as speed, so and standard. The results were checked in water.
+
+2015, Maciej Komosinski: removed conflicting muscles (that caused warnings).
+2024-04, Maciej Komosinski: updated for new behavior of f1 modifiers.~
+info_performance:Moves on land and in water. Fine jumps from water of depth 2.0 and below
+num:284
+instances:0
+data:
+
+org:
+name:Tritonius-Assinhron
+genotype:~
+//0
+p:fr=0.001
+p:y=1, fr=0.001
+p:1, 0.5, fr=0.001
+p:1.8, 0.5, fr=0.001
+p:-0.5, -0.5, fr=0.001
+p:-0.5, 1.5, fr=0.001
+p:0.1, 2.2, -0.5, fr=0.55
+p:0.1, -1.2, -0.5, fr=0.55
+p:2.7, 0.5, -0.2, fr=0.001
+p:-1.2, 0.5, 0.2, dn=1.1, fr=0.001
+p:3.73762, 0.5, fr=0.001
+p:3.31823, 0.5, 0.463477, dn=1.1, fr=0.001
+j:2, 1, stam=1
+j:2, 0, stam=1
+j:2, 3
+j:0, 4
+j:1, 5
+j:5, 6
+j:4, 7
+j:3, 8
+j:9, 1, stam=1
+j:9, 0, stam=1
+j:9, 4
+j:9, 5
+j:3, 0
+j:3, 1
+j:0, 7
+j:1, 6
+j:8, 10
+j:11, 10
+j:8, 11
+n:d="Sin:f0=0.05, t=1"
+n:j=3, d="|:p=1, r=1"
+n:j=4, d="|:p=1, r=1"
+n:j=10, d=|:r=1
+n:j=11, d=|:r=1
+n:j=14, d="|:p=0.3, r=1"
+n:j=15, d="|:p=0.3, r=1"
+n:j=16, d="|:p=0.2,r=0.15"
+n:j=7, d="|:p=0.2,r=0.05"
+n:d="N:in=0.76, fo=0.04, si=2, s=0"
+n:d="N:in=0.76, fo=0.04, si=2, s=0"
+n:j=18, d="|:p=0.2,r=0.15"
+n:j=6, d="|:p=1, r=1"
+n:j=5, d="|:p=1, r=1"
+c:1, 0
+c:2, 0
+c:5, 9
+c:6, 10
+c:7, 0
+c:8, 0
+c:9, 0, 0.66
+c:10, 0, 0.66
+c:12, 0
+c:13, 0
+~
+info_timestamp:1078876800.0
+info_author:Victor Myagkov
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Moves on land and in water.
+info_origin:1
+info_how_created:~
+The skeleton was created in program Fred (Framsticks Editor). Neuron structure was created in Framsticks GUI. Then, necessary parameters were adjusted manually.~
+info_performance:~
+Can come out of water on coast and back, the coast must be smooth enough!
+It is possible to add special neurons, to use them as a remote control - to change depth (in water) and directions of motion.~
+num:287
+instances:0
+data:
+
+org:
+name:Froglegs
+genotype:~
+llFmmmmmGGDX[T:0.268]llX[G:1.331][@0:1.949,-2:0.136,-1:2.024,1:-5.065,4:7.396,5:-8.995,10:-2.339,11:-1.388][|0:-0.257,-3:1.188,-2:0.412,-1:1.29,3:1.405,4:0.788,9:1.077,10:-2.086](,,MMX[G:-0.75][T:-958.614][|0:1.586,-1:-5.743,-2:-5.016,-3:-2.903,-4:-4.278,1:2.845,2:-0.79][@0:1,-1:-1.988,-2:0.614,-3:2.64,-4:4.172,-5:1.181,1:3.656]MMMCccCQdX[|0:1.331,G:-0.026,T:-0.834,-1:1.936,1:-0.741]lllFX[|0:-0.672,-1:5.101,G:-0.731,T:-3.264],MMX[G:3.054][T:-3.023][|0:1.431,-1:-380.444,-2:-3.758,-9:-6.822,-10:-0.289,1:2.189,2:947.255][@0:9.73,-1:-0.248,-2:589,-3:-4.831,-10:-578.172,-11:10.147,1:2.425]MMMcCCcqdX[|0:2.437,G:0.451,T:-0.804,-1:1.177,1:-0.242]lllFX[|0:0.555,-1:11.813,G:8.247,T:8.083],,)~
+info_timestamp:1079740800.0
+info_author:Robert Durante
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Looks and can move similar to a frog's back legs
+info_origin:2
+info_how_created:~
+I designed everything but the neuron weights which I initialized to 0 and made frequent adjustments to experiment parameters (but only ever allowing neuron weights to change)
+Total learning time - about 200M Steps
+
+2024-04, Maciej Komosinski: updated modifiers to retain phenotype shape after the change in the behavior of f1 modifiers, and evolved neural network for speed to improve movement while preserving movement style.~
+info_performance:~
+I tried to evolve the creature to run upright like an ostrich but it ended up moving very much like a frog (with only back legs)~
+num:288
+instances:0
+data:
+
+org:
+name:Food finding crawler
+genotype:~
+rrlllllffffGX[ChMux, 4:3.783, 2:0.875][ChMux, 3:1.445, 2:1.426][Ch, 9:1, 4:1][Ch, 8:1, 8:1][ChMux, 3:1.603, 1:1.26][Ch, 3:4.209, 1:0.386][*:.5, si:2][Thr, 2:0.422, t:0, hi:1][Thr, 2:1, t:0, hi:1, lo:-1][N, 8:-.5, 6:-0.505, 4:1][N, 7:1, 5:-1][Thr, 1:-1.293, t:0.052, hi:0.505][Sin, f0:.05, t:0.5][S1]rrllllX[|, -3:1, r:1](FFFFFX[S1]RFFFFDDDX[|, -15:1], , , rrrrX[S1]FFFFFMDDDX[|, -18:1, p:0.25])~
+info_timestamp:1063065600.0
+info_author:Eric Muirhead
+info_author_ispublic:1
+info_email:fweeep@hotmail.com
+info_email_ispublic:1
+info:Flat body food finder
+info_origin:2
+info_how_created:~
+I first designed a crawler, then evolved it till it was fast enough. Then I designed the food finding logic and evolevd that. Suprisingly the design wasn't changed that much, but was improved a bit.~
+info_performance:Pretty good at finding food!
+num:289
+instances:0
+data:
+
+org:
+name:Basic Hexapod
+genotype:~
+MX[@*:0.863, 2:-4.789, 1:-3.2](RMX(FMX, ), MX[@-1:1.849, 0:2.068, 0:-1.387](RX(, X, , , ), X[@-1:1.849, 0:3.14, 0:-1.387][|-1:1.287, 0:-1.143](rX(, X), X[@-1:4.77, 0:3.094, 0:-3.12][|-1:-0.581, 0:0.147], (RX(X, ))), rX(, X)), rMX(, FMX))~
+info_timestamp:1087689600.0
+info_author:
+info_author_ispublic:0
+info_email:
+info_email_ispublic:0
+info:A simple 6-legged creature.
+info_origin:2
+info_how_created:Just a simple modification of the "Basic Quadruped".
+info_performance:2004, Maciej Komosinski: optimized for speed.
+num:307
+instances:0
+data:
+
+org:
+name:Superfrog
+genotype:~
+rLLLLLLCfGG(RFMddbbgX[@2:0.913,4:-0.495,0:1,in:0.8][|1:3.878, 1:3.873,in:0,5:0.121], lFMX[@1:1.777,2:2.17][|1:-3.212], X[G:1.784,fo:0.04][@!:0.080, /:-1.58111], FMX[|-2:4.399][@-1:6.589,1:1,in:0.8], LLFMMddbbgX[|-1:5.719, -1:4.026][@-3:9.745,-2:5.316,in:0.8])~
+info_timestamp:1089676800.0
+info_author:Sean Bartell
+info_author_ispublic:1
+info_email:sneeze@nc.rr.com
+info_email_ispublic:1
+info:A larger, higher jumping frog
+info_origin:2
+info_how_created:I evolved Frog #2 for maximal vertical position and velocity.
+info_performance:~
+It jumps higher and has longer limbs than the original frogs.
+For some reason, it has one limb half as long as the others.~
+num:312
+instances:0
+data:
+
+org:
+name:Cyber upgraded
+genotype:~
+//0
+p:
+p:x=.5
+p:x=-.5
+p:x=.5,z=-1,fr=0
+p:x=-.5,z=-1,fr=0
+p:x=.5,z=-1,y=.7,fr=0
+p:x=.5,z=-1,y=-.7,fr=0
+p:x=-.5,z=-1,y=.7,fr=0
+p:x=-.5,z=-1,y=-.7,fr=0
+p:x=1,z=-1,fr=0
+p:x=-1,z=-1,fr=0
+p:x=-1,z=-.7,y=.8,fr=1
+p:x=1,z=-.7,y=.8,fr=1
+p:z=1
+p:z=1,x=.5
+p:z=1,x=-.5
+p:z=1.3
+p:x=1,z=-.25,y=-.5,fr=0
+p:x=-1,z=-.25,y=-.5,fr=0
+p:x=-.5,z=-.8,y=.5,fr=1
+p:x=.5,z=-.8,y=.5,fr=1
+p:z=1,y=.5
+
+j:0,1
+j:0,2
+j:1,3
+j:2,4
+j:3,5
+j:3,6
+j:4,7
+j:4,8
+j:3,9
+j:4,10
+j:4,11
+j:3,12
+j:0,13
+j:1,13
+j:2,13
+j:1,5
+j:1,6
+j:2,7
+j:2,8
+j:13,14
+j:13,15
+j:0,14
+j:0,15
+j:2,10
+j:1,9
+j:13,16
+j:14,17
+j:15,18
+j:4,19,rotstif=0
+j:3,20,rotstif=0
+j:10,7
+j:10,8
+j:9,6
+j:9,5
+j:1,10
+j:2,9
+j:13,18
+j:13,17
+j:13,21
+j:21,0
+j:21,14
+j:21,15
+
+n:p=16,d="Sin:f0=.05"
+n:p=16,d="Sin:f0=.05,t=3.1415926535898"
+n:j=28,d=@
+n:j=29,d=@
+n:p=11,d=T
+n:p=12,d=T
+n:j=26,d=@
+n:j=27,d=@
+n:p=2,d=S1
+n:p=1,d=S1
+n:p=16,d=N
+n:p=16,d=N
+n:p=16,d=Nu
+n:p=16,d=Nu
+n:p=16,d="Thr:t=-.00001,hi=0,lo=1"
+n:p=16,d=N
+n:p=16,d=N
+n:p=16,d=*
+n:p=16,d=N
+n:p=16,d=N
+n:p=16,d="Thr:t=.00001,hi=1,lo=0"
+n:p=16,d="Thr:t=0,hi=.75,lo=0"
+n:p=16,d=N
+n:p=16,d=N
+n:p=16,d=N
+n:j=28,d=|
+n:j=29,d=|
+n:p=21,d=T
+n:j=36,d=@
+n:j=37,d=@
+n:j=3,d=@
+n:j=23,d=@
+n:j=18,d=@
+n:j=17,d=@
+n:j=34,d=@
+n:j=15,d=@
+n:j=2,d=@
+n:j=16,d=@
+n:j=24,d=@
+n:j=35,d=@
+n:p=16,d="Thr:t=0,hi=-5,lo=.1"
+n:p=13,d=T
+n:p=16,d="Thr:t=0,hi=-6.5,lo=.1"
+n:p=16,d=N
+
+c:11,1
+c:10,0
+c:10,16
+c:11,15
+c:2,10
+c:3,11
+c:15,23
+c:16,22
+c:15,0
+c:16,1
+c:19,8
+c:22,17,w=-1
+c:22,20
+c:23,14
+c:23,17,w=-1
+c:18,9
+c:24,18,w=-1
+c:24,19,w=1
+c:14,24
+c:20,24
+c:12,4
+c:13,5
+c:25,12
+c:26,13
+c:28,43
+c:29,43
+c:21,27
+c:6,43
+c:7,43
+c:30,21
+c:31,21
+c:32,21
+c:33,21
+c:34,21
+c:35,21
+c:36,21
+c:37,21
+c:38,21
+c:39,21
+c:21,21
+c:40,27
+c:42,41
+c:43,42
+c:43,40~
+info_timestamp:1108944000.0
+info_author:Anton Kodochygov
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:This cyber tries to get upright if tipped over.
+info_origin:1
+info_how_created:Just a case of trial and error.
+info_performance:~
+This cyber performs great. It searches for food, avoids obstacles, and comes upright if tipped over.
+This creature was awarded.~
+num:404
+instances:0
+data:
+
+org:
+name:Crawling Hand
+genotype:~
+X(, , , , , , RRLLXMllllX[|,3:1, p:1](llllX[|,2:1, p:1]llllX[|,1:1, p:1][T:1]), RRLLXMlX[|,3:1, p:1](lX[|,2:1, p:1]lX[|,1:1, p:1][T:1]), RRLLXMX[|,3:1, p:1](X[|,2:1, p:1]X[|,1:1, p:1][T:1]), RRLLXMllX[|,3:1, p:1](llX[|,2:1, p:1]llX[|,1:1, p:1][T:1]), , RRLXMllX[|,2:1,p:1](llX[|,1:1, p:1][T:1]),,,,,)~
+info_timestamp:1132185600.0
+info_author:
+info_author_ispublic:0
+info_email:
+info_email_ispublic:0
+info:A framstick resembling a human hand.
+info_origin:1
+info_how_created:
+info_performance:~
+It is stronger in it's index finger and middle finger, resulting in a circular motion.~
+num:409
+instances:0
+data:
+
+org:
+name:Dragon
+genotype:~
+rLLDDbg(FL(rrLdbGXF(L(, , rrLXFF(L((X[|, 1:-2.748, p:0.363, r:1][T], (X[N, 17:-1.785][|, 3:0.343, r:0.989, p:0.25]),  , , X, ), (X))), rLL(X[si:2,fo:0.04][si:0.393261][*], LLf(rX[G][|, 2:0.13, p:0.35, r:1],  , , )), X, , rX[T][N, 2:2.733, fo:0.1938, 1:15.115, in:0, 10:2.798, 8:11.464, 7:7.607, 1:0.335][T][T]LM(FLL(, , FX[N,1:4.343][N], X), , , , , ), )), rrLLLm(, FLL(X, , X[G][|, 1:0.746, p:0.724, r:1], , )), , rMX[N, 1:1.136][N, 2:1.272, fo:0.04, -3:0.611,in:0.8][T][T]LLf(rmX(F(FMX, )), )))~
+info_timestamp:1137974400.0
+info_author:Peter Schoffhauzer
+info_author_ispublic:1
+info_email:scoofy@inf.elte.hu
+info_email_ispublic:1
+info:Huge dragon-like walking creature.
+info_origin:3
+info_how_created:~
+I started natural evolution under various conditions, when an interesting mutation happened. I picked that genotype and evolved it further.
+2025-01, Maciej Komosinski: evolved weights for a more reliable movement.~
+info_performance:~
+It has a long tail, two legs and two scissor-like limbs. It moves very awkward, but it is very huge.~
+num:417
+instances:0
+data:
+
+org:
+name:Rolling Wheel
+genotype:~
+//0
+p:-0.5,0,-1.2071,rx=1.57
+p:0.5,0,-1.2071,rx=1.57
+p:1.2071,0,-0.5,rx=1.57
+p:1.2071,0,0.5,rx=1.57
+p:0.5,0,1.2071,rx=1.57
+p:-0.5,0,1.2071,rx=1.57
+p:-1.2071,0,0.5,rx=1.57
+p:-1.2071,0,-0.5,rx=1.57
+p:-0.5,1,-1.2071,rx=1.57
+p:0.5,1,-1.2071,rx=1.57
+p:1.2071,1,-0.5,rx=1.57
+p:1.2071,1,0.5,rx=1.57
+p:0.5,1,1.2071,rx=1.57
+p:-0.5,1,1.2071,rx=1.57
+p:-1.2071,1,0.5,rx=1.57
+p:-1.2071,1,-0.5,rx=1.57
+
+j:0,1
+j:1,2
+j:2,3
+j:3,4
+j:4,5
+j:5,6
+j:6,7
+j:7,0
+j:8,9
+j:9,10
+j:10,11
+j:11,12
+j:12,13
+j:13,14
+j:14,15
+j:15,8
+j:0,8
+j:1,9
+j:2,10
+j:3,11
+j:4,12
+j:5,13
+j:6,14
+j:7,15
+
+n:j=0,d="|:r=0.18"
+n:j=8,d="|:r=0.18"
+n:j=0,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:0,3
+c:1,3
+c:3,2
+
+n:j=1,d="|:r=0.18"
+n:j=9,d="|:r=0.18"
+n:j=1,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:4,7
+c:5,7
+c:7,6
+
+n:j=2,d="|:r=0.18"
+n:j=10,d="|:r=0.18"
+n:j=2,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:8,11
+c:9,11
+c:11,10
+
+n:j=3,d="|:r=0.18"
+n:j=11,d="|:r=0.18"
+n:j=3,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:12,15
+c:13,15
+c:15,14
+
+n:j=4,d="|:r=0.18"
+n:j=12,d="|:r=0.18"
+n:j=4,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:16,19
+c:17,19
+c:19,18
+
+n:j=5,d="|:r=0.18"
+n:j=13,d="|:r=0.18"
+n:j=5,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:20,23
+c:21,23
+c:23,22
+
+n:j=6,d="|:r=0.18"
+n:j=14,d="|:r=0.18"
+n:j=6,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:24,27
+c:25,27
+c:27,26
+
+n:j=7,d="|:r=0.18"
+n:j=15,d="|:r=0.18"
+n:j=7,d="G:"
+n:d="Thr: t=-0.01,lo=-1,hi=1"
+c:28,31
+c:29,31
+c:31,30~
+info_timestamp:1178928000.0
+info_author:Juan A. Medina
+info_author_ispublic:1
+info_email:jamt3@hotmail.com
+info_email_ispublic:1
+info:A wheel that runs on a straight line.
+info_origin:1
+info_how_created:~
+Every joint has a bending muscle controlled by a gyroscope through a threshold neuron.
+I've found the range of the bending muscles = 0.18 as an optimal value.
+2015, Maciej Komosinski: fixed neuron types (there were 8 invalid "Trh" neurons which the original author probably wanted to be "Thr"), so the conclusion about the optimal value of 0.18 may be no longer valid. Would be nice to optimize the four parameters (three for Thr and one muscle range) again.~
+info_performance:~
+An example of a modular design: every side of the creature is identical to any other.~
+num:434
+instances:0
+data:
+
+org:
+name:Back Crawler
+genotype:~
+(X[Sin](rrX(rrrX(lX,,),,),,rrX(RRRX(lX,,),,)),,X[N][-1:0.5,-2:0.265,si:0.5][|,-1:1,p:1][@,-4:0.366,p:1](rrX(rrrX(lX,,),,),,rrX(RRRX(lX,,),,)))~
+info_timestamp:1259020800.0
+info_author:Jan Polak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:~
+The perfect body to be used when you want to easily control turns (left/right) - neuron #1 does this. You can use the -1..+1 signal instead of #1, or interactively play with the creature while it walks, manually forcing output of #1.
+
+You can also modify the [Sin] frequency to adjust speed.~
+num:438
+instances:0
+data:
+
+org:
+name:Pair of Compasses
+genotype:llX[*][Sin][N,-1:-48.915,-2:-8.796]Ll(lX,,RRllXX[|,-1:26.481]llll(X,X,),,lX)
+info_timestamp:1259452800.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:
+info_performance:
+num:439
+instances:0
+data:
+
+org:
+name:Springy
+genotype:~
+RRLLLLFFFFX[*][Sin][N,-1:-14.52,-2:3.977,in:0.907657]lllffffX[|,-1:52.083,p:1,r:0.886]RRFFFFXllllF(llllFFFF(llllX,llllFFFFX))~
+info_timestamp:1259625600.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:A very simple moving creature.
+info_origin:2
+info_how_created:~
+Designed body and NN, evolved length of sticks and their properties as well as connection weights and neural parameters.~
+info_performance:Body and control perfectly adjusted to cooperate.
+num:440
+instances:0
+data:
+
+org:
+name:Right Angler
+genotype:~
+LLf(,X(llffffX,LLfXLLLLFF(,RRLLLFXLff(LLLFFX,LLLLfX,LLFFX),LLLLfX[*][N][Sin,-1:1][N,-1:-12.4,-3:-3][|,-1:54,p:1,r:0.67]),lffX))~
+info_timestamp:1259712000.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Designed body and neural network, evolved neural properties, connection weights, and properties of sticks.~
+info_performance:~
+The N neuron in front of Sin is only attached to allow you to override its output value and influence the frequency of the sinus generator.~
+num:441
+instances:0
+data:
+
+org:
+name:Komodo
+genotype:~
+DGbdg(ffffMMMMX[1:3.556,fo:0.04][@1:0.673,5:0.415][1:2.788, 1:-0.971, -1:1.386][|1:1.357,4:1.457]FFFFMMMMX[|-4:-0.92], ,rrLLLLLffffMMMMX[*][|1:-1.262, 4:1.799,in:0.8,si:2][@!:1.0][!:0.92][2:3.305,fo:0.04][/:999][-9:6.371], ,MMMMX[0:-3.38, -1:-715.44,-8:1.524][@=:0][!:0.182][|4:2.222]FFFFFMMMMX[G][@/:-0.603, -2:0.924][/:0.69][|-10:-0.399, in:0.8], , LLLLMMMMX[@-1:0.363][G:0.32][1:-8.007][*:5.561]LLm(rrFMMMMGDX[|-5:-2.867]R(, , lFFFX[@2:0.333,-1:3.908][|]), , rrMMMMMGDX[|-8:-2.945](, , lFFX[@-1:4.119, 0:-0.73])))~
+info_timestamp:1305504000.0
+info_author:Julien Verlynde
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:A speed walking example.
+info_origin:3
+info_how_created:
+info_performance:
+num:452
+instances:0
+data:
+

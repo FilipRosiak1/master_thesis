@@ -1,0 +1,1 @@
+..\theater -g -vmodelpan=3 - <viewgeno-ex4-genotype.txt

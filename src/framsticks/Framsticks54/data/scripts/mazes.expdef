@@ -1,0 +1,532 @@
+expdef:
+name:Walking in a maze
+info:~
+This experiment definition can be used to evaluate (and evolve) creatures moving between two specified points in a maze. These points are indicated by start and target marks (in the second population).
+
+Genotype's data->fit field (which acts as a maximized fitness) contains
+- energy left (when target found during lifespan)
+- distance to the target (as a negative value) when a creature died away from the target.
+
+Press "SHIFT" and click the right mouse button to manually set the start and finish points.
+
+Use maze[1,2].sim settings for this experiment definition.
+~
+code:~
+
+//by MacKo, 2004-2005,2021
+
+//todo:
+//food-creature collisions
+//random start/finish points
+
+global startx, starty, targetx, targety; //start and target points in a maze
+
+function onExpDefLoad()
+{
+	// define genotype and creature groups
+	GenePools[0].name = "Genotypes";
+	update_fitformula();
+
+	var p = Populations[0];
+	p.name = "Creatures";
+	p.initial_nn_active = 1;
+	p.initial_perf_measuring = 1;
+	p.death = 1;
+	p.energy = 1;
+	p.perfperiod = 5; //test location (onUpdate) each 5 simulation steps
+	p.selfmask = p.othermask = 0;
+
+	p = Populations.addGroup("Food");
+	p.initial_nn_active = 0;
+	p.initial_perf_measuring = 0;
+	p.death = 1;
+	p.energy = 1;
+	p.selfmask = p.othermask = 0;
+
+	ExpProperties.initialgen = "X";
+	ExpProperties.capacity = 200;
+	ExpProperties.delrule = 0;
+	ExpProperties.MaxCreated = 1;
+	ExpProperties.p_nop = 1;
+	ExpProperties.p_mut = 0;
+	ExpProperties.p_xov = 0;
+	ExpProperties.xov_mins = 0;
+	ExpProperties.selrule = 2;
+	ExpProperties.cr_c = 0;
+	ExpProperties.cr_life = 0;
+	ExpProperties.cr_v = 1;
+	ExpProperties.cr_gl = 0;
+	ExpProperties.cr_joints = 0;
+	ExpProperties.cr_nnsiz = 0;
+	ExpProperties.cr_nncon = 0;
+	ExpProperties.cr_di = 0;
+	ExpProperties.cr_vpos = 0;
+	ExpProperties.cr_vvel = 0;
+	ExpProperties.cr_norm = 0;
+	ExpProperties.cr_simi = 0;
+	ExpProperties.Energy0 = 1000;
+	ExpProperties.e_meta = 0.01; //life span: 100 000 steps
+	ExpProperties.feed = 0;
+	ExpProperties.feede0 = 200;
+	ExpProperties.feedtrans = 1;
+	ExpProperties.placement = 0;
+	ExpProperties.creath = 0.1;
+	ExpProperties.foodgen = "";
+	ExpState.totaltestedcr = 0;
+
+	ExpProperties.targetradius = 2;
+	ExpProperties.startxlist = "";
+	ExpProperties.startylist = "";
+	ExpProperties.startheadings = "";
+	ExpProperties.targetxlist = "";
+	ExpProperties.targetylist = "";
+}
+
+function onExpInit()
+{
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	GenePools[0].add(ExpProperties.initialgen);
+	ExpState.totaltestedcr = 0;
+	addmark(0);
+	addmark(1); //ensure there are two marks
+	startx = starty = 3.0; //temp
+	targetx = targety = 6.0; //temp
+	updateMarks();
+}
+
+function world_pos(map_pos, mapsize) //converts map-based position (center of the field) into absolute world coordinate
+{
+	return (1.5 + map_pos) / (2.0 + mapsize - 4.0) * World.wrldsiz;
+}
+
+function make_float(x) // converts strange values like null or "" to 0.0, and int to float
+{
+	if (x == null || x == "")
+		return 0.0;
+	return float(x);
+}
+
+function placement(cr)
+{
+	//select one of the provided locations, each in turn, based on ExpState.totaltestedcr
+
+	var xx = String.split(ExpProperties.startxlist, ",");
+	var yy = String.split(ExpProperties.startylist, ",");
+	//WAITING FOR SZYMON - TODO: split("") returns 1 element - but now we also have split2()
+	if (xx.size == 0)
+	{
+		Simulator.message("Starting positions not defined!", 2);
+		return ;
+	}
+	if (xx.size != yy.size)
+		Simulator.message("The number of start X positions differs from the number of Y positions!", 2);
+	startx = xx[ExpState.totaltestedcr % xx.size];
+	starty = yy[ExpState.totaltestedcr % xx.size];
+	startx = world_pos(make_float(startx), WorldMap.xsize); 
+	starty = world_pos(make_float(starty), WorldMap.ysize);
+	var z = WorldMap.getHeight(startx, starty);
+	if (z > 0)
+		Simulator.message("The " + (ExpState.totaltestedcr % xx.size) + "th starting position elevated over the zero level: " + z, 1);
+	if (World.wrldwat > z) // water here!
+	{
+		if (ExpProperties.creath > 0)
+			z = World.wrldwat + ExpProperties.creath;
+		else
+			z = (1.0 + ExpProperties.creath) * World.wrldwat - z * ExpProperties.creath;
+	}
+	else                 // land area
+	{
+		if (ExpProperties.creath > 0)
+			z += ExpProperties.creath;
+	}
+
+	cr.locationSetBboxLow(startx - cr.bboxSize.x / 2, starty - cr.bboxSize.y / 2, z - 0.999);
+
+	//rotate to follow the provided (or not) heading
+	xx = String.split(ExpProperties.startheadings, ",");
+	cr.rotate(0, 0, (make_float(xx[ExpState.totaltestedcr % xx.size])) / 180.0 * Math.pi);
+
+	//now set the target mark position
+	xx = String.split(ExpProperties.targetxlist, ",");
+	yy = String.split(ExpProperties.targetylist, ",");
+
+	if (xx.size == 0)
+	{
+		Simulator.message("Target positions not defined!", 2);
+		return ;
+	}
+	if (xx.size != yy.size)
+		Simulator.message("The number of target X positions differs from the number of Y positions!", 2);
+	targetx = xx[ExpState.totaltestedcr % xx.size];
+	targety = yy[ExpState.totaltestedcr % xx.size];
+	targetx = world_pos(make_float(targetx), WorldMap.xsize);
+	targety = world_pos(make_float(targety), WorldMap.ysize);
+
+	updateMarks();
+}
+
+function onCreaturesBorn(cr)
+{
+	placement(cr); //collisions not handled!
+	if (!cr.boundingBoxCollisions(0))
+		Simulator.message("onBorn() could not avoid collisions.", 1);
+	var n = cr.numjoints;
+	if (n == 0) n = cr.numparts; //creatures with only one Part will live just as long as one-stick creatures
+	cr.idleen = ExpProperties.e_meta * n;
+	cr.energy0 = cr.energy0 * ExpProperties.Energy0 * n;
+	cr.energy = cr.energy0;
+}
+
+function onFoodBorn(cr)
+{
+	if (String.indexOf(cr.genotype, "#start") >= 0)
+	{
+		cr.name = "Start";
+		cr.data->loc_type = 1; //data->loc_type - can also be used for smelling start or target
+	}
+	else if (String.indexOf(cr.genotype, "#target") >= 0)
+	{
+		cr.name = "Target";
+		cr.data->loc_type = 2;
+	}
+	else
+		cr.name = "Food";
+	cr.locationSetBboxLow(Math.rnd01 * World.wrldsiz - cr.bboxSize.x / 2, Math.rnd01 * World.wrldsiz / 2 - cr.bboxSize.y / 2, 4);
+	cr.idleen = 0;
+	cr.energy0 = ExpProperties.feede0;
+	cr.energy = cr.energy0;
+}
+
+
+function distanceToTarget(cr)
+{
+	return Math.sqrt( (cr.bboxCenter.x - targetx) * (cr.bboxCenter.x - targetx) +
+	                  (cr.bboxCenter.y - targety) * (cr.bboxCenter.y - targety) );
+}
+
+function onCreaturesUpdate(cr)
+{
+	//"kill" a creature when it is close enough to the target (=mission completed)
+	var dist = distanceToTarget(cr);
+	if (dist < ExpProperties.targetradius)
+	{
+		cr.data->fit = cr.energy / cr.numjoints; //how much energy left (the more, the better)
+		// Simulator.message("Target found, distance="+dist+", energy level="+cr.data->fit,0);
+		cr.energy = 0; //shall die
+	}
+}
+
+function addfood()
+{
+	if (ExpProperties.foodgen == "")
+		return Populations[1].add("//0\nm:Vstyle=food\np:");
+	else
+		return Populations[1].add(ExpProperties.foodgen);
+}
+
+function addmark(finish)
+{
+	for (var cr in Populations[1])
+		if (cr.data->loc_type == finish + 1)
+			return cr; //already exists! no need to add.
+	var color, type;
+	if (finish == 0)
+		color = "0xffffff";
+	else
+		color = "0x00ff00";
+	if (finish == 0)
+		type = "#start";
+	else
+		type = "#target"; //cludge to distinguish start/target from food
+	return Populations[1].add("//0\n" + type + "\nm:Vstyle=mark(color=" + color + ")\np:");
+}
+
+function updateMarks()
+{
+	for (var c in Populations[1])
+	{
+		if (c.data->loc_type == 1)
+			c.locationSetBboxLow(startx - c.bboxSize.x / 2, starty - c.bboxSize.y / 2, c.bboxLow.z);
+		if (c.data->loc_type == 2)
+			c.locationSetBboxLow(targetx - c.bboxSize.x / 2, targety - c.bboxSize.y / 2, c.bboxLow.z);
+	}
+}
+
+function onStep()
+{
+	if (Populations[0].size < ExpProperties.MaxCreated)
+	{
+		var g = selectGenotype();
+		if (g)
+		{
+			if (g.is_valid)
+				Populations[0].add(g);
+			else
+				Simulator.message("invalid genotype - ignored: " + g.name + " " + g.info, 1);
+		}
+		else
+			Simulator.message("no genotype selected", 1);
+	}
+
+	if (ExpProperties.aging > 0)
+	{
+		for(var cr in Populations[0])
+			cr.idleen = ExpProperties.e_meta * cr.numjoints * Math.exp((0.6931471806 * cr.lifespan) / ExpProperties.aging);
+	}
+
+	if (Populations[1].size < ExpProperties.feed)
+		addfood();
+}
+
+function updatePerformanceWithPopSize(cr)
+{
+	var GROUP_IDENTICAL_GENOTYPES = 1; //do you want identical genotypes to be grouped as one Genotype object (with instances>1 and averaged performances)?
+	var g = null;
+	if (GROUP_IDENTICAL_GENOTYPES)
+		g = GenePools[0].findGenotype(cr.geno); //will be either null (if no cr.geno exists in GenePools[0]) or some existing Genotype
+
+	if (g == null) //cr.geno not found, which means that we have to add a new Genotype
+	{
+		g = Genotype.newFromCreature(cr);
+		g.num = 0; // 0 = it will be filled automatically
+		g.moveTo(GenePools[0]);
+		g.instances = 0;
+	}
+	if (!cr.data.hasKey("fit"))
+		cr.data->fit = -distanceToTarget(cr); //died because all energy consumed
+	if (g.instances == 0)
+		g.data->fit = cr.data->fit;
+	else
+		g.data->fit = (float(g.data->fit) * g.instances + cr.data->fit) / (g.instances + 1); //average
+	// Want to copy customized values from custom Creature fields to Genotype fields? Do it here (see examples in standard.expdef).
+	g.addPerformanceFromCreature(cr); //averages performances of "g" according to instances and increments instances
+}
+
+function onCreaturesDied(cr)
+{
+	ExpState.totaltestedcr++;
+	updatePerformanceWithPopSize(cr);
+	LimitGenePool();
+	Simulator.checkpoint();
+}
+
+@include "standard_select.inc"
+
+function selectGenotype() //returns Genotype object
+{
+	var sel, selected;
+	sel = (ExpProperties.p_nop + ExpProperties.p_mut + ExpProperties.p_xov) * Math.rnd01;
+	if (sel < ExpProperties.p_nop)
+		return selectedForCreationInPool(GenePools[0]);
+	else
+	{
+		sel = sel - ExpProperties.p_nop;
+		if (sel < ExpProperties.p_mut)
+		{
+			selected = selectedForCreationInPool(GenePools[0]);
+			if (selected)
+			{
+				var g = Genotype.newFromGeno(GenMan.mutate(selected.geno));
+				g.gnum = selected.gnum + 1; //generation
+				return g;
+			}
+			return null;
+		}
+		else
+		{
+			selected = selectedForCreationInPool(GenePools[0]);
+			var other = selectedForCreationInPool(GenePools[0]);
+			if (ExpProperties.xov_mins > 0.0)
+				other = selectedSimilarInPool(GenePools[0]);
+			else
+				other = selectedForCreationInPool(GenePools[0]);
+			if ((selected != null) && (other != null))
+			{
+				var g = Genotype.newFromGeno(GenMan.crossOver(selected.geno, other.geno));
+				g.gnum = Math.max(selected.gnum, other.gnum) + 1; //generation
+				return g;
+			}
+			else
+			{
+				Simulator.print("crossover - second genotype not found?");
+				return null;
+			}
+		}
+	}
+}
+
+function onFoodCollision() //needs updating, currently *all* collisions are ignored
+{
+	var e = Collision.Part2.ing * ExpProperties.feedtrans;
+	//Simulator.print("transferring "+e+" from "+Collision.Creature1.name+" to "+Collision.Creature2.name);
+	Collision.Creature1.transferEnergyTo(Collision.Creature2, e);
+}
+
+function ExpProperties_cleardata_call()
+{
+	for (var g in GenePools[0])
+		g.instances = 0;
+	Simulator.print("Performance data reset.");
+}
+
+function LimitGenePool()
+{
+	var pool = GenePools[0];
+	if (pool.genotype_instances > (ExpProperties.capacity + 1))
+		Simulator.print("Removing " + (pool.genotype_instances - ExpProperties.capacity) + " genotypes");
+	while (pool.genotype_instances > ExpProperties.capacity)
+		selectedForDeletionInPool(pool).deleteOne();
+}
+
+function ExpProperties_capacity_set()
+{
+	LimitGenePool();
+}
+
+function
+ExpProperties_cr_c_set, ExpProperties_cr_life_set, ExpProperties_cr_v_set, ExpProperties_cr_gl_set,
+ExpProperties_cr_joints_set, ExpProperties_cr_nnsiz_set, ExpProperties_cr_nncon_set, ExpProperties_cr_di_set,
+ExpProperties_cr_vpos_set, ExpProperties_cr_vvel_set, ExpProperties_cr_norm_set, ExpProperties_cr_simi_set,
+update_fitformula()
+{
+	var formula = "" + ExpProperties.cr_c;
+	formula += singlecrit("cr_life", "lifespan");
+	formula += singlecrit("cr_v", "velocity");
+	formula += singlecrit("cr_gl", "strsiz");
+	formula += singlecrit("cr_joints", "strjoints");
+	formula += singlecrit("cr_nnsiz", "nnsiz");
+	formula += singlecrit("cr_nncon", "nncon");
+	formula += singlecrit("cr_di", "distance");
+	formula += singlecrit("cr_vpos", "vertpos");
+	formula += singlecrit("cr_vvel", "vertvel");
+	if (ExpProperties.cr_simi)
+		formula = "(" + formula + ")*this.simi";
+	GenePools[0].fitness = "return " + formula + ";";
+}
+
+function singlecrit(crname, fieldname)
+{
+	var weight = ExpProperties.[crname];
+	if (weight == 0.0)
+		return "";
+	if (ExpProperties.cr_norm)
+		return "+this.getNormalized(Genotype:" + fieldname + ")*" + weight;
+	else
+		return "+this." + fieldname + "*" + weight;
+}
+
+function queryEventNames()
+{
+	return ["Mark start point", "Mark target", "Place food", "Drop food"];
+}
+
+function onUserEvent(type, point, vector)
+{
+	//Simulator.print("called event #"+type);
+	var p = WorldMap.intersect(point, vector);
+	if (p)
+	{
+		//	Simulator.print("intersection found:"+p[0]+","+p[1]+","+p[2]);
+		if (type == 0)
+		{
+			var cr = addmark(0);
+			startx = p[0] - cr.bboxSize.x / 2;
+			starty = p[1] - cr.bboxSize.y / 2;
+			updateMarks();
+		}
+		if (type == 1)
+		{
+			var cr = addmark(1);
+			targetx = p[0] - cr.bboxSize.x / 2;
+			targety = p[1] - cr.bboxSize.y / 2;
+			updateMarks();
+		}
+		if (type == 2 || type == 3)
+		{
+			var food = addfood();
+			if (food)
+			{
+				var z = p[2];
+				if (type == 3)
+					z += 10;
+				food.locationSetBboxLow(p[0] - food.bboxSize.x / 2, p[1] - food.bboxSize.y / 2, z);
+			}
+		}
+	}
+	//else
+	//	Simulator.print("no intersection...");
+}
+
+@include "standard_loadsave.inc"
+
+~
+
+#include "standard_props.inc"
+
+
+property:
+id:startxlist
+name:Start X positions
+help:A comma-separated list of X positions (based on the world map) of starting points
+type:s
+
+property:
+id:startylist
+name:Start Y positions
+help:A comma-separated list of Y positions (based on the world map) of starting points
+type:s
+
+property:
+id:startheadings
+name:Start headings
+help:A comma-separated list of initial headings (in degrees)
+type:s
+
+property:
+id:targetxlist
+name:Target X positions
+help:A comma-separated list of X positions (based on the world map) of target points
+type:s
+
+property:
+id:targetylist
+name:Target Y positions
+help:A comma-separated list of Y positions (based on the world map) of target points
+type:s
+
+property:
+id:targetradius
+name:Target radius
+help:The target is a circle with the radius defined here
+type:f 0.01 10
+
+property:
+id:cleardata
+name:Clear performance info
+type:p
+help:~
+Sets the number of instances of each genotype to zero (as if it has never been evaluated).
+Genotype performance values stay intact, yet they are meaningless if a genotype has no instances.~
+
+state:
+id:notes
+name:Notes
+type:s 1
+help:~
+You can write anything here
+(it will be saved to the experiment file)~
+
+state:
+id:totaltestedcr
+name:Evaluated creatures
+help:Total number of the creatures evaluated in the experiment
+type:d
+flags:16
+
+state:
+id:creaturesgrouploaded
+name:creaturesgrouploaded
+type:d
+flags:34

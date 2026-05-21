@@ -1,0 +1,271 @@
+show:
+name:Online evolution
+expdef:standard
+code:~
+
+const FEC_BASE_URL="http://none.yet...invalid";
+const FEC_LIST_URL="/distributed/";
+
+global g_experiments; //dictionary from FEC json
+global g_experiments_offset; //0 or 1 (if the first element on the list is server message)
+global g_started;
+
+function onLoad()
+{
+	GLDisplay.user_interaction = 2; //camera
+	GLDisplay.world_visibility = 1 + 2 + 4; //all
+	GLDisplay.back_action = "onBack";
+	ShowManager.dispinfo = 0;
+
+	var title = GUI.newLabel("title", "");
+	title.visible = 0;
+	title.setAutolayout(0, 0, 0, 0, 0, 0.05, 1, 0.1);
+	title.align = 0;
+	title.valign = 0;
+
+	var info = GUI.newLabel("info", "");
+	info.visible = 0;
+	info.setAutolayout(0, 0, 0, 0, 0, 0.15, 1, 0.1);
+	info.align = 0;
+	info.valign = 0;
+
+	var stop = GUI.newButton("stop", "Stop");
+	stop.visible = 0;
+	stop.setAutolayout(0, 0, 0, 0, 0.25, 0.8, 0.5, 0.15);
+
+	var submit = GUI.newButton("submit", "Submit results");
+	submit.visible = 0;
+	submit.setAutolayout(0, 0, 0, 0, 0.25, 0.8, 0.5, 0.15);
+
+	var list = GUI.newList("pools");
+	list.align = 1;
+	list.valign = 0;
+	list.setAutolayout(0, 0, 0, 0, 0.05, 0.05, 0.9, 0.8);
+	list.row_height = (GLDisplay.size_x + GLDisplay.size_y) / 15;
+	list.visible = 0;
+
+	var wait = GUI.newSpinner("waiting");
+	wait.visible = 0;
+	wait.setAutolayout(0, 0, 0, 0, 0.3, 0.3, 0.4, 0.4);
+
+	var but = GUI.newButton("use", "Use selected");
+	but.setAutolayout(0, 0, 0, 0, 0.25, 0.82, 0.5, 0.13);
+	but.visible = 0;
+
+	getExperimentList();
+}
+
+function getExperimentList()
+{
+	GUI->pools.removeAllItems();
+	var post = String.serialize({"version_int": Simulator.version_int});
+	var d = File.callURL(FEC_BASE_URL + FEC_LIST_URL, post, function experimentListReceived);
+	GUI->waiting.visible = 1;
+}
+
+function experimentListReceived(d)
+{
+	GUI->waiting.visible = 0;
+	if (d->ok)
+	{
+		Simulator.print("content: " + d->content);
+		d = String.deserialize(d->content);
+		if (typeof(d) == "Error")
+		{
+			Simulator.print("Cannot parse json: " + d);
+		}
+		else
+		{
+			g_experiments = d;
+			g_experiments_offset = 0;
+
+			if (d.hasKey("message")) //server wants to say something, so put its message as the top item on the list
+			{
+				GUI->pools.addItem(["Message from Framsticks Experimentation Center: " + d["message"], "info-icon-shadow"]);
+				g_experiments_offset = 1;
+			}
+
+			for (var row in d->data)
+			{
+				//Simulator.print(row);
+				if (row.hasKey("param_name"))
+					GUI->pools.addItem(["Environment and fitness: " + row->param_name + "\nGene pool: " + row->pool_name, "menu_show_evolution_demo"]); //genotype-based
+				else
+					GUI->pools.addItem(["Environment: " + row->pool_name, "menu_show_reproduction"]); //state-based
+			}
+			GUI->pools.visible = 1;
+			GUI->use.visible = 1;
+
+			return;
+		}
+	}
+
+	GUI->info.text = "Could not acquire the list of experiments - Please try again later.";
+	GUI->info.visible = 1;
+}
+
+function onGUIEvent(elem, arg)
+{
+	switch(elem.name)
+	{
+	case "use":
+		prepareExperiment();
+		break;
+	case "stop":
+		stopExperiment();
+		break;
+	case "submit":
+		submitResult();
+		break;
+	}
+}
+
+function prepareExperiment()
+{
+	var sel = GUI->pools.selected - g_experiments_offset;
+	if (sel < 0) return;
+	GUI->pools.visible = 0;
+	GUI->use.visible = 0;
+	GUI->info.visible = 1;
+	GUI->info.text = "Downloading experiment data...";
+	var row = g_experiments->data[sel];
+
+	var experimentname = null;
+	if (row->param_name != null) //genotype-based experiment (like standard.expdef)
+		experimentname = row->param_name;
+	else //state-based experiment (like reproduction.expdef or prime.expdef)
+		experimentname = row->pool_name;
+
+	GUI->title.text = "Experiment: " + experimentname;
+	GUI->title.visible = 1;
+
+	if (row->param_name != null) //genotype-based experiment (like standard.expdef)
+	{
+		var sim_url = FEC_BASE_URL + row->param_resource;
+		var gen_url = FEC_BASE_URL + row->pool_resource;
+		var sim_data = File.callURL(sim_url, null, null);
+		var gen_data = File.callURL(gen_url, null, null);
+		//Simulator.print("sim_data:\n"+sim_data);
+		//Simulator.print("gen_data:\n"+gen_data);
+		if ((!sim_data->ok) || (!gen_data->ok))
+		{
+			GUI->info.text = "Could not download experiment data.";
+			return;
+		}
+		Simulator.load("string://" + sim_data->content);
+		Simulator.import("string://" + gen_data->content, 2);
+	}
+	else   //state-based experiment (like reproduction.expdef or prime.expdef)
+	{
+		var expt_data = File.callURL(FEC_BASE_URL + row->state_resource, null, null);
+		//Simulator.print("expt_data:\n"+expt_data);
+		if (!expt_data->ok)
+		{
+			GUI->info.text = "Could not download experiment state.";
+			return;
+		}
+		Simulator.load("string://" + expt_data->content);
+	}
+
+
+	//test cases (ignoring files from server):
+
+	// test case #1 - neverending
+	//sim_data->content="sim_params:\nexpdef:standard\n";
+	//gen_data->content="org:\ngenotype:X\n";
+
+	// test case #2 - self-stopping
+	//sim_data->content="sim_params:\nexpdef:prime\nfrom_number:1\nto_number:100\n";
+	//gen_data->content=null;
+
+	GLDisplay.desiredsimspeed = 9999;
+	g_started = 1;
+	GUI->info.text = "Simulation in progress...";
+	GUI->stop.visible = 1;
+}
+
+function onShowStep()
+{
+	if (g_started && (GLDisplay.desiredsimspeed == 0)) //experiment stopped itself
+	{
+		GUI->stop.visible = 0;
+		GUI->info.text = "Experiment finished.";
+		GUI->submit.visible = 1;
+		g_started = 0;
+	}
+}
+
+function stopExperiment()
+{
+	g_started = 0;
+	GUI->stop.visible = 0;
+	GUI->info.visible = 1;
+	GLDisplay.desiredsimspeed = 0;
+	GUI->info.text = "Experiment stopped.";
+	GUI->submit.visible = 1;
+}
+
+function submitResult()
+{
+	//now we want to know which experiment we were participating in
+	//to send back its IDs to FEC
+	var sel = GUI->pools.selected - g_experiments_offset;
+	if (sel < 0) return;
+	var row = g_experiments->data[sel];
+	//Simulator.print(row);
+
+	var res = null;
+	if (row["param_id"] != null) //genotype-based experiment (like standard.expdef)
+	{
+		res = {"param_id": row["param_id"], "pool_id": row["pool_id"]};
+		//var data=Simulator.export(null,2,-1,-1);
+		var genos = [];
+		for(var pool in GenePools)
+			for(var g in pool)
+				genos.add({"geno": g.genotype, "fit": g.fit, "data": String.SERIALIZATION_PREFIX + String.serialize(g.data)});
+		res["genotypes"] = genos;
+	}
+	else   //state-based experiment (like reproduction.expdef or prime.expdef)
+	{
+		var state = Simulator.save(null);
+		res = {"state_id": row["state_id"], "state": state};
+	}
+	//Simulator.print("result="+String.serialize(res));
+	var message = "(no response)";
+	var response = File.callURL(FEC_BASE_URL + FEC_LIST_URL, String.serialize(res), null);
+	if (response->ok)
+	{
+		Simulator.print("content=" + response->content);
+		response = String.deserialize(response->content);
+		if (typeof(response) == "Error")
+		{
+			message = "(incorrect response)";
+		}
+		else   //assuming response is a dictionary (server returned json)
+		{
+			if (response["message"] != null)
+			{
+				message = response["message"];
+				if (message == "OK") //standard "success status" from FEC
+					message = "Success!";
+			}
+		}
+	}
+	GUI.messageBox4("Experiment submission", "Framsticks Experimentation Center response: " + message, ["Back to the list of experiments"], function backToList);
+}
+
+function backToList()
+{
+	GUI->pools.visible = 1;
+	GUI->title.visible = 0;
+	GUI->submit.visible = 0;
+	GUI->info.visible = 0;
+	GUI->use.visible = 1;
+}
+
+function onBack()
+{
+	ShowManager.show = "AL-top";
+}
+
+~

@@ -1,0 +1,18 @@
+script:
+name:Recalcuate genotype properties
+help:~
+Recalculates validity and the number of parts/joints/neurons/connections for all genotypes.
+This may be useful when you suspect an old .gen file when the interpretation of the genes changed,
+or when you do not trust the information provided along with the genotype.~
+code:~
+function main()
+{
+	for(var pool in GenePools)
+		for(var g in pool)
+		{
+			var genes = g.genotype;
+			g.genotype = ""; //set empty and then restore the original...
+			g.genotype = genes; //...this triggers recalculation.
+		}
+}
+~

@@ -1,0 +1,303 @@
+expdef:
+name:Dance
+info:~
+A synchronous framsdance :-)~
+code:~
+
+//by MacKo, 2004
+//sound and show->expdef+show, 2007
+//fixed sound and other tweaks, 2016
+
+global g_tempo;
+global g_currentarrangement;
+global g_arrangerequest;
+global g_beat; //beat params vector
+
+function onExpDefLoad()
+{
+	g_currentarrangement = 0;
+	g_arrangerequest = 100;
+	g_beat = [1, 2, 3, 4, 5, 6, 7, 8];
+	Simulator.import("show_noevol.sim");
+	World.wrldsiz = 60.0;
+	World.wrldbnd = 2;
+
+	var pop = Populations[0]; //everything in this show concerns group 0
+	pop.initial_nn_active = 1;
+	pop.death = 0;
+	pop.energy = 0;
+	pop.selfmask = 0;   pop.othermask = 0; //ignore collisions
+
+	ExpProperties.dancers = 3;
+	ExpProperties_dancers_set();
+	ExpProperties.tempo = 1;
+	ExpProperties_tempo_set();
+
+	ExpProperties_restart_land_call();
+}
+
+function onBorn()
+{
+	place_randomly(0, 4);
+}
+
+function is_muscle(neuro_description)
+{
+	var d = String.substr(neuro_description, 0, 1);
+	return d == "|" || d == "@";
+}
+
+global g_lastsound;
+function danceStep()
+{
+	var sin = Math.sin(float(Simulator.stepNumber) / g_tempo);
+	var sound = (Simulator.stepNumber % g_tempo) * 4 / g_tempo;
+	if (g_lastsound != sound)
+	{
+		playBeat(sound);
+		g_lastsound = sound;
+	}
+	var pop = Populations[0];
+	for (var i = 0; i < pop.size; i++)
+	{
+		var cr = pop[i];
+		for (var j = 0; j < cr.numneurons; j++)
+		{
+			if (!is_muscle(cr.getNeuroDef(j).d))
+				continue;
+
+			cr.getNeuro(j).hold = 1;
+			cr.getNeuro(j).currState = sin * (((j % 2) * 2) - 1);
+			//      each 2nd - negative           ^^^^^^^^^^^
+		}
+	}
+}
+
+function newBeat()
+{
+	var i;
+	for(i = 0; i < 4; i++) g_beat.set(i, 8.1758 * Math.pow(2, (20.0 + Math.random(60)) / 12)); //base freq
+	for(i = 5; i < 8; i++) g_beat.set(i, Math.random(5) * 15); //variability
+	for(i = 0; i < 4; i++) if (Math.random(8) == 0) g_beat.set(i, g_beat[Math.random(4)]); //same base freq twice
+	for(i = 0; i < 4; i++) if (Math.random(5) == 0) g_beat.set(i, 0); //'no sound' marker
+}
+
+function playBeat(phase)
+{
+	if (ExpProperties.sound == 0 || phase < 0 || phase > 3) return;
+	if (g_beat[phase] <= 0) return;
+	var minlength = 70; //unfortunately, shorter sounds are not audible under windows
+	var lenghts = [1, 1, 1, 1]; //was [3, 1, 2, 1], but sound() is synchronous under windows and we don't want to block for too long (or at all)
+	Simulator.sound(g_beat[phase] + Math.random(g_beat[4 + phase]) - g_beat[4 + phase] / 2, minlength * lenghts[phase]);
+}
+
+
+function newArrangement()
+{
+	var pop = Populations[0];
+	var supported_arrangements = 3; //3 arrangements supported - see switch(a) below
+	var a = (g_currentarrangement + 1 + Math.random(supported_arrangements - 1)) % supported_arrangements; //new arrangement is always different from the current one
+	var side = int(Math.sqrt(pop.size) + 0.999);
+	var spacing = World.wrldsiz / (side + 1); // grid spacing
+	Simulator.print("Setting arrangement #" + a + ", " + pop.size + " creatures.");
+	for (var i = 0; i < pop.size; i++)
+	{
+		var x, y; //new (target) positions
+		switch (a)
+		{
+		case 0:  //single line
+			x = (0.5 + i) * World.wrldsiz / pop.size;
+			y = World.wrldsiz / 2;
+			break;
+		case 1:  //grid
+			x = float(1 + i % side) * spacing;
+			y = float(1 + i / side) * spacing;
+			break;
+		case 2:  //circle
+			x = World.wrldsiz / 2.0 + World.wrldsiz / 3.0 * Math.cos(Math.twopi * i / pop.size);
+			y = World.wrldsiz / 2.0 + World.wrldsiz / 3.0 * Math.sin(Math.twopi * i / pop.size);
+			break;
+		}
+		var cr = pop.get(i);
+		cr.data->current = (cr.bboxLow.x, cr.bboxLow.y, 0); //note: XYZ objects
+		cr.data->target = (x - (cr.bboxSize.x + cr.bboxSize.y + cr.bboxSize.z) / 6,
+		                   y - (cr.bboxSize.x + cr.bboxSize.y + cr.bboxSize.z) / 6, 0); //save new arrangement position
+		cr.data->progress = 0.0; //arrangement progress counter
+	}
+
+	g_currentarrangement = a;
+
+	/*other arrangement ideas:
+	line+frontman
+	circle+middleman
+	2 lines
+	...and perhaps 3D arrangements for water dances - sphere, 3D grid.
+
+	another idea - modify the world map to make the scene more interesting
+	(frontman standing on a higher block etc.)
+	World.wrldtyp = 1;
+	World.wrldmap = "m 3 3 676787676";
+	*/
+
+	newBeat();
+}
+
+function arrange()
+{
+	var pop = Populations[0];
+	var i, p;
+	for (i = 0; i < pop.size; i++)
+	{
+		var cr = pop.get(i);
+		if (cr.data.hasKey("progress"))
+		{
+			//Simulator.print("#"+i+" "+cr.data->current+", "+cr.data->target+", "+cr.data->progress);
+			if (cr.data->progress < 100) //while moving to new positions...
+			{
+				cr.data->progress++;
+				p = cr.data->progress / 100.0;
+			}
+			else   //keep it in the previously arranged position
+			{
+				cr.data->current = (cr.bboxLow.x, cr.bboxLow.y, 0); //current position
+				p = 0.1; //1.0=immediately move to the desired position. 0.1=be soft
+			}
+			cr.locationSetBboxLow(cr.data->current.x + (cr.data->target.x - cr.data->current.x)*p,
+			                      cr.data->current.y + (cr.data->target.y - cr.data->current.y)*p,
+			                      cr.bboxLow.z);
+		}
+	}
+}
+
+@include "standard_select.inc"
+@include "standard_placement.inc"
+
+function onStep()
+{
+	var pop = Populations[0];
+	if (pop.size < ExpProperties.MaxCreated)
+	{
+		var g = selectedForCreationInPool(GenePools[0]);
+		if (g)
+		{
+			if (g.is_valid)
+				pop.add(g);
+			else
+				Simulator.message("invalid genotype - ignored: " + Genotype.info, 1);
+		}
+	}
+	else while (pop.size > ExpProperties.MaxCreated)
+		{
+			pop.delete(pop.size - 1);
+		}
+
+	danceStep();
+	if ((Simulator.stepNumber % 3000) == 0 || Simulator.stepNumber == g_arrangerequest)
+		newArrangement();
+	if ((Simulator.stepNumber % 1000) == 0)
+		newBeat();
+	arrange();
+}
+
+function removeTooBigOrNoMuscles()
+{
+	var pool = GenePools[0];
+	for (var i = pool.size - 1; i >= 0; i--)
+	{
+		var m = Model.newFromGeno(pool[i].geno);
+		if (m.bboxSize.x > World.wrldsiz / 6 || m.bboxSize.y > World.wrldsiz / 6 || m.bboxSize.z > World.wrldsiz / 6)
+		{
+			Simulator.print("Dismissed too big dancer, " + pool[i].name + ".");
+			pool.delete(i);
+		}
+
+		var muscles = 0;
+		for (var j = 0; j < m.numneurons; j++)
+		{
+			if (!is_muscle(m.getNeuroDef(j).d))
+				muscles++;
+		}
+		if (muscles == 0)
+		{
+			Simulator.print("Dismissed: cannot dance with no muscles, " + pool[i].name + ".");
+			pool.delete(i);
+		}
+	}
+}
+
+function restart(wrldwat, creath, genepool)
+{
+	World.wrldwat = wrldwat;
+	ExpProperties.creath = creath;
+	Populations[0].clear();
+	GenePools[0].clear();
+	Simulator.import(genepool);
+	removeTooBigOrNoMuscles();
+	g_arrangerequest = Simulator.stepNumber + 20;
+}
+
+function ExpProperties_restart_land_call()
+{
+	restart(-1, 0.1, "walking.gen");
+}
+
+function ExpProperties_restart_water_call()
+{
+	restart(8, -0.5, "swimming.gen"); //-0.5 = half depth
+}
+
+// starting with v4.0rc2 we can no longer access globals defined in other code modules (dance.expdef/dance.show)
+// dance.show calls this function to change g_arrangerequest (could also use ExpState.arrangerequest which is directly accessible in both modules)
+function setArrangeRequest(v)
+{
+	g_arrangerequest = v;
+}
+
+function ExpProperties_arrangement_call()
+{
+	newArrangement();
+}
+
+function ExpProperties_dancers_set()
+{
+	ExpProperties.MaxCreated = [2, 3, 4, 9, 16, 25][ExpProperties.dancers];
+	g_arrangerequest = Simulator.stepNumber + 20;
+}
+
+function ExpProperties_tempo_set()
+{
+	g_tempo = [80, 50, 20][ExpProperties.tempo];
+}
+~
+
+#include "standard_props.inc"
+
+property:
+id:restart_land
+name:Land dance
+type:p
+
+property:
+id:restart_water
+name:Water dance
+type:p
+
+property:
+id:dancers
+name:Number of dancers
+type:d 0 5 ~2~3~4~9~16~25
+
+property:
+id:tempo
+name:Dance tempo
+type:d 0 2 ~Slow~Medium~Fast
+
+property:
+id:arrangement
+name:Change arrangement
+type:p
+
+property:
+id:sound
+name:Beat
+type:d 0 1 1

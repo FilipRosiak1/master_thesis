@@ -1,0 +1,367 @@
+expdef:
+name:Learn where food is, explore and exploit
+info:~
+When an individual encounters food, it eats a bit of it and remembers its location. It also gets "refreshed" (i.e. gets a full amount of energy). Energy of each individual provides information on how recent (current) is the food location  information that the individual stores. Information recency is visualized as brightness of individuals (bright ones have recently found food). When individuals collide, they learn from each other where food is (by averaging their knowledge). A newborn individual moves randomly and receives (duplicates) knowledge from the first knowledge-rich individual that it collides with. An individual that cannot find food for a long period of time dies, and a newborn one is created.
+
+-=-
+
+An interesting phenomenon to be observed in this experiment is how sharing information helps explore food location. Food items can be added either close to previous items, or randomly (in the latter case, the information about food location is not very useful for individuals). You can turn off automatic feeding and keep adding food manually to see how learning influences behavior of the population. See the "share knowledge" parameter (on/off).
+
+With learning, individuals do not have to find food themselves. They can also get in contact with other individuals that know where the food was, and exchange information (the values learned are proportional to the recency of information). It is interesting to see how knowledge sharing (cooperation, dependence) versus no sharing (being self-sufficient, independence, risk) influences minimal, average and maximal life span in the neighboring and random food placement scenarios.
+
+Notions of exploration of the environment and exploitation of knowledge about the environment are illustrated as well in this experiment.
+
+-=-
+
+The dynamics of this system depends on the following parameters:
+- number of individuals and world size
+- size and shape of their body (affects collisions and sharing of knowledge)
+- food eating rate
+- food placement (neighboring or random)
+- learning strategy (e.g. weighted averaging of food coordinates)
+- behavior (e.g. move within circles, small after finding food, then larger and larger)
+
+-=-
+
+Technical:
+Food location (x,y) is stored in data->food of each individual (as an XYZ object, z coordinate is ignored)
+~
+code:~
+
+global foodenergywaiting;
+
+global lifespan_min, lifespan_avgsum, lifespan_max; //just for basic stats, if you want them
+global lastfoodx, lastfoody; //used if food is to be placed near previous locations
+
+function onExpDefLoad()
+{
+	// define genotype and creature groups
+	GenePools[0].name = "Unused";
+	var pop = Populations[0];
+	pop.name = "Creatures";
+	pop.en_assim = 0;
+	pop.initial_nn_active = 1;
+	pop.initial_perf_measuring = 1;
+	pop.death = 1;
+	pop.energy = 1;
+	pop.selfmask = 0x10001;
+	pop.othermask = 0x30000;
+	pop = Populations.addGroup("Food");
+	pop.initial_nn_active = 0;
+	pop.initial_perf_measuring = 0;
+	pop.death = 1;
+	pop.energy = 1;
+	pop.selfmask = 0x20002;
+	pop.othermask = 0x10000;
+//food food: none
+//crea crea: custom (in the handling function, food-crea collisions are detected based on numparts, and skipped...)
+//food crea: custom (...because they are already handled here)
+
+	ExpProperties.initialgen = "XXXXll(X,,,,,,,X)"; //arrow-like
+	ExpProperties.shareknowledge = 1;
+	ExpProperties.MaxCreated = 30;
+	ExpProperties.Energy0 = 1000;
+	ExpProperties.e_meta = 0.5; //life period: long
+	ExpProperties.feedrate = 0.2;
+	ExpProperties.feede0 = 100;
+	ExpProperties.feedtrans = 0.5;
+	ExpProperties.creath = 0.1;
+	ExpProperties.foodgen = "";
+	ExpState.totaltestedcr = 0;
+	foodenergywaiting = ExpProperties.feede0;
+
+	World.wrldbnd = 0;
+	World.wrldsiz = 50;
+	lastfoodx = lastfoody = World.wrldsiz / 2;
+}
+
+@include "standard_placement.inc"
+
+function onExpInit()
+{
+	Populations[0].clear();
+	Populations[1].clear();
+	var cr = Populations[0].add(ExpProperties.initialgen);
+	cr.name = "Wanderer";
+	placeCreatureRandomly(cr, 0, 0);
+	ExpState.totaltestedcr = 0;
+	foodenergywaiting = ExpProperties.feede0;
+	lifespan_min = lifespan_avgsum = lifespan_max = 0; //init stats
+}
+
+
+function onCreaturesBorn(cr)
+{
+	cr.idleen = ExpProperties.e_meta;
+	cr.energy0 = ExpProperties.Energy0 * 0.8 + Math.rndUni(0, ExpProperties.Energy0 * 0.2); //randomized so that they don't die all in the same moment
+	cr.energy = cr.energy0;
+
+	cr.data->food = null; //Initially, each creature doesn't know where food is
+	cr.rotate(0, 0, Math.rndUni(0, Math.twopi));
+	cr.driveLocal = (0.5, 0, 0); //slowdown=2.0;
+}
+
+function addfood()
+{
+	var cr;
+	if (ExpProperties.foodgen == "")
+		cr = Populations[1].add("//0\nm:Vstyle=food\np:");
+	else
+		cr = Populations[1].add(ExpProperties.foodgen);
+
+// the 'style' parameter can be used to set a color of the food item (requires a compatible *.style file):
+// Populations.add("//0\nm:Vstyle=food(color=0)\np:");
+
+	cr.name = "Food";
+	cr.idleen = 0;
+	cr.energy0 = ExpProperties.feede0;
+	cr.energy = cr.energy0;
+
+	if (ExpProperties.foodplacement == 0) //near previous food
+	{
+		var d = World.wrldsiz / 3; //randomness...
+		var x = lastfoodx + Math.rndUni(-d, d), y = lastfoody + Math.rndUni(-d, d);
+		cr.locationSetBboxLow(x, y, ExpProperties.creath + WorldMap.getHeight(x, y) + cr.bboxGroundOffset);
+		lastfoodx = cr.bboxLow.x;
+		lastfoody = cr.bboxLow.y;
+		return cr;
+	}
+
+	var retry = 50; //try 50 times
+	while (retry--)
+	{
+		placeCreatureRandomly(cr, 0, 0);
+		if (!cr.boundingBoxCollisions(0))
+			return cr;
+	}
+	Simulator.message("addfood() could not avoid collisions.", 1);
+	return cr;
+}
+
+function onStep()
+{
+	foodenergywaiting = foodenergywaiting + ExpProperties.feedrate;
+	//Simulator.print("food energy waiting = "+foodenergywaiting);
+	if (foodenergywaiting > ExpProperties.feede0)
+	{
+		addfood();
+		foodenergywaiting = 0.0;
+		Simulator.checkpoint();
+	}
+
+	if (Populations.get(0).size < ExpProperties.MaxCreated)
+	{
+		var cr = Populations[0].add(ExpProperties.initialgen);
+		cr.name = "Wanderer";
+		placeCreatureRandomly(cr, 0, 0);
+	}
+}
+
+function onCreaturesStep(cr)
+{
+	var dx, dy;
+	var rot_speed = 0.25;
+	var rot = Math.rndUni(-1, 1); //in case the creature does not know where the food was
+
+	if (cr.data->food != null) //knows where the food was
+	{
+		//cr.energy: ExpProperties.Energy0 .. 0 -> radius of random movement: 6..Worldsize/2
+		var rad_of_rnd_mov = float(6.0 + (World.wrldsiz / 2 - 6.0) * (1.0 - cr.energy / ExpProperties.Energy0));
+
+		dx = cr.bboxCenter.x - cr.data->food.x;
+		dy = cr.bboxCenter.y - cr.data->food.y;
+		var dist = Math.sqrt(dx * dx + dy * dy); //distance to food
+
+		if (dist > rad_of_rnd_mov) //inside of the allowed distance walks randomly. Outside: heads stored food location! (center of the allowed circle)
+		{
+// creature local coordinates:
+//
+//   ^ Y
+//   |
+//   |
+//  (cr)---> X  (movement direction)
+//
+			var pos = cr.worldToLocal(cr.data->food.x, cr.data->food.y, 0);
+			if (pos.y > 0) rot += rot_speed;
+			else rot -= rot_speed;
+		}
+	}
+
+	cr.rotate(0, 0, rot);
+}
+
+function onCreaturesDied(cr)
+{
+	Simulator.print("An agent died... a new one will be created.");
+	//stats:
+	ExpState.totaltestedcr++;
+	if (lifespan_min == 0 || cr.lifespan < lifespan_min) lifespan_min = cr.lifespan;
+	if (lifespan_max == 0 || cr.lifespan > lifespan_max) lifespan_max = cr.lifespan;
+	lifespan_avgsum += cr.lifespan;
+	//Simulator.print("died/lifespan_min/avg/max: "+ExpState.totaltestedcr+" / "+lifespan_min+" / "+(lifespan_avgsum/ExpState.totaltestedcr)+" / "+lifespan_max);
+}
+
+function onFoodCrCollision()
+{
+	var e = 0.25/*ingestion coefficient*/ * ExpProperties.feedtrans;
+	//Simulator.print("transferring "+e+" from "+Collision.Creature1.name+" to "+Collision.Creature2.name+" ("+Collision.Creature2.energy+")");
+	CrCollision.Creature1.transferEnergyTo(CrCollision.Creature2, e);
+	//save food position in data->food of the creature
+	CrCollision.Creature2.data->food = (CrCollision.Creature1.bboxCenter.x, CrCollision.Creature1.bboxCenter.y, 0);
+	//make it fresh (full energy)
+	CrCollision.Creature2.energy0 = ExpProperties.Energy0;
+	CrCollision.Creature2.energy = CrCollision.Creature2.energy0;
+}
+
+function onCreaturesCrCollision() //average "knowledge" of the two creatures. Weighted average based on energy (information recency)
+{
+	if (ExpProperties.shareknowledge == 0) return;
+
+	var c1 = CrCollision.Creature1;
+	var c2 = CrCollision.Creature2;
+
+	if (c1.numparts == 1) return; //skip creature-food collisions
+	if (c2.numparts == 1) return; //skip creature-food collisions
+    
+	// neither creature knows food location
+	if ((c1.data->food == null) && (c2.data->food == null)) return;
+
+	//Simulator.print("collide: "+Collision.Creature1.name+" and "+Collision.Creature2.name);
+
+	//if no knowledge in a creature, then take it from the other one
+	if (c1.data->food == null) c1.data->food = c2.data->food; //reference is copied, but it is safe because we never modify these XYZ objects, instead we assign new objects each time coordinates are modified
+	if (c2.data->food == null) c2.data->food = c1.data->food;
+
+	var totalen = c1.energy + c2.energy;
+	var x = (c1.data->food.x * c1.energy + c2.data->food.x * c2.energy) / totalen;
+	var y = (c1.data->food.y * c1.energy + c2.data->food.y * c2.energy) / totalen;
+	c1.data->food = c2.data->food = (x, y, 0);
+	c1.energy = c2.energy = totalen / 2; //uh oh, energy (=knowledge recency) is also averaged. Could be max(en1,en2) - spread most recent knowledge.
+}
+
+function ExpProperties_MaxCreated_set()
+{
+	limitCreatures();
+}
+
+function limitCreatures()
+{
+	var pop = Populations[0];
+	var n = pop.size - ExpProperties.MaxCreated;
+	while(n > 0)
+	{
+		pop.delete(pop.size - 1);
+		n--;
+	}
+}
+
+
+
+function onExpLoad()
+{
+	Simulator.message("expdef: onExpLoad not implemented", 3);
+}
+
+function onExpSave()
+{
+	Simulator.message("expdef: onExpSave not implemented", 3);
+}
+
+@include "standard_events.inc"
+
+~
+
+property:
+id:MaxCreated
+name:Number of creatures
+type:d 0 2000
+
+property:
+id:shareknowledge
+name:Share knowledge
+type:d 0 1
+help:Share knowledge about food position when two creatures collide?
+
+property:
+id:initialgen
+name:Initial genotype
+type:s 1
+
+property:
+id:creath
+name:Creation height
+type:f -1 50
+help:~
+Vertical position (above the surface) where new creatures are revived.
+Negative values are only used in the water area:
+  0   = at the surface
+-0.5 = half depth
+-1   = just above the bottom~
+
+property:
+id:Energy0
+name:Starting energy
+type:f 0 100000
+group:Energy
+help:Initial energy for the first creature
+
+property:
+id:e_meta
+name:Idle metabolism
+type:f 0 1
+group:Energy
+help:Each stick consumes this amount of energy in one time step
+
+property:
+id:feedrate
+name:Feeding rate
+type:f 0 100
+group:Energy
+help:How fast energy is created in the world
+
+property:
+id:feede0
+name:Food's energy
+group:Energy
+type:f 0 1000
+
+property:
+id:foodplacement
+name:Food placement
+group:Energy
+type:d 0 1 ~Neighboring~Random
+help:Random placement contradicts 'learning food location' and therefore constitutes a test/benchmark for this experiment definition.
+
+property:
+id:foodgen
+name:Food's genotype
+group:Energy
+type:s 1
+help:~
+The default food model is a simple, single part object:
+  //0
+  m:Vstyle=food
+  p:
+(this genotype is used when you leave this field blank).
+You can specify another genotype to create "intelligent" or mobile food.~
+
+property:
+id:feedtrans
+name:Ingestion multiplier
+group:Energy
+type:f 0 100
+
+state:
+id:notes
+name:Notes
+type:s 1
+help:~
+You can write anything here
+(it will be saved to the experiment file)~
+
+state:
+id:totaltestedcr
+name:Evaluated creatures
+help:Total number of the creatures evaluated in the experiment
+type:d
+flags:16

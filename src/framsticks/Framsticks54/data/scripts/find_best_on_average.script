@@ -1,0 +1,81 @@
+script:
+name:Find best genotype on average
+help:~
+Finds the single best genotype in the gene pool, evaluating all genotypes and averaging fitness from the requested number of evaluations.
+Assumes all genotypes in the gene pool are different, otherwise only the first copy of the set of identical genotypes will be evaluated.
+Usage:
+   UserScripts.script_Find_best_on_average_args(100, "file_with_best.expt");
+(the second argument may be null if you don't want to save results)
+~
+code:~
+
+function main()
+{
+	main_args(20, null);
+}
+
+
+//filenametosave==null disables file saving
+function main_args(min_evaluations, filenametosave)
+{
+	// When we have indeterminism (for example when default.sim is used: random initialization of neural states and random placement of creatures),
+	// we cannot fully trust fitness values that have not been confirmed (averaged) during multiple evaluations.
+	// In the code below, we wait until the single best genotype is evaluated at least min_evaluations times.
+	// No new genotypes are introduced.
+	// Note that this mechanism is approximate - it does not evaluate ALL genotypes "min_evaluations" times (this would take MUCH time),
+	// it only evaluates them until the genotype that is currently best gets evaluated at least "min_evaluations" times.
+
+	var best = GenePools[0].best();
+	if (best == null) return; //no genotypes?
+
+	// save original parameter values so they can be restored later, after temporary modifications
+	var saved_parameters = Simulator.export(null, 4 + 16 + 32, -1, -1);
+
+	ExpProperties.stagnation = 0; //turn off stagnation detection mechanism
+	Simulator.autosaveperiod = 0; //turn off autosave
+	ExpProperties.p_mut = 0; //we don't want evolution and new genotypes anymore. We only want to evaluate existing genotypes multiple times
+	ExpProperties.p_xov = 0;
+	ExpProperties.p_nop = 1;
+	ExpProperties.selrule = 2; //tournament(2) - weak pressure, maybe this should depend on the number of genotypes
+	ExpProperties.delrule = 0; //random negative selection - just in case, but this should not be relevant because...
+	ExpProperties.capacity = 100000; //...we set gene pool capacity so big that negative selection will rarely be needed
+
+	//if we have a mix of genotypes with instances=0 (non-evaluated) and instances>0 (evaluated),
+	//set instances=1 for those evaluated genotypes (instead of possibly larger values) so they do not dominate non-evaluated genotypes during selection, and non-evaluated genotypes get a fair chance of being evaluated. Still not ideal because of a "random genetic drift" (or "positive feedback") effect - as the number of instances of some genotype increases, it has a higher and higher chance to be selected again...
+	var found_instanceless = 0;
+	for(var g in GenePools[0])
+		if (g.instances == 0)
+			found_instanceless = 1;
+	if (found_instanceless)
+		for(var g in GenePools[0])
+			if (g.instances > 0)
+				g.instances = 1;
+
+	var lasttime = 0; //used only to print messages on progress
+	Simulator.start();
+	while (Simulator.running && best.instances < min_evaluations) //repeat until the best genotype will be evaluated at least min_evaluations times
+	{
+		if (Math.time - lasttime > 30) //every 30 sec.
+		{
+			Simulator.print("...best fitness = %g (x%g) among %d genotypes (%d instances)" % best.fit % best.instances % GenePools[0].size % GenePools[0].genotype_instances);
+			lasttime = Math.time;
+		}
+		var totaltestedcr_copy = ExpState.totaltestedcr;
+		while (totaltestedcr_copy == ExpState.totaltestedcr) // simulate many steps after which 'best' may change because one creature has been evaluated. This helps avoid frequent, unnecessary calls to GenePools[0].best()
+			Simulator.step();
+		best = GenePools[0].best();
+	}
+	Simulator.stop();
+	Simulator.print("Best fitness = %g (x%g)" % best.fit % best.instances);
+	Simulator.print("Best genotype = " + best.genotype);
+
+	GenePools[0].clear(); //remove all...
+	best.moveTo(GenePools[0]); //...then restore best...
+
+	Simulator.import("string://" + saved_parameters, 4 + 8 + 16); //restore original parameter values
+
+	if (filenametosave != null)
+		Simulator.save(filenametosave); //save the best genotype in a file for further inspection
+}
+
+~

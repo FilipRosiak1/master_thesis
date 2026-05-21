@@ -35,6 +35,7 @@ TREE_MODELS = {
     "tree_vae_masked_lhs",
     "tree_vae_masked_lhs_depth",
     "tree_vae_masked_lhs_cond",
+    "tree_vae_masked_lhs_struct_cond",
 }
 MODIFIERS = set("RrQqCcLlWwMmIiFfAaSsEe")
 DEFAULT_LABELS = "02_lhs_latent256_seed42_best,09_tree_vae_epoch80,10_transformer_vae_epoch90"
@@ -66,6 +67,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mutation-attempts", type=int, default=2000)
     parser.add_argument("--cma-sigma", type=float, default=None)
     parser.add_argument("--condition-fitness", type=float, default=None, help="Raw target fitness for conditional decoders")
+    parser.add_argument("--condition-length", type=float, default=None, help="Raw target genotype string length for structural conditional decoders")
+    parser.add_argument("--condition-segments", type=float, default=None, help="Raw target X segment count for structural conditional decoders")
     parser.add_argument("--seed", type=int, default=321)
     parser.add_argument("--output", default=None)
     return parser
@@ -99,6 +102,38 @@ def _model_config(run_config: dict[str, Any], checkpoint_meta: dict[str, Any]) -
         "embedding_dim": run_config.get("embedding_dim") or checkpoint_meta.get("embedding_dim") or defaults.embedding_dim,
         "max_length": int(run_config.get("max_length") or checkpoint_meta.get("max_length") or defaults.max_length),
     }
+
+
+def _normalize_target(raw: float | None, mean: Any, std: Any, default: float = 0.0) -> float:
+    if raw is None:
+        return default
+    if mean is None or std is None:
+        return float(raw)
+    return (float(raw) - float(mean)) / max(float(std), 1e-8)
+
+
+def _condition_value_for_model(model, args, run_config: dict[str, Any], checkpoint_meta: dict[str, Any]) -> Any:
+    condition_dim = int(getattr(model, "condition_dim", 0))
+    if condition_dim <= 0:
+        return None
+    fitness_value = _normalize_target(
+        args.condition_fitness,
+        checkpoint_meta.get("fitness_mean", run_config.get("fitness_mean")),
+        checkpoint_meta.get("fitness_std", run_config.get("fitness_std")),
+    )
+    if condition_dim == 1:
+        return fitness_value if args.condition_fitness is not None else None
+    length_value = _normalize_target(
+        args.condition_length,
+        checkpoint_meta.get("length_mean", run_config.get("length_mean")),
+        checkpoint_meta.get("length_std", run_config.get("length_std")),
+    )
+    segments_value = _normalize_target(
+        args.condition_segments,
+        checkpoint_meta.get("segments_mean", run_config.get("segments_mean")),
+        checkpoint_meta.get("segments_std", run_config.get("segments_std")),
+    )
+    return [fitness_value, length_value, segments_value][:condition_dim]
 
 
 def _parse_element(genotype: str, pos: int, stops: set[str]) -> int | None:
@@ -145,10 +180,17 @@ def _is_valid_f1(genotype: str) -> bool:
     return end == len(genotype)
 
 
-def _condition_tensor(value: float | None, batch_size: int, device: torch.device) -> torch.Tensor | None:
+def _condition_tensor(value: Any, batch_size: int, device: torch.device) -> torch.Tensor | None:
     if value is None:
         return None
-    return torch.full((batch_size,), float(value), dtype=torch.float32, device=device)
+    tensor = torch.tensor(value, dtype=torch.float32, device=device)
+    if tensor.dim() == 0:
+        return torch.full((batch_size,), float(tensor.item()), dtype=torch.float32, device=device)
+    if tensor.dim() == 1:
+        return tensor.unsqueeze(0).repeat(batch_size, 1)
+    if tensor.size(0) == 1 and batch_size != 1:
+        return tensor.repeat(batch_size, 1)
+    return tensor
 
 
 def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, condition_value: float | None) -> str:
@@ -540,14 +582,6 @@ def main() -> None:
         state_dict, checkpoint_meta = load_checkpoint(str(checkpoint_path), device)
         cfg = _model_config(run_config, checkpoint_meta)
         model_name = cfg["model_name"]
-        condition_value = None
-        if args.condition_fitness is not None:
-            fitness_mean = checkpoint_meta.get("fitness_mean", run_config.get("fitness_mean"))
-            fitness_std = checkpoint_meta.get("fitness_std", run_config.get("fitness_std"))
-            if fitness_mean is not None and fitness_std is not None:
-                condition_value = (args.condition_fitness - float(fitness_mean)) / max(float(fitness_std), 1e-8)
-            else:
-                condition_value = args.condition_fitness
         dataset_cls = dataset_class_for_model(model_name)
         dataset = dataset_cls(data_path, cfg["max_length"])
         if not isinstance(dataset, GrammarRuleDataset):
@@ -564,6 +598,7 @@ def main() -> None:
         ).to(device)
         model.load_state_dict(state_dict)
         model.eval()
+        condition_value = _condition_value_for_model(model, args, run_config, checkpoint_meta)
 
         py_rng = random.Random(args.seed)
         seed_entries = _make_seed_entries(
@@ -670,6 +705,8 @@ def main() -> None:
                     "split_time_budget_across_seeds": args.split_time_budget_across_seeds,
                     "per_seed_budget_seconds": per_seed_budget,
                     "condition_fitness": args.condition_fitness,
+                    "condition_length": args.condition_length,
+                    "condition_segments": args.condition_segments,
                     "condition_value": condition_value,
                 }
                 rows.append(row)

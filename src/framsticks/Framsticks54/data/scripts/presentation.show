@@ -1,0 +1,130 @@
+show:
+name:Presentation of creatures
+info:~
+Various walking and swimming methods of creatures evolved or constructed by Framsticks users.
+Double click on creatures for details.~
+expdef:standard
+code:~
+
+global g_bannerlastupdated;
+//todo: onselectionchange should be called after each change in population,
+//but this cannot be easily detected from the .show script.
+
+global g_step;
+
+function onLoad()
+{
+	Simulator.import("show_noevol.sim");
+	ExpProperties.MaxCreated = 3;
+	ExpProperties.feed = 2;
+	World.wrldbnd = 2;
+	World.wrldsiz = 30;
+	g_step = 1;
+	ShowProperties_walk_call();
+	GLDisplay.desiredsimspeed = 50;
+	g_bannerlastupdated = Math.time;
+}
+
+function ShowProperties_swim_call()
+{
+	Populations[0].initial_nn_active = 1;
+	Populations[0].initial_perf_measuring = 1;
+	TrackingCam.cam_chspeed = 1;
+	TrackingCam.cam_trspeed = 5;
+	World.wrldwat = 10;
+	World.wrldbnd = 0;
+	Populations[0].clear();
+	GenePools[0].clear();
+	Simulator.import("swimming.gen");
+}
+
+function ShowProperties_walk_call()
+{
+	Populations[0].initial_nn_active = 2;
+	Populations[0].initial_perf_measuring = 2;
+	TrackingCam.cam_chspeed = 0.5;
+	TrackingCam.cam_trspeed = 1;
+	World.wrldwat = -1;
+	World.wrldbnd = 2;
+	Populations[0].clear();
+	GenePools[0].clear();
+	Simulator.import("walking.gen");
+}
+
+function onShowStep()
+{
+	TrackingCam.cam_dir += 0.02;
+	g_step++;
+	if (g_step > 1111)
+	{
+		g_step = 1;
+		if (CreatureSelection.count > 0)
+			CreatureSelection.clear();
+		else
+		{
+			var g = Populations[0];
+			if (g.size > 0)
+			{
+				CreatureSelection.clear();
+				CreatureSelection.add(g[0]);
+			}
+		}
+	}
+	if (Math.time - g_bannerlastupdated > 2.0) //2 sec.
+		onSelectionChange();
+}
+
+function noun(number, word)
+{
+	var w;
+	if (number < 6)
+		w = ["no", "one", "two", "three", "four", "five"][number];
+	else
+		w = "" + number;
+	w += " " + word;
+	if (number != 1)
+		w += "s";
+	return w;
+}
+
+function onSelectionChange()
+{
+	var t;
+	if (CreatureSelection.count > 0)
+	{
+		var c = CreatureSelection.get(0);
+		t = "This is '" + c.name + "'.\n";
+		t += "It has " + noun(c.numparts, "part") + ", " + noun(c.numjoints, "joint") + ", and " + noun(c.numneurons, "neuron") + " in the brain.";
+		t += " And " + int(c.energy) + " energy units left.";
+		t += "\n" + c.info;
+	}
+	else
+	{
+		t = "Shown creatures: ";
+		var pop = Populations[0];
+		if (pop.size > 0)
+		{
+			var i;
+			t += "'" + pop[0].name + "'";
+			for (i = 1; i < pop.size; i++)
+				t += ", '" + pop[i].name + "'";
+		}
+		else
+			t += "none";
+	}
+	GLDisplay.banner = t;
+	g_bannerlastupdated = Math.time;
+}
+
+
+~
+
+property:
+id:walk
+name:Show walking creatures
+type:p
+
+property:
+id:swim
+name:Show swimming creatures
+type:p

@@ -1,0 +1,580 @@
+show:
+name:Your creatures
+expdef:standard
+code:~
+@include "AL-shared.inc"
+@include "AL-animate.inc"
+@include "AL-quests.inc"
+
+global g_hint_needed;
+global g_items_after;
+global g_previous_creature;
+
+function onLoad()
+{
+	g_previous_creature = -1;
+	g_hint_needed = 1;
+	GLDisplay.simsteps = 0;
+	GLDisplay.user_interaction = 0;
+	GLDisplay.world_visibility = 1;
+	GLDisplay.back_action = "onBack";
+
+	ShowManager.dispinfo = 0;
+
+	initQuestDefinitions();
+	loadQuests();
+
+	loadCurrent();
+	var cur = GenePools[0][0];
+
+	loadHistory();
+
+	var but;
+	var li = GUI.newList("hist");
+	li.item_display = function historyItemDisplay;
+	li.item_layout = function historyItemLayout;
+	li.items = function dataForListItem;
+	updateItemCount();
+	layoutHistory();
+	li.selected = findGenotypeAndName(cur.name, cur.genotype, GenePools[0]);
+	if (li.selected < 0)
+		li.selected = GenePools[0].size - 1;
+	li.scrollIntoView(li.selected);
+	GUI.setTimeout("selection", 0.5, function creatureSelectionChanged);
+
+	but = GUI.newButton("trash", "");
+	but.image = "trash-icon-shadow";
+	but.style = 1;
+	but.addTo(GUI.top_right);
+
+	var trash_menu = GUI.newMenu("trash_menu",["Delete selected","Delete all"]);
+	trash_menu.addTo(but);
+	trash_menu.visible = 0;
+	
+	var img = GUI.newImage("hint", "finger");
+	img.visible = 0;
+
+	var gr = GUI.newBlocker("namefade");
+	gr.visible = 0;
+	gr.bgcolor = 0xaa000000;
+	gr = GUI.newGroup("namegroup");
+	gr.addTo(GUI->namefade);
+	but = GUI.newLabel("namelabel", "");
+	but.valign=-1;
+	but.addTo(gr);
+	but.setAutolayout(0, 0, 0, 0, 0, 0, 0.7, 0.5);
+	var ed = GUI.newTextField("name", "?");
+	ed.style = 1;//bright border for dark background
+	ed.font = 3;
+	ed.max = 40;//max length of Genotype.name
+	ed.addTo(gr);
+	ed.setAutolayout(0, 0, 0, 0, 0, 0.5, 0.7, 0.5);
+	but = GUI.newButton("namesave", "Save");
+	but.setAutolayout(0, 0, 0, 0, 0.71, 0, 0.29, 1);
+	but.addTo(gr);
+
+	g_helptxt = "This is a scrollable list of all the creatures you saved previously. You can select any of them and improve it further.";
+	addHelpButton(GUI.top_right);
+	displayTopStatus(makeBreadcrumbPath([BREADCRUMB_YOUR_CREATURES]));
+	displayHintLater();
+}
+
+function displayHintLater()
+{
+	if (!g_hint_needed) return;
+	GUI.setTimeout("hint", 7, function displayHint);
+}
+
+function displayHint()
+{
+	if (GUI->hist.selected >= 0)
+	{
+		var r = GUI->hist.getItemRect(GUI->hist.selected);
+		if (r)
+		{
+			var h = Math.min(GLDisplay.size_x, GLDisplay.size_y) / 4, w = h * 184 / 256;
+			var x = r.x + r.width / 2 - w / 2, y = r.y + r.height / 2;
+			GUI->hint.visible = 1;
+			animateSequence(GUI->hint, [[x, y, w, h, 0x00ffffff], 0.3, [x, y, w, h, 0xffffffff], 0.5, [x, y, w, h, 0xffffffff], 0.1, [x + w * 0.05, y - h / 6, w * 0.9, h * 0.9, 0xffffffff], 0.2, [x, y, w, h, 0xffffffff], 0.1, [x + w * 0.05, y - h / 6, w * 0.9, h * 0.9, 0xffffffff], 0.2, [x, y, w, h, 0xffffffff], 1.0, [x, y, w, h, 0x00ffffff]], function hintFinished);
+			g_hint_needed = 0;
+			return;
+		}
+	}
+	displayHintLater();
+}
+
+function historyItemDisplay(li, i)
+{
+    var it = li.getItem(i);
+    if (typeof(it)=="Vector")
+	historyItemDisplayNormal(li, i, it);
+    else if (it=="tip")
+	historyItemDisplayTipJar(li, i);
+    else
+	historyItemDisplayEmpty(li, i);
+}
+
+function historyItemDisplayEmpty(li, i)
+{
+    if (GUI["empty"] == null)
+	GUI.removeAll();
+    GUI.newLabel("empty", "");
+    GUI->empty.visible=0;
+}
+
+function historyItemDisplayTipJar(li, i)
+{
+    if (GUI["tip"] == null)
+	GUI.removeAll();
+    GUI.newImage("tip", "share_tip");
+}
+
+function historyItemDisplayNormal(li, i, it)
+{
+	if (GUI["name"] == null)
+    	{
+		GUI.removeAll();
+		GUI.newImage("shadow", "inner-round").fgcolor = 0x44000000;
+		GUI->shadow.mode=2;//EmptyBorder
+		GUI->shadow.tex_margin=0.5;
+		GUI->shadow.border_margin=10;
+		if (li.align == 0) //horizontal
+			{
+			GUI.newImage("shadow2","faketex").fgcolor = 0;//actually texture is not displayed (0=transparent/invisible)
+			GUI->shadow2.bgcolor=0x44000000;//displaying bgcolor instead (simple semitransparent rectangle)
+			}
+		else
+			{
+			GUI.newImage("shadow2","topshadow").fgcolor = 0x44000000;
+			}
+		GUI.newImage("shadow3","faketex").fgcolor = 0;
+		GUI->shadow3.bgcolor=0x44000000;
+		GUI.newLabel("name", "n").font = 5;
+		GUI.newLabel("info1", "1").font = 0;
+		GUI.newLabel("info2", "2").font = 0;
+		GUI.newLabel("date", "d").font = 0;
+		GUI.newModel("image", "");
+		GUI.newButton("menu", "");
+		GUI->menu.image = "menu-icon-shadow";
+		GUI->menu.style = 1;
+		GUI->name.valign = -1;
+		GUI->info1.valign = -1;
+		GUI->info2.valign = 1;
+	}
+	GUI->name.text = it[0] + ((it[4] > 0) ? " " + String.ESC + "tstar_enabled;" : "");
+	GUI->image.text = it[1];
+	GUI->info1.text = it[2];
+	GUI->info2.text = it[3];
+	GUI->date.text = formatTime(it[5]);
+	GUI->menu.visible = li.selected==i;
+}
+
+function historyItemLayout(li)
+{
+    if (GUI->name)
+	historyItemLayoutNormal(li);
+    else if (GUI->tip)
+	historyItemLayoutTipJar(li);
+}
+
+function historyItemLayoutTipJar(li)
+{
+    var r = GUI.rect.fitAspect(1);
+    GUI->tip.rect = r.inset(r.width*0.25);
+}
+
+function historyItemLayoutNormal(li)
+{
+	var r = GUI.rect;
+	GUI->shadow.border_margin = GUI.fontHeight(0);
+	if (li.align == 0) //horizontal
+	{
+		GUI->name.rect = r;
+		GUI->date.rect = r;
+		
+		r.height -= GUI.fontHeight(5)+GUI.fontHeight(0);
+		r.y += GUI.fontHeight(5);
+		GUI->info1.rect = r;
+		GUI->info2.rect = r;
+		r.height = GUI.rect.height-5*GUI.fontHeight(0)-GUI.fontHeight(5);
+		r.y = GUI.rect.y+GUI.fontHeight(5)+2*GUI.fontHeight(0);
+		GUI->image.rect = r;
+		GUI->date.align = 0;
+		GUI->date.valign = 1;
+
+		r = GUI.rect;
+		r.height = GUI.fontHeight(5)+GUI.fontHeight(0)*2;
+		GUI->shadow2.rect = r;
+       
+		r.y += r.height;
+		r.height = GUI.rect.height-GUI.fontHeight(5)-GUI.fontHeight(0)*5;
+		GUI->shadow.rect = r;
+       
+		r.height = GUI.fontHeight(0)*3;
+		r.y = GUI.rect.height-r.height;
+		GUI->shadow3.rect = r;
+	}
+	else //vertical
+	{
+		var imgw = (r.height-GUI.fontHeight(5)+r.width/2)/2;
+		r.width = imgw;
+		r.x = GUI.rect.width-imgw;
+		GUI->date.rect = r;
+		GUI->image.rect = r;
+		GUI->date.align = 0;
+		GUI->date.valign = -1;
+		GUI->name.align = 1;
+		GUI->info1.align = 1;
+		GUI->info2.align = 1;
+
+		var rs = GUI.rect;
+		rs.height = GUI.fontHeight(5);
+		GUI->shadow2.rect = rs;
+
+		GUI->shadow.rect = r;
+
+		r.width = GUI.rect.width-r.width;
+		r.x = 0;
+		GUI->name.rect = r;
+		GUI->shadow3.rect = r;
+
+		r.height -= GUI.fontHeight(5);
+		r.y += GUI.fontHeight(5);
+		GUI->info1.rect = r;
+		GUI->info2.rect = r;
+	}
+	r = GUI->image.rect;
+	var s = GUI.fontHeight(5)*2;
+	r.x += r.width-s; r.y += r.height-s;
+	r.width = s; r.height = s;
+	GUI->menu.rect = r;
+}
+
+function hintFinished()
+{
+	GUI->hint.visible = 0;
+}
+
+function performanceText(format, value, sym_max, sym_format, sym_count)
+{
+	return (format % value) + symbolsForValue(value, sym_max, sym_format, sym_count);
+}
+
+function genotypeHistoryLabel(vars)
+{
+	var ret = "";
+	if (vars->selections) ret += performanceText("%d", vars->selections, SCALE_MAX_SELECTIONS, String.ESC + "Tcut(db%sa)perf_symbols_2;", 4) + " ";
+	if (vars->evaluations) ret += performanceText("%d", scaleNumberOfEvaluations(vars->evaluations), SCALE_MAX_EVALUATIONS, String.ESC + "Tcut(db%sb)perf_symbols_2;", 4) + " ";
+	if (vars->imported) ret += String.ESC + "Tcut(ddbd)perf_symbols; ";
+	if (vars->edited) ret += String.ESC + "Tcut(ddad)perf_symbols;";
+	return ret;
+}
+
+function dataForListItem(i)
+{
+    if (i<GenePools[0].size)
+	return dataForGenotype(GenePools[0][i]);
+    if (i==(GenePools[0].size+g_items_after-1))
+	return "tip";
+    return null;
+}
+
+function dataForGenotype(g)
+{
+	var t = "";
+	if (g.velocity > 0)
+		t += performanceText("%.6f", g.velocity, SCALE_MAX_VELOCITY, String.ESC + "Tcut(dd%sa)perf_symbols;", 4) + " ";
+	if (g.vertpos > 0)
+		t += performanceText("%.2f", g.vertpos, SCALE_MAX_VERTPOS, String.ESC + "Tcut(dd%sb)perf_symbols;", 4) + " ";
+	if (g.data->water_velocity > 0)
+		t += performanceText("%.6f", g.data->water_velocity, SCALE_MAX_WATERVELOCITY, String.ESC + "Tcut(dd%sc)perf_symbols;", 4) + " ";
+	var q = questIDsCompletedByGenotype(g.genotype);
+	if (q == null) q = 0;
+	else q = q.size;
+	return [g.name, g.genotype, genotypeHistoryLabel(g.data), t, q, g.info_timestamp];
+}
+
+function formatTime(t)
+{
+	if (t == 0) return "";
+	var txt = "%t" % t;
+	txt = String.substr(txt, 8, 3) + String.substr(txt, 4, 4) + String.substr(txt, 11, 5);
+	if (String.left(txt, 1) == " ") txt = String.substr(txt, 1, 999);
+	return txt;
+}
+
+function deleteSelected()
+{
+	var li = GUI->hist;
+	var sel = li.selected;
+	if (sel < 0) return; //no selection
+	if (sel == 0) return; //initial genotype
+	li.selected = -1;
+	creatureSelectionChanged();
+	GenePools[0][sel].delete();
+	saveHistory();
+	updateItemCount();
+}
+
+function deleteAll()
+{
+	var li = GUI->hist;
+	li.selected = 0;
+	for(var i = GenePools[0].size-1; i > 0; i--)
+		GenePools[0][i].delete();
+	saveHistory();
+	updateItemCount();
+	li.items = function dataForListItem;
+	onGUIEvent(GUI->trash, null);
+}
+
+function onBack()
+{
+	if (GUI->namefade.visible)
+	   {abortRename(); return;}
+	ShowManager.show = "AL-top";
+}
+
+function useSelected()
+{
+	var li = GUI->hist;
+	var sel = li.selected;
+	if (sel < 0) return;
+	if (sel == (GenePools[0].size+g_items_after-1))
+		{
+		li.selected = -1;
+		Sharing.initiate(99908);
+		return;
+		}
+	if (sel >= GenePools[0].size)
+	    { li.selected = -1; return; }
+
+	var r = li.getItemRect(sel);
+	if (r)
+	{
+		// (approximate) image area in the list cell:
+		if (li.align == 0) //horizontal
+		{
+			r.y+=r.height*0.1;
+			r.height*=0.8;
+		}
+		else //vertical
+		{
+			r.width*=0.5;
+			r.x+=r.width;
+		}
+		var b = GUI.newBlocker("");
+		b.bgcolor=0x00d3d7ef;
+		b.animSetBegin();
+		b.bgcolor=0xccd3d7ef;
+		b.animSetEnd();
+		b.startAnimation(0.5);
+		var m = GUI.newModel("", GenePools[0][sel].genotype);
+		m.rect = r;
+		m.animSetBegin();
+		m.setRect(-GLDisplay.size_x / 2, -GLDisplay.size_y / 2, 2 * GLDisplay.size_x, 2 * GLDisplay.size_y);
+		m.animSetEnd();
+		m.startAnimation(0.5);
+		GUI.setTimeout("", 0.5, function useSelectedLater);
+	}
+
+	if (sel == 0) //initial genotype
+		saveGenotypeAsCurrent(null);
+	else
+		saveGenotypeAsCurrent(GenePools[0][sel]);
+
+	if (!r)
+		ShowManager.show = "AL-main";
+}
+
+function useSelectedLater()
+{
+	ShowManager.show = "AL-main";
+}
+
+function onShowStep()
+{
+	var h = GUI->hist;
+	if (h.align == 0)
+		TrackingCam.setViewDir(10.0 * (h.scroll_x / GLDisplay.size_x), 0);
+	else
+		TrackingCam.setViewDir(0, 10.0 * (h.scroll_y / GLDisplay.size_y));
+}
+
+function histClicked()
+{
+	closePopup();
+	useSelected();
+}
+
+function histItemIsCreature(i)
+{
+	return typeof(GUI->hist.getItem(i))=="Vector";
+}
+
+function creatureSelectionChanged()
+{
+	if (g_previous_creature >= 0)
+		{
+		var gui = GUI->hist.getItemGUI(g_previous_creature);
+		if (gui)
+			{gui.removeElement("creature_menu"); gui->menu.visible=0;}
+		}
+	g_previous_creature = GUI->hist.selected;
+	if (GUI->hist.selected>=0)
+		GUI->hist.getItemGUI(GUI->hist.selected)->menu.visible=1;
+	GUI->trash.visible = (GUI->hist.selected>=0);
+}
+
+function beginRename()
+{
+	GUI->namefade.visible = 1;
+	GUI->trash.visible = 0;
+	GUI->helpbut.visible = 0;
+	var g = GenePools[0][GUI->hist.selected];
+	GUI->namelabel.text = "Enter a new name for \"" + g.name + "\"";
+	GUI->name.text = g.name;
+	GUI->name.selected = String.len(g.name);
+	GUI->name.focus = 1;
+
+	//GUI.setTimeout("abort rename", 5, function abortRename); //uncomment to test/debug the app-initiated keyboard hiding after 5 seconds
+}
+
+function abortRename() //just to test/debug
+{
+	Simulator.print("AL-main.show::abortRename()");
+	GUI->name.focus = 0;
+}
+
+function finishRename()
+{
+	if (!GUI->namefade.visible)
+		return; //already finished renaming
+	GUI->name.focus = 0;
+	GUI->namefade.visible = 0;
+	GUI->trash.visible = 1;
+	GUI->helpbut.visible = 1;
+	var n = String.trim(GUI->name.text);
+	var g = GenePools[0][GUI->hist.selected];
+	if (g.name == n) return;
+	var old_name = g.name;
+	g.name = n;
+	saveHistory();
+	updateItemCount();
+}
+
+function cancelRename()
+{
+	if (GUI->namefade.visible)
+	{
+		GUI->name.focus = 0;
+		GUI->namefade.visible = 0;
+		GUI->trash.visible = 1;
+		GUI->helpbut.visible = 1;
+		return 1;
+	}
+	return 0;
+}
+
+function onGUIEvent(elem, arg)
+{
+	displayHintLater();
+	if (handleHelp(elem)) return;
+	switch(elem.name)
+	{
+	case "trash":
+		GUI->trash_menu.visible = !GUI->trash_menu.visible;
+		return;
+	case "hist":
+		if (arg==1)
+		   histClicked();
+		else
+		   { //selection changed
+		   if (histItemIsCreature(GUI->hist.selected))
+		   	creatureSelectionChanged();
+		   else
+		        histClicked(); //non-creature items -> one click is enough
+		   }
+		break;
+	case "namesave":
+		finishRename();
+		return;
+	case "name":
+		if ((typeof(arg)=="int") && (arg==0)) //lost focus
+			finishRename();
+		return;
+	case "menu":
+		GUI.newMenu("creature_menu",["Open \""+GUI->hist.getItem(elem.gui_owner_item)[0]+"\"","Rename","Delete"]).addTo(elem);
+		if (GUI->hist.selected != elem.gui_owner_item)
+			{
+			GUI->hist.selected = elem.gui_owner_item;
+			creatureSelectionChanged();
+			}
+		break;
+	case "trash_menu":
+		elem.visible = 0;
+		switch(arg)
+		{
+		case 0: deleteSelected(); break;
+		case 1: deleteAll(); break;
+		}
+		break;
+	case "creature_menu":
+		elem.visible = 0;
+		switch(arg)
+		{
+		case 0: histClicked(); break;
+		case 1: beginRename(); break;
+		case 2: deleteSelected(); break;
+		}
+		break;
+	}
+}
+
+function onResize()
+{
+    layoutHistory();
+    updateItemCount();
+    var h = GUI.fontHeight(GUI->name.font);
+    GUI->namegroup.setAutolayout(0, 0, 0, 4 * h, 0.01, 0.175, 0.98, 0);
+}
+
+function displayableRowsFromSize()
+{
+	if (GLDisplay.size_x > GLDisplay.size_y)
+		return 4;
+	else
+		return 5;
+}
+
+function updateItemCount()
+{
+	var r = displayableRowsFromSize();
+	if (GenePools[0].size < r)
+		g_items_after = r-GenePools[0].size+1;
+	else
+		g_items_after = 1;
+	GUI->hist.item_count = GenePools[0].size+g_items_after - (Sharing.can_shop?0:1);
+}
+
+function layoutHistory()
+{
+	var li = GUI->hist;
+	var top = GUI.top_center.rect.height;
+	var m = int(Math.min(GLDisplay.size_x, GLDisplay.size_y) / 50);
+	li.setRect(m, top + m, GLDisplay.size_x - 2 * m, GLDisplay.size_y - top - 2 * m);
+	if (GLDisplay.size_x > GLDisplay.size_y)
+	{
+		li.align = 0;
+		li.valign = 2;
+		li.row_height = GLDisplay.size_x / 4;
+	}
+	else
+	{
+		li.align = 1;
+		li.valign = 0;
+		li.row_height = GLDisplay.size_y / 5;
+	}
+}
+
+~

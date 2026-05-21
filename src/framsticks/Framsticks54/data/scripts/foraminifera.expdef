@@ -1,0 +1,1303 @@
+expdef:
+name:Reproduction of benthic foraminifera
+info:~
+Basic information about this simulation:
+www.framsticks.com/foraminifera
+
+Technical information:
+Genes and parameter values which control reproduction are stored in data->genes and data->lifeparams fields.
+
+genes:
+genes which are not encoded in Ff genotype:
+min_repro_energy - Minimum energy necessary for reproduction
+hibernation - Defines foram behavior in the case of no nutrients
+
+lifeparams:
+Physiological parameters of foraminifera:
+max_energy_level - maximum energy level reached so far
+gen - generation: 0 haploid, 1 diploid
+species - species: 0 not hibernating 1 hibernating
+hibernated - 0/1 foram is/isn't hibernated
+reproduce - 0/1 foram isn't/is ready for reproduction 
+~
+code:~
+
+global colors;
+global curColor;
+global max_chamber_volume;
+global movePerStep;
+global reprocounter;
+global changePeriod;
+global phase;
+global species_genes;
+global max_chambers_def;
+global foram_uid; //introduced because each replacement of a creature (while growing) would generate a new Creature.uid
+global chamber_vis_denominator;
+global curRadius;
+global nutrient_num_counter;
+global wrldsizSquareMeters;
+const MIN_PART_SIZE = 0.05; //to avoid exceeding the allowed Part.size range when setting radius of body parts
+
+@include "foraminifera.inc"
+
+// -------------------------------- experiment begin --------------------------------
+
+function onExpDefLoad()
+{
+	// define genotype and creature groups
+	GenePools.clear();
+	Populations.clear();
+	GenePools[0].name = "Unused";
+
+	var pop = Populations[0];
+	pop.name = "Forams";
+	pop.en_assim = 0;
+	pop.initial_nn_active = 0;
+	pop.initial_perf_measuring = 1;
+	pop.death = 1;
+	pop.energy = 1;
+	pop.selfmask = 0;
+	pop.othermask = 0;
+	//pop.selfmask = 0x20002; pop.othermask = 0x10002;
+	pop.perfperiod = 25;
+	pop.initial_physics_active = 0;
+
+	pop = Populations.addGroup("Nutrients");
+	pop.initial_nn_active = 0;
+	pop.initial_perf_measuring = 0;
+	pop.death = 1;
+	pop.energy = 1;
+	pop.selfmask = 0;
+	pop.othermask = 0;
+	//pop.othermask = 0x10002;
+	pop.initial_physics_active = 0;
+
+	pop = Populations.addGroup("ReticulopodiaNutrients");
+	pop.initial_nn_active = 0;
+	pop.initial_perf_measuring = 0;
+	pop.death = 0;
+	pop.energy = 0;
+	pop.selfmask = 0;
+	pop.othermask = 0;
+	pop.initial_physics_active = 0;
+
+	//world
+	SignalView.mode = 1;
+	World.wrldwat = 50;
+	World.wrldsiz = micronsToFrams(100000);
+	World.wrldbnd = 1;
+
+	//ExpProperties.visualize = 1; //uncomment to visualize reticulopodia and indicate nutrients positions
+
+	//ExpProperties.logging = 1; //uncomment to enable logging simulation parameters to log files
+	ExpProperties.logPref = "";
+
+	//morphology
+	ExpProperties.zone1_range = 5; //originally was micronsToFrams(1000); but this was exceeding the allowed Part.size range so was decreased to 5. TODO This change in reticulopodia size may slightly affect simulation and results, so verify/rethink/reimplement if using this expdef in further research.
+	ExpProperties.zone2_range = micronsToFrams(3000);
+	ExpProperties.chamber_proculus_haplo = micronsToFrams(20);
+	ExpProperties.chamber_proculus_diplo = micronsToFrams(10);
+	colors = ["1.0,1.0,0.3", "1.0,0.7,0.0"]; //yellow and orange
+	curColor = colors[0];
+	curRadius = ExpProperties.zone1_range;
+
+	//nutrients
+	ExpProperties.nutrientradius = micronsToFrams(10);
+	ExpProperties.energy_nut = 200 * energyFromVolume(ExpProperties.nutrientradius, 1);
+
+	ExpState.totaltestedcr = 0;
+	ExpState.nutrient = "";
+
+	max_chambers_def = 35;
+	chamber_vis_denominator = 12;
+	//addSpecies({"min_repro_energies" : [4,6]});
+	//addSpecies({"min_repro_energies" : [4,8]});
+
+	//Simulator.print(create_genotype(0.2, 30, "1.0,1.0,0.0", 0.6)); //sample call
+	//Simulator.print(create_genotype(0.1, 40, "1.0,0.5,0.0", 0.1)); //sample call
+}
+
+@include "standard_placement.inc"
+
+function onExpInit()
+{
+	wrldsizSquareMeters = Math.pow(framsToMicrons(World.wrldsiz) * 0.000001, 2);
+	species_genes = [];
+	foram_uid = 0;
+	movePerStep = getMovePerStep();
+
+	Populations[0].clear();
+	Populations[1].clear();
+	Populations[2].clear(); //reticulopodia and nutrients
+
+	if (ExpProperties.max_chamber_num_haplo == max_chambers_def && ExpProperties.max_chamber_num_diplo == max_chambers_def)
+	{
+		max_chamber_volume = [[30403.5869594578, 52812.2546633948, 79578.5148482541, 113588.815134453, 154620.677376218, 205094.322220826, 262572.712174265, 326078.453295303, 402342.518962956, 498133.985678766, 615066.864740109, 759500.497626816, 937064.025544282, 1155915.25563075, 1429139.14079748, 1762487.92940157, 2176286.62046069, 2685795.63187845, 3316190.12127043, 4096436.04462706, 5051343.25226193, 6231980.1061213, 7687880.79524734, 9485307.02904958, 11716968.9852569, 14459866.4934433, 17836388.9853663, 22004935.7247348, 27138607.2546045, 33482425.1582986, 41336775.1280297, 50997910.7842793, 62888631.7871037, 77563060.9243464, 95659468.591964]
+		                      , [3430.07716920763, 6159.93090353532, 9322.94192815286, 13462.9896597283, 18399.8550832969, 24558.9218126892, 31468.8148639192, 39189.4977865513, 48404.4292075836, 60185.8639086061, 74490.6048472854, 92117.8178412275, 113852.779747083, 140714.366929552, 174450.937643841, 215250.242147183, 266323.295274072, 328858.042352538, 406552.379957238, 503526.321155323, 621060.781025019, 767240.824049468, 947210.683224091, 1169506.19906112, 1447211.61255879, 1787155.29073739, 2205627.64766244, 2723413.2837305, 3360233.53738709, 4147771.02835393, 5126445.06973928, 6328060.3331703, 7805693.278958, 9631924.72156452, 11884287.1596814]];
+	}
+
+	else
+	{
+		max_chamber_volume = [Vector.new(), Vector.new()];
+		var density = 100;
+		for (var ploid = 0; ploid < 2; ploid++)
+		{
+			var rad = getPloidRadius(ploid);
+			for (var cham_num = 0; cham_num < getProperty(ploid, "max_chamber_num"); cham_num++)
+			{
+				max_chamber_volume[ploid].add(volumeFromGeno(ploid, rad, cham_num + 1, density));
+			}
+		}
+	}
+
+	if (species_genes.size == 0)
+	{
+		addSpecies({}); //default
+	}
+
+	for (var spec = 0; spec < species_genes.size; spec++)
+	{
+		for (var i = 0; i < ExpProperties.foramPop; i++)
+		{
+			addInitialForam(spec, i);
+		}
+	}
+	ExpState.totaltestedcr = 0;
+
+	reprocounter = 0;
+	nutrient_num_counter = 0;
+	changePeriod = 0;
+	phase = "low";
+}
+
+function onExpLoad()
+{
+	for (var pop in Populations)
+		pop.clear();
+
+	Loader.addClass(sim_params.*);
+	Loader.setBreakLabel(Loader.BeforeUnknown, "onExpLoad_Unknown");
+	Loader.run();
+
+	Simulator.print("Loaded " + Populations[0].size + " Forams and " + Populations[1].size + " nutrient objects");
+}
+
+function onExpLoad_Unknown()
+{
+	if (Loader.objectName == "org") // saved by the old expdef
+	{
+		var g = Genotype.newFromString("");
+		Loader.currentObject = g;
+		Interface.makeFrom(g).setAllDefault();
+		Loader.loadObject();
+		var cr = Populations[0].add(g);
+		if (cr != null)
+		{
+			//cr.rotate(0,0,Math.rnd01*Math.twopi);
+			if ((typeof(g.data->genes) == "Vector") && (g.data->genes.size >= 3))
+			{
+				// [x,y,energy]
+				cr.move(g.data->genes[0] - cr.bboxCenter.x, g.data->genes[1] - cr.bboxCenter.y, 0);
+				cr.energy = g.data->genes[2];
+			}
+			else
+			{
+				cr.move(Math.rnd01 * World.wrldsiz - cr.bboxCenter.x, Math.rnd01 * World.wrldsiz - cr.bboxCenter.y, 0);
+			}
+		}
+	}
+	else if (Loader.objectName == "Creature")
+	{
+		Loader.currentObject = CreatureSnapshot.new();
+		Loader.loadObject();
+		Populations[0].add(Loader.currentObject);
+	}
+}
+
+function onExpSave()
+{
+	File.writeComment("saved by '%s.expdef'" % Simulator.expdef);
+
+	var tmpvec = [], i;
+
+	for(var cr in Populations[1])
+		tmpvec.add([cr.bboxCenter.x, cr.bboxCenter.y, cr.energy]);
+
+	ExpState.nutrient = tmpvec;
+	File.writeObject(sim_params.*);
+	ExpState.nutrient = null; //vectors are only created for saving and then discarded
+
+	for (var cr in Populations[0])
+		File.writeObject(cr);
+}
+
+// -------------------------------- experiment end --------------------------------
+
+function volumeFromGeno(morphotype, rad, chamber_num, density)
+{
+	var geno = create_genotype(rad, chamber_num, colors[morphotype], 1);
+	var m = Model.newFromString(geno);
+	var mg = ModelGeometry.forModel(m);
+	mg.geom_density = density;
+	var volumeInFrams = mg.volume();
+
+	return volumeInFrams / Math.pow(ExpProperties.scalingFactor, 3);
+}
+
+function secToSimSteps(value_in_sec)
+{
+	return value_in_sec / ExpProperties.secPerStep;
+}
+
+function volumeInMicrons(radiusInFrams)
+{
+	return 4.0 / 3.0 * Math.pi * Math.pow(framsToMicrons(radiusInFrams), 3);
+}
+
+function energyFromVolume(base, isRadiusInFrams)
+{
+	if (isRadiusInFrams == 1) //radius in frams
+	{
+		return ExpProperties.picoCarbonPerMikro * volumeInMicrons(base);
+	}
+	else //volume in microns
+	{
+		return ExpProperties.picoCarbonPerMikro * base;
+	}
+}
+
+function getMovePerStep()
+{
+	return micronsToFrams((ExpProperties.foramSpeedMmPerMin / 60) * 1000) * ExpProperties.secPerStep;
+}
+
+function micronsToFrams(micrometers)
+{
+	return micrometers * ExpProperties.scalingFactor;
+}
+
+function framsToMicrons(framsworldunits)
+{
+	return framsworldunits / ExpProperties.scalingFactor;
+}
+
+function getProperty(gen, prop_id)
+{
+	var ploid = "haplo";
+	if (gen == 1) ploid = "diplo";
+	return ExpProperties.[prop_id + "_" + ploid];
+}
+
+function getGene(cr, gen_id, gen_set)
+{
+	if (cr.data->lifeparams->gen == 0)
+		return cr.data->genes[gen_id];
+	else
+		return cr.data->genes[gen_set][gen_id];
+}
+
+function getPloidRadius(ploid)
+{
+	var radius = ExpProperties.chamber_proculus_haplo;
+	if (ploid == 1)
+	{
+		radius = ExpProperties.chamber_proculus_diplo;
+	}
+	return radius;
+}
+
+function chamberNumFromEnergy(energy, ploid)
+{
+	var chamber_num = max_chamber_volume[ploid].size;
+	for (var i = 0; i < chamber_num; i++)
+	{
+		if (energy < energyFromVolume(max_chamber_volume[ploid][i], 0))
+		{
+			chamber_num = i + 1;
+			break;
+		}
+	}
+
+	return chamber_num;
+}
+
+function createAndRotate(geno, rotate_min, rotate_max, pop_num)
+{
+	var cr = Populations[pop_num].add(geno);
+	cr.rotate(0, 0, Math.rndUni(rotate_min, rotate_max));
+	return cr;
+}
+
+//TODO unifiy addForam, foramGrow and createOffspring
+function addForam(species, iter, start_energy, ploid)
+{
+	var chambernum =  chamberNumFromEnergy(start_energy, ploid);
+	var radius = getPloidRadius(ploid);
+	var geno = create_genotype(radius, chambernum, colors[ploid], 1);
+	curColor = colors[ploid];
+	var cr = createAndRotate(geno, 0, 2 * Math.pi, 0);
+	cr.name = "Initial creature" + species + "_" + iter;
+	placeRandomlyNotColliding(cr);
+	cr.energy = start_energy;
+	setGenotype({"opt" : "birth", "cr" : cr, "gen" : ploid, "species" : species, "energy0" : cr.energy, "genes" : species_genes[species], "parentsuids" : ["c0"]});
+	if (ploid == 1)
+	{
+		cr.data->genes = [cr.data->genes, cr.data->genes]; //TODO two different genes sets
+	}
+	moveReticulopodia(cr);
+}
+
+function addInitialForam(species, iter)
+{
+	var ploid = 0;
+	if (Math.rnd01 > 0.5)
+	{
+		ploid = 1;
+	}
+	//add new foram with random energy bewtween starting energy and reproduction threshold
+	var repro_thr = species_genes[species]->min_repro_energies[ploid];
+	var start_energy = Math.rndUni(energyFromVolume(getPloidRadius(ploid), 1), repro_thr - 0.25 * repro_thr);
+	addForam(species, iter, start_energy, ploid);
+}
+
+//new species can be added as a dictionary with parameter values that are different than default values
+function addSpecies(new_genes)
+{
+	species_genes.add({"min_repro_energies" : [ExpProperties.min_repro_energ_haplo, ExpProperties.min_repro_energ_diplo], "energies0" : [ExpProperties.energies0_haplo, ExpProperties.energies0_diplo], "hibernation" : 0, "morphotype" : 0});
+	for (var i = 0; i < new_genes.size; i++)
+	{
+		var key = new_genes.getKey(i);
+		species_genes[species_genes.size - 1][key] = new_genes[key];
+	}
+}
+
+// -------------------------------- foram begin -----------------------------------
+
+function setForamMeta(cr)
+{
+	//percent of current energy
+	cr.idleen = (ExpProperties.e_meta * cr.energy) * ExpProperties.secPerStep;
+}
+
+function lastChamberNum(cr)
+{
+	return cr.numparts;
+}
+
+function getZoneRange(cr, zone_num)
+{
+	return ExpProperties.["zone" + zone_num + "_range"];
+}
+
+function addReticulopodia(cr, radius)
+{
+	if (reticulopodiaExists(cr))
+	{
+		Populations[2].delete(cr.data->reticulopodiacreature);
+	}
+	radius = Math.max(radius, MIN_PART_SIZE);
+	var ret = Populations[2].add("//0s\nm:Vstyle=reticulopodia\np:sh=1,sx=" + MIN_PART_SIZE + ",sy=" + MIN_PART_SIZE + ",sz=" + MIN_PART_SIZE + "\n" +
+		"p:sh=3,sx=" + MIN_PART_SIZE + ",sy=" + radius + ",sz=" + radius + ",ry=1.57079633,vr=" + curColor + "\n" + 
+		"j:0, 1, sh=1");
+	cr.data->reticulopodiacreature = ret;
+	ret.getMechPart(0).orient.set(cr.getMechPart(0).orient);
+	ret.locationSetBboxLow(cr.bboxCenter.x - radius, cr.bboxCenter.y - radius, cr.bboxCenter.z - radius);
+}
+
+function onForamsBorn(cr)
+{
+	setForamMeta(cr);
+	if (ExpProperties.visualize == 1)
+	{
+		addReticulopodia(cr, curRadius);
+		moveReticulopodia(cr);
+	}
+}
+
+function placeRandomlyNotColliding(cr)
+{
+	var retry = 100; //try 100 times
+	while (retry--)
+	{
+		placeCreatureRandomly(cr, 0, 0);
+		if (!cr.boundingBoxCollisions(0))
+		{
+			cr.locationSetBboxLow(cr.bboxLow.x, cr.bboxLow.y, -cr.getPart(cr.numparts - 1).sx); //place slightly under the bottom surface ("z" value depends on the size of the last=largest chamber)
+			return cr;
+		}
+	}
+
+	Populations[0].delete(cr);
+}
+
+function reticulopodiaExists(cr)
+{
+	var has_ret = 0;
+
+	if (cr.data.hasKey("reticulopodiacreature"))
+	{
+		if (Populations[2].findUID(cr.data->reticulopodiacreature.uid) != null)
+		{
+			has_ret = 1;
+		}
+	}
+
+	return has_ret;
+}
+
+function visualization(cr)
+{
+	return reticulopodiaExists(cr);
+}
+
+function foramGrow(cr, chamber_num, lastchambergrowth)
+{
+	if ((chamber_num + 1) <= max_chamber_volume[cr.data->lifeparams->gen].size)
+	{
+		curColor = colors[cr.data->lifeparams->gen];
+		var ploid = cr.data->lifeparams->gen;
+		var geno = create_genotype(getPloidRadius(ploid), chamber_num + 1, colors[ploid], lastchambergrowth);
+		var cr2 = createAndRotate(geno, 0, 0, 0);
+
+		cr2.orient.set(cr.orient);
+		cr2.energy0 = cr.energy;
+		cr2.energy = cr2.energy0;
+
+		setGenotype({"cr" : cr2, "parent_genes" : cr.data->genes, "parent_lifeparams" : cr.data->lifeparams, "opt" : "growth", "energy0" : cr.energy0});
+		cr2.locationSetBboxLow(cr.bboxLow.x, cr.bboxLow.y, cr.bboxLow.z);
+		setForamMeta(cr2);
+
+		if (reticulopodiaExists(cr))
+		{
+			Populations[2].delete(cr.data->reticulopodiacreature);
+		}
+		Populations[0].delete(cr);
+		return cr2;
+	}
+	return cr;
+}
+
+function visualizeChamberGrowth(cr, chamber_time)
+{
+	var total_time = secToSimSteps(ExpProperties.chamberGrowthSec);
+	var ret_unit = total_time / chamber_vis_denominator;
+	var chamber_unit = total_time - ret_unit;
+
+	if (chamber_time < ret_unit || chamber_time >= chamber_unit)
+	{
+		var new_rad = Math.min(Math.max((chamber_time % ret_unit) / ret_unit * getZoneRange(cr, 1), 0.01), getZoneRange(cr, 1));
+
+		if(chamber_time < ret_unit)
+		{
+			new_rad = getZoneRange(cr, 1) - new_rad;
+		}
+
+		curColor = colors[cr.data->lifeparams->gen];
+		addReticulopodia(cr, new_rad);
+
+		if (chamber_time == 0)//checking for end of chamber growth process
+		{
+			cr.data->lifeparams->chamber_growth = -1;
+		}
+	}
+	else
+	{
+		var new_rad = 1 - Math.min(Math.max((chamber_time - ret_unit) / chamber_unit, 0.01), 1);
+		curRadius = cr.data->reticulopodiacreature.getPart(1).sy;
+
+		if (chamber_time == ret_unit)
+		{
+			new_rad = 1;
+		}
+
+		var new_cr = foramGrow(cr, chamberNumFromEnergy(cr.data->lifeparams->max_energy_level, cr.data->lifeparams->gen) - 1, new_rad);
+		curRadius = getZoneRange(new_cr, 1);
+	}
+}
+
+function stepToNearest(cr)
+{
+	var p = XYZ.new(cr.bboxCenter.x, cr.bboxCenter.y, cr.bboxCenter.z);
+	var n = cr.signals.receiveSet("nutrient", getZoneRange(cr, 2));
+
+	//if signals are received find the source of the nearest
+	if (n.size > 0)
+	{
+		var i;
+		var mp;
+		var distvec = XYZ.new(0, 0, 0);
+		var dist;
+		var mindist = 100000000000.0;
+		var mindistvec = null;
+		var eating = 0;
+
+		for (i = 0; i < n.size; i++)
+		{
+			mp = XYZ.new(n[i].value.bboxCenter.x, n[i].value.bboxCenter.y, n[i].value.bboxCenter.z);
+			distvec.set(mp);
+			distvec.sub(p);
+			dist = distvec.length;
+			if (dist < getZoneRange(cr, 1))
+			{
+				if (n[i].value != null)
+				{
+					energyTransfer(cr, n[i].value);
+					eating = 1;
+				}
+			}
+			else if (eating == 0 && cr.data->lifeparams->hibernated == 0 && dist < mindist)
+			{
+				mindist = dist;
+				mindistvec = distvec.clone();
+			}
+		}
+
+		if (!eating && cr.data->lifeparams->hibernated == 0)
+		{
+			mindistvec.z = 0;
+			mindistvec.normalize();
+			mindistvec.scale(movePerStep);
+			cr.drive = mindistvec;
+			moveEnergyDec(cr);
+		}
+
+		return 1;
+	}
+
+	else
+	{
+		return 0;
+	}
+}
+
+function moveEnergyDec(cr)
+{
+	if (cr.data->lifeparams->hibernated == 0)
+	{
+		//percent of maximal energy
+		cr.energy -= (ExpProperties.energy_move * cr.data->lifeparams->max_energy_level) * ExpProperties.secPerStep;
+	}
+}
+
+function fence(center, zone)
+{
+	return Math.min(Math.max(0 + zone, center), World.wrldsiz - zone); //add and subtract zone from the world size to prevent reticulopodia from crossing the fence
+}
+
+function foramMove(cr)
+{
+	//are there any nutrients in zone 1 or 2?
+	{
+		var moved = stepToNearest(cr); //TODO weighted sum of distance and energy
+		if (moved == 1)
+		{
+			moveReticulopodia(cr);
+			return;
+		}
+	}
+
+	//Prevents forams from crossing the world border. In the case of touching the border with the reticulopodia direction of the movement should be changed.
+	var change_direction = 0;
+	var new_x = fence(cr.bboxCenter.x, getZoneRange(cr, 1));
+	var new_y = fence(cr.bboxCenter.y, getZoneRange(cr, 1));
+
+	if ((new_x != cr.bboxCenter.x) || (new_y != cr.bboxCenter.y) || (cr.data->lifeparams->dir_counter >= int(secToSimSteps(ExpProperties.dir_change_sec))))
+	{
+		change_direction = 1;
+		cr.locationSetBboxLow(new_x - cr.bboxSize.x / 2, new_y - cr.bboxSize.y / 2, -cr.getPart(cr.numparts - 1).sx); //place slightly under the bottom surface ("z" value depends on the size of the last=largest chamber)
+	}
+
+	//no nutrients in zone 2
+	if (getGene(cr, "hibernation", 0) == 1)
+	{
+		reverseHib(cr);
+		cr.drive = XYZ.new(0, 0, 0);
+	}
+	//random move
+	else if (change_direction == 1)
+	{
+		cr.data->lifeparams->dir = randomDir();
+		cr.data->lifeparams->dir_counter = 0;
+		cr.drive = cr.data->lifeparams->dir;
+		moveEnergyDec(cr);
+	}
+	else
+	{
+		cr.drive = cr.data->lifeparams->dir;
+	}
+	moveReticulopodia(cr);
+}
+
+function moveReticulopodia(cr)
+{
+	if (visualization(cr))
+	{
+		cr.data->reticulopodiacreature.locationSetBboxLow(cr.bboxCenter.x - getZoneRange(cr, 1), cr.bboxCenter.y - getZoneRange(cr, 1), cr.bboxCenter.z - getZoneRange(cr, 1));
+		cr.data->reticulopodiacreature.drive = cr.drive;
+	}
+}
+
+function randomDir()
+{
+	var dir = (Math.rndUni(-ExpProperties.zone2_range, ExpProperties.zone2_range), Math.rndUni(-ExpProperties.zone2_range, ExpProperties.zone2_range), 0);
+	dir.normalize();
+	dir.scale(-1 * movePerStep);
+	return dir;
+}
+
+function energyTransfer(cr1, cr2)
+{
+	cr1.drive = XYZ.new(0, 0, 0);
+	var e =  ExpProperties.feedtrans * cr1.energy * ExpProperties.secPerStep; //TODO efficiency dependent on age
+	//Simulator.print("transferring "+e +"("+e*ExpProperties.ingestion+")"+" to "+cr1.name +" ("+ cr1.energy+") " +" from "+cr2.uid+" ("+cr2.energy+") "+ e/ExpProperties.secPerStep+ " per sec");
+	var transferred = cr2.transferEnergyTo(cr1, e);
+	cr1.energy -= transferred * (1 - ExpProperties.ingestion);
+	if (cr1.data->lifeparams->hibernated == 1)
+	{
+		reverseHib(cr1);
+	}
+}
+
+function reverseHib(cr)
+{
+	if (cr.data->lifeparams->hibernated == 1)
+	{
+		setForamMeta(cr); //unhibernate
+	}
+	else
+	{
+		cr.idleen = (ExpProperties.energy_hib * cr.energy) * ExpProperties.secPerStep; //hibernate
+	}
+	cr.data->lifeparams->hibernated = 1 - cr.data->lifeparams->hibernated;
+}
+
+function onForamsStep(cr)
+{
+	//checking for gametogenesis process
+	if (cr.data->lifeparams->division_time > 0)
+	{
+		cr.data->lifeparams->division_time = Math.max(cr.data->lifeparams->division_time - 1, 0);
+	}
+	//checking for end of gametogenesis
+	else if (cr.data->lifeparams->division_time == 0)
+	{
+		//waiting for gamets fusion
+	}
+	//checking for chamber growth process
+	else if (cr.data->lifeparams->chamber_growth > 0)
+	{
+		var chamber_time = Math.max(cr.data->lifeparams->chamber_growth - 1, 0);
+		cr.data->lifeparams->chamber_growth = chamber_time;
+		cr.energy -= ExpProperties.chamberCostPerSec * cr.energy * ExpProperties.secPerStep;
+
+		if (visualization(cr))
+		{
+			visualizeChamberGrowth(cr, chamber_time);
+		}
+	}
+	//checking for end of the chamber growth process
+	else if (cr.data->lifeparams->chamber_growth == 0 && visualization(cr) == 0)
+	{
+		foramGrow(cr, lastChamberNum(cr), 1);
+		cr.data->lifeparams->chamber_growth = -1;
+		//Simulator.print("chamber "+ (lastChamberNum(cr) + 1) +" complete");
+	}
+	else
+	{
+		//update of metabolism rate
+		if (cr.data->lifeparams->hibernated == 0)
+		{
+			setForamMeta(cr);
+		}
+
+		if (deathConditions(cr) == 1)
+		{
+			if (ExpProperties.logging == 1)
+			{
+				log(createLogVector(cr, cr.data->lifeparams->max_energy_level), ExpProperties.logPref + "fossil_log.txt");
+				log(createLogVector(cr, cr.lifespan), ExpProperties.logPref + "lifespan_log.txt");
+			}
+			Populations[0].kill(cr);
+			return;
+		}
+
+		//update direction change counter
+		cr.data->lifeparams->dir_counter += 1;
+
+		foramMove(cr);
+
+		var repro = foramReproduce(cr);
+		if (repro == 1)
+		{
+			return;
+		}
+
+		cr.data->lifeparams->max_energy_level = Math.max(cr.energy, cr.data->lifeparams->max_energy_level);
+
+		//cheking conditions of chamber growth process start
+		if  (lastChamberNum(cr) < max_chamber_volume[cr.data->lifeparams->gen].size)
+		{
+			if ((cr.data->lifeparams->max_energy_level >= energyFromVolume(max_chamber_volume[cr.data->lifeparams->gen][lastChamberNum(cr) - 1], 0)))
+			{
+				cr.data->lifeparams->chamber_growth = int(secToSimSteps(ExpProperties.chamberGrowthSec));
+			}
+		}
+	}
+}
+
+function deathConditions(cr)
+{
+	if ((cr.energy <= getProperty(cr.data->lifeparams->gen, "e_death_level")*cr.data->lifeparams->max_energy_level) || (Math.rnd01 < ExpProperties.hunted_prob))
+	{
+		return 1;
+	}
+	else
+		return 0;
+}
+
+function onForamsDied(cr)
+{
+	if (visualization(cr))
+	{
+		Populations[2].delete(cr.data->reticulopodiacreature);
+	}
+	//fossilization
+	var geno = GenePools[0].add(cr.genotype);
+	geno.data->genes = cr.data->genes;
+	geno.data->lifeparams = cr.data->lifeparams;
+	if (ExpProperties.logging == 1) Simulator.print("\"" + cr.name + "\" died...");
+	ExpState.totaltestedcr++;
+}
+
+// --------------------------------foram end -------------------------------------
+
+// -------------------------------- nutrient begin --------------------------------
+
+function createNutrientGenotype(nutrientradius)
+{
+	return "//0s\nm:Vstyle=nutrient\np:sh=3,sx=" + nutrientradius + ",sy=" + nutrientradius + ",sz=" + nutrientradius + ",ry=1.57,vr=0.0,1.0,0.0";
+}
+
+function onNutrientsStep(cr)
+{
+	cr.locationSetBboxLow(cr.bboxLow.x % World.wrldsiz, cr.bboxLow.y % World.wrldsiz, 0.5);
+}
+
+function addNutrient()
+{
+	var cr = Populations[1].add(createNutrientGenotype(ExpProperties.nutrientradius));
+
+	cr.name = "Nutrients";
+	cr.idleen = 0;
+	cr.energy0 = ExpProperties.energy_nut;
+	cr.energy = cr.energy0;
+	cr.signals.add("nutrient");
+
+	cr.signals[0].value = cr;
+
+	placeCreatureRandomly(cr, 0, 0);
+	if (ExpProperties.visualize == 1)
+	{
+		var nutsize = ExpProperties.nutrientradius * 10;
+		var nut = Populations[2].add("//0s\nm:Vstyle=nutrient_visual\np:sh=2,sx=" + nutsize + ",sy=" + nutsize + ",sz=" + nutsize + ",ry=1.5,vr=0.0,1.0,0.0");
+		cr.data->reticulopodiacreature = nut;
+		nut.locationSetBboxLow( cr.bboxLow.x + cr.bboxSize.x / 2 - nut.bboxSize.x / 2,  cr.bboxLow.y + cr.bboxSize.y / 2 - nut.bboxSize.y / 2, -nutsize);
+	}
+}
+
+function onNutrientsDied(cr)
+{
+	if (visualization(cr))
+	{
+		Populations[2].delete(cr.data->reticulopodiacreature);
+	}
+}
+
+function getNumberCounter(counter, increase, unitsize) //increase counter and then deduct and return an integer (=discrete) number of "full" units
+{
+	counter += increase;
+	var unitcount = int(counter / unitsize);
+	counter -= unitcount * unitsize;
+	return {"counter" : counter, "number" : unitcount};
+}
+
+function nutrientGrowth()
+{
+	if (ExpProperties.foodfluxChange > 0)
+	{
+		changePeriod += 1;
+		if (phase == "low" && changePeriod >= secToSimSteps(23328000)) //9 months
+		{
+			ExpProperties.foodflux = ExpProperties.foodflux / ExpProperties.foodfluxChange;
+			phase = "high";
+			changePeriod = 0;
+		}
+
+		else if (phase == "high" && changePeriod >= secToSimSteps(7776000)) //3 months
+		{
+			ExpProperties.foodflux = ExpProperties.foodflux * ExpProperties.foodfluxChange;
+			phase = "low";
+			changePeriod = 0;
+		}
+	}
+
+	var nutrientNum = getNumberCounter(nutrient_num_counter, ExpProperties.foodflux * wrldsizSquareMeters * ExpProperties.secPerStep, ExpProperties.energy_nut * 0.000000000001);
+
+	nutrient_num_counter = nutrientNum["counter"];
+
+	for (var i = 0; i < nutrientNum["number"]; i++)
+	{
+		addNutrient();
+	}
+
+	if (ExpProperties.logging == 1 && nutrientNum["number"] > 0)
+	{
+		log([nutrientNum["number"]], ExpProperties.logPref + "nutrients_log.txt");
+	}
+
+}
+
+// -------------------------------- nutrient end --------------------------------
+
+// -------------------------------- step begin --------------------------------
+
+function onStep()
+{
+
+	nutrientGrowth();
+	if (ExpProperties.logging == 1)
+	{
+		createStatistics();
+	}
+
+	//reproduction --------------------------------------------
+	reprocounter += 1;
+	if (reprocounter > secToSimSteps(ExpProperties.reproTimeSec))
+	{
+		reprocounter = 0;
+		for (var s = 0; s < species_genes.size; s++)
+		{
+			reproduce_parents(s);
+		}
+
+	}
+
+	//check for extinction -----------------------------------------------
+	if (Populations[0].size == 0)
+	{
+		if (ExpProperties.autorestart)
+		{
+			Simulator.print("no more creatures, restarting...");
+			onExpInit();
+		}
+		else
+		{
+			Simulator.print("no more creatures, stopped.");
+			Simulator.stop();
+		}
+	}
+	if (ExpProperties.maxSteps > 0)
+	{
+		if (Simulator.stepNumber >= ExpProperties.maxSteps)
+			Simulator.stop();
+	}
+}
+
+function createStatistics()
+{
+	var number = [];
+	var e_inc = [];
+	var e_nut = 0.0;
+
+	for (var s = 0; s < species_genes.size; s++)
+	{
+		number.add([0, 0]); // [haplo][diplo]
+		e_inc.add([0, 0]);
+	}
+
+	for (var i = 0; i < Populations[0].size; i++)
+	{
+		var cr = Populations[0].get(i);
+		var gen = cr.data->lifeparams->gen;
+		var species = cr.data->lifeparams->species;
+
+		number[species][gen] = number[species][gen] + 1;
+		e_inc[species][gen] = e_inc[species][gen] + cr.energy;
+	}
+
+	for (var i = 0; i < Populations[1].size; i++)
+	{
+		var cr = Populations[1].get(i);
+		e_nut += cr.energy;
+	}
+
+	var log_numbers = [];
+	var log_energies = [];
+
+	for (var s = 0; s < species_genes.size; s++)
+	{
+		for (var p = 0; p < 2; p++)
+		{
+			log_numbers.add(number[s][p]);
+			log_energies.add(e_inc[s][p]);
+		}
+	}
+
+	log_numbers.add(Populations[1].size);
+	log_energies.add(e_nut);
+
+	log(log_numbers, ExpProperties.logPref + "forams_log.txt");
+	log(log_energies,  ExpProperties.logPref + "energies_log.txt");
+}
+
+function log(tolog, fname)
+{
+	var f = File.appendDirect(fname, "forams data");
+	f.writeString("" + Simulator.stepNumber);
+	for (var  i = 0; i < tolog.size; i++)
+	{
+		f.writeString(";" + tolog[i]);
+	}
+	f.writeString("\n");
+	f.close();
+}
+
+function createLogVector(cr, value)
+{
+	var vec = Vector.new();
+	for (var i = 0; i < species_genes.size; i++)
+	{
+		for (var j = 0; j < 2; j++)
+		{
+			vec.add(0);
+		}
+		if (cr.data->lifeparams->species == i)
+		{
+			vec[i * 2 + cr.data->lifeparams->gen] = value;
+		}
+	}
+	return vec;
+}
+
+
+// -------------------------------- step end --------------------------------
+//TODO default params values in frams instead of microns/seconds
+
+@include "standard_events.inc"
+
+~
+
+property:
+id:visualize
+name:Show reticulopodia and nutrients
+type:d 0 1 0
+group:
+
+property:
+id:maxSteps
+name:Maximum number of steps
+type:d 0 10000000 0
+group:
+
+property:
+id:scalingFactor
+name:Scaling factor for micrometers
+type:f 0 -1 0.01
+group:
+
+property:
+id:secPerStep
+name:Seconds per simulation step
+help:~
+Number of seconds of foraminifera time per simulation step.
+Lower values mean smoother animation.~
+type:f 1 480 300
+flags: 16
+group:
+
+property:
+id:foramSpeedMmPerMin
+name:Speed of foraminfera in mm/min
+type:f 0.01 0.1 0.05
+flags: 16
+group:Foraminifera
+
+property:
+id:dir_change_sec
+name:Number of seconds before direction change
+type:d 300 300000 6000
+group:Foraminifera
+
+property:
+id:foramPop
+name:Initial forams population size
+type:d 1 1000 20
+group:Foraminifera
+
+property:
+id:gametoPeriodSec
+name:Time of gametogenesis
+type:f 300 300000 21600
+group:Reproduction
+
+property:
+id:gametSuccessRate
+name:Ratio of successful gamets
+type:f 0.0001 0.01 0.001
+group:Reproduction
+
+property:
+id:divisionCost
+name:Cost of division in pG
+type:f 15 25 20
+group:Reproduction
+
+property:
+id:min_repro_energ_haplo
+name:Min reproduction energy of haploid in pg
+type:f 0 -1 350000
+group:Energy
+
+property:
+id:min_repro_energ_diplo
+name:Min reproduction energy of diploid in pg
+type:f 0 -1 600000
+group:Energy
+
+property:
+id:repro_prob
+name:Probability of reproduction
+type:f 0 1 0.8
+group:Reproduction
+
+property:
+id:energies0_haplo
+name:Energy of offspring from diploid forams
+type:f 0 -1 20
+group:Energy
+
+property:
+id:energies0_diplo
+name:Energy of offspring from diploid forams
+type:f 0 -1 1.25
+group:Energy
+
+property:
+id:max_chamber_num_haplo
+name:Maximum number of haploid chambers
+type:f 1 50 35
+group:Energy
+
+property:
+id:max_chamber_num_diplo
+name:Maximum number of diploid chambers
+type:f 1 50 35
+group:Energy
+
+property:
+id:crossprob
+name:Crossover probability
+type:f 0 1 0
+group:Reproduction
+
+property:
+id:mutationprob
+name:Mutation probability
+type:f 0 1 0
+group:Reproduction
+
+property:
+id:reproTimeSec
+name:Time before reproduction
+type:d 0 10000 720
+group:Reproduction
+
+property:
+id:chamberGrowthSec
+name:Time of the chamber growth in seconds
+type:f 720 43200 43200
+group:Foraminifera
+
+property:
+id:chamber_proculus_haplo
+name:Size of proculus
+type:f
+group:Foraminifera
+
+property:
+id:chamber_proculus_diplo
+name:Size of proculus
+type:f
+group:Foraminifera
+
+property:
+id:hunted_prob
+name:Probability of being hunted
+type:f 0 1 0
+group:Foraminifera
+
+property:
+id:zone1_range
+name:Zone 1 range in frams units
+type:f 0 200 10
+group:Foraminifera
+
+property:
+id:zone2_range
+name:Zone 2 range in frams units
+type:f 0 3000 30
+group:Foraminifera
+
+property:
+id:chamberCostPerSec
+name:Cost of growning chamber per second
+type:f 0 1 0.000001
+group:Energy
+
+property:
+id:e_death_level_haplo
+name:Minimal level of energy to sustain life of haploid
+type:f 0 1 0.5
+group:Energy
+
+property:
+id:e_death_level_diplo
+name:Minimal level of energy to sustain life of diploid
+type:f 0 1 0.5
+group:Energy
+
+property:
+id:energy_hib
+name:Energy used for hibernation during one step
+type:f 0 1 0.0000001
+group:Energy
+
+property:
+id:energy_move
+name:Energy used for movement during one step
+type:f 0 1 0.0000005
+group:Energy
+
+property:
+id:e_meta
+name:Idle metabolism
+type:f 0 1 0.0000005
+group:Energy
+help:Foraminifera consumes this proportion of its energy in one time step
+
+property:
+id:ingestion
+name:Ingestion rate
+type:f 0 -1 0.25
+group:Energy
+
+property:
+id:nutrient_pop
+name:Nutrient population
+type:f 0 1000000
+group:Energy
+help:How fast energy is created in the world
+
+property:
+id:energy_nut
+name:Nutrient energy
+type:f 0 10000000
+group:Energy
+
+property:
+id:nutrientradius
+name:Nutrient size
+type:f 0.001 0.9 0.1
+group:Energy
+
+property:
+id:picoCarbonPerMikro
+name:Picograms of carbon in cubic micrometer
+type:f 0 -1 0.13
+group:Energy
+
+property:
+id:feedtrans
+name:Energy transfer per second
+type:f 0 1 0.001
+group:Energy
+
+property:
+id:foodflux
+name:POM flux in grams per second per square meter
+type:f 0 1 0.0000000075631
+group:Energy
+
+property:
+id:foodfluxChange
+name:Set variable feed rate
+type:f 0 -1 0
+group:Energy
+
+property:
+id:stress
+name:Environmental stress
+type:d 0 1 1
+group:
+
+property:
+id:repro_trigger
+name:Reproduction trigger
+type:d 0 1 1
+group:Reproduction
+
+property:
+id:creath
+name:Creation height
+type:f -1 50 -0.99
+help:~
+Vertical position (above the surface) where new Forams are revived.
+Negative values are only used in the water area:
+  0   = at the surface
+-0.5 = half depth
+-1   = just above the bottom~
+
+property:
+id:autorestart
+name:Restart after extinction
+help:Restart automatically this experiment after the last creature has died?
+type:d 0 1 0
+
+property:
+id:logging
+name:Log statistics to file
+type:d 0 1 0
+group:
+
+property:
+id:logPref
+name:Log prefix
+type:s
+
+property:
+id:print_evol_progress
+name:Print evolution progress
+help:Print messages on evolution progress
+type:d 0 1 0
+
+state:
+id:nutrient
+name:Nutrient locations
+help:vector of vectors [x,y,energy]
+type:x
+flags:32
+
+state:
+id:notes
+name:Notes
+type:s 1
+help:~
+You can write anything here
+(it will be saved to the experiment file)~
+
+state:
+id:totaltestedcr
+name:Evaluated Forams
+help:Total number of the Forams evaluated in the experiment
+type:d
+flags:16

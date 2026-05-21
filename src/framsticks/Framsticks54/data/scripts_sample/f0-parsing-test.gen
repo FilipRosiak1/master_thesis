@@ -1,0 +1,172 @@
+org:
+name:f0 parsing test - valid
+info:Test cases for testing/debugging f0 parsers (only useful for developers)
+genotype:~
+//0
+# All five Parts below have coordinates xyz=-1,0,1 formatted in various ways.
+p: x=-1, y=0, z=1
+
+# fr clamped to 4 (max), s clamped to 0.1 (min), dn set to default (because it is skipped); Vstyle set to "" (empty is valid for type 's')
+p:-1,0,1, dn=0.5, fr=99, s=0, , Vstyle=, vr=1,1,1,666,777
+
+# y=0 overwrites y=9; unknown_field is ignored because it is not allowed for p:
+p:i="",x=-1,9,y=0,1,unknown_field=unused_value
+
+# skipped z after "y=0" does not affect the value; i and Vstyle set to ","
+p:z=1,y=2,x=-1,y=0,,i=",",","
+
+# i and Vstyle set to ",\ (to test quotation); multiple commas and whitespaces between properties do not affect anything here
+p:"-1" ,  , ,,i="\",\\","\",\\" ,,  , , z="1"
+
+# Connect all Parts to make the model valid; use some strange chars to test quotation; note that tilde is quoted as \~ because we are inside a multiline string field which is delimited by tildes
+j:0,1
+j:1,2
+j:2,3, i="UTF-8:汉语;漢語;中文"
+j:3,4, i="!@#$%^&*()-=_+[]{}\\|;':\",\~./<>?`"
+n:
+n:p=1
+n:j=2
+c:0,1,0.5
+
+
+# The genotype below (commented out) results from running the "full_props" program (see frams/_demos/full_props.cpp) on the genotype above: ./loader_test_geno data/scripts_sample/f0-parsing-test.gen 1 | ./full_props
+# Note 1: values of m (mass) do not match the source genotype because masses are adjusted by the Model class.
+# Note 2: the tilde has been additionally cited using backslash because we are inside a multiline string field which is delimited by tildes.
+# The genotype below explicitly shows values for all properties; ensure that your parser gets the same values for the genotype above.
+# //0
+# m:se=1.0, Vstyle=
+# p:x=-1.0, y=0.0, z=1.0, m=1.0, sh=0, s=1.0, sx=1.0, sy=1.0, sz=1.0, h=0.0, dn=1.0, fr=0.4, ing=0.25, as=0.25, rx=0.0, ry=0.0, rz=0.0, i=, Vstyle=part, vs=0.2, vr=0.5, vg=0.5, vb=0.5
+# p:x=-1.0, y=0.0, z=1.0, m=2.0, sh=0, s=0.1, sx=1.0, sy=1.0, sz=1.0, h=0.0, dn=0.5, fr=4.0, ing=0.25, as=0.25, rx=0.0, ry=0.0, rz=0.0, i=, Vstyle=, vs=0.2, vr=0.5, vg=0.5, vb=0.5
+# p:x=-1.0, y=0.0, z=1.0, m=2.0, sh=0, s=1.0, sx=1.0, sy=1.0, sz=1.0, h=0.0, dn=1.0, fr=0.4, ing=0.25, as=0.25, rx=0.0, ry=0.0, rz=0.0, i=, Vstyle=part, vs=0.2, vr=0.5, vg=0.5, vb=0.5
+# p:x=-1.0, y=0.0, z=1.0, m=2.0, sh=0, s=1.0, sx=1.0, sy=1.0, sz=1.0, h=0.0, dn=1.0, fr=0.4, ing=0.25, as=0.25, rx=0.0, ry=0.0, rz=0.0, i=",", Vstyle=",", vs=0.2, vr=0.5, vg=0.5, vb=0.5
+# p:x=-1.0, y=0.0, z=1.0, m=1.0, sh=0, s=1.0, sx=1.0, sy=1.0, sz=1.0, h=0.0, dn=1.0, fr=0.4, ing=0.25, as=0.25, rx=0.0, ry=0.0, rz=0.0, i="\",\\", Vstyle="\",\\", vs=0.2, vr=0.5, vg=0.5, vb=0.5
+# j:p1=0, p2=1, sh=0, stif=1.0, rotstif=1.0, stam=0.25, i=, Vstyle=joint, vr=0.5, vg=0.5, vb=0.5
+# j:p1=1, p2=2, sh=0, stif=1.0, rotstif=1.0, stam=0.25, i=, Vstyle=joint, vr=0.5, vg=0.5, vb=0.5
+# j:p1=2, p2=3, sh=0, stif=1.0, rotstif=1.0, stam=0.25, i=UTF-8:汉语;漢語;中文, Vstyle=joint, vr=0.5, vg=0.5, vb=0.5
+# j:p1=3, p2=4, sh=0, stif=1.0, rotstif=1.0, stam=0.25, i="!@#$%^&*()-=_+[]{}\\|;':\",\~./<>?`", Vstyle=joint, vr=0.5, vg=0.5, vb=0.5
+# n:p=-1, j=-1, d="N:in=0.8, fo=0.04, si=2.0, s=0.0", i=, Vstyle=neuro
+# n:p=1, j=-1, d="N:in=0.8, fo=0.04, si=2.0, s=0.0", i=, Vstyle=neuro
+# n:p=-1, j=2, d="N:in=0.8, fo=0.04, si=2.0, s=0.0", i=, Vstyle=neuro
+# c:n1=0, n2=1, w=0.5, i=
+~
+
+
+org:
+name:f0 parsing test - invalid case 1
+info:invalid floating point number
+genotype:~
+//0
+p:x,,z=
+~
+
+org:
+name:f0 parsing test - invalid case 2
+info:invalid floating point number
+genotype:~
+//0
+p:x=y
+~
+
+org:
+name:f0 parsing test - invalid case 3
+info:invalid integer number
+genotype:~
+//0
+p:0
+p:1
+j:qwerty
+~
+
+org:
+name:f0 parsing test - invalid case 4
+info:invalid integer number
+genotype:~
+//0
+p:0
+p:1
+j:p1=0,p2=
+~
+
+org:
+name:f0 parsing test - invalid case 5
+info:bad part ref
+genotype:~
+//0
+p:0
+p:1
+j:0,7
+~
+
+org:
+name:f0 parsing test - invalid case 6
+info:not all parts connected
+genotype:~
+//0
+p:0
+p:1
+~
+
+org:
+name:f0 parsing test - invalid case 7
+info:delta too big
+genotype:~
+//0
+p:
+p:10
+j:0,1
+~
+
+org:
+name:f0 parsing test - invalid case 8
+info:inconsistent shapes
+genotype:~
+//0
+p:sh=0
+p:1,sh=1
+j:0,1
+~
+
+org:
+name:f0 parsing test - invalid case 9
+info:invalid part reference in joint
+genotype:~
+//0
+p:
+p:1
+j:0,1
+j:1,2
+~
+
+org:
+name:f0 parsing test - invalid case 10
+info:invalid part reference in neuro
+genotype:~
+//0
+p:
+n:p=0
+n:p=1
+~
+
+org:
+name:f0 parsing test - invalid case 11
+info:invalid joint reference in neuro
+genotype:~
+//0
+p:
+p:1
+j:0,1
+n:j=0
+n:j=1
+~
+
+org:
+name:f0 parsing test - invalid case 12
+info:invalid neuro reference in connection
+genotype:~
+//0
+p:
+n:p=0
+n:p=0
+c:0,1,0.1
+c:1,2,0.2
+~

@@ -1,0 +1,31 @@
+# Assumes "show_evol.sim" was loaded first.
+# Velocity criterion
+sim_params:
+cr_c:0
+cr_life:0
+cr_v:1
+cr_gl:0
+cr_joints:0
+cr_nnsiz:0
+cr_nncon:0
+cr_di:0
+cr_vpos:0
+cr_vvel:0
+cr_norm:0
+cr_simi:0
+
+GenePool:
+name:Genotypes
+fitness:~
+if (this.numparts>50 || this.numjoints>100 || this.numneurons>50 || this.numconnections>100) return -1; //too complex
+return this.velocity;
+~
+fitfun:0
+fitm:2
+fitma:2
+
+# Extremely high "performance sampling period" in the first population to measure distance and velocity rectilinearly.
+# Such a long period (likely longer than lifespan) results in two sampling events: at birth and at death.
+
+Population:
+perfperiod:999999

@@ -1,0 +1,499 @@
+show:
+name:Playground
+expdef:standard
+code:~
+
+@include "AL-shared.inc"
+@include "AL-sending.inc"
+
+//values of variables with names starting with '_' survive leaving and re-entering this show
+global _playground_water;
+global _playground_envtype;
+global _playground_consume_energy;
+global _playground_show_nn;
+global _playground_clear; //toggle button on the main screen (this variable is also used in AL-main)
+
+global g_neuro, g_neurowin;
+global g_menudefs;
+
+const CREATURES_SNAPSHOT_FILENAME = "mobi-playground.creatures";
+
+function onBack()
+{
+	if (closePopup()) return;
+	saveCreatures();
+	ShowManager.show = "AL-main";
+}
+
+function addCreatureFromGenotype(genotype)
+{
+	var cr = Populations[0].add(genotype);
+	cr.nn_active = 1;
+	cr.perf_measuring = 1;
+	
+	// settings relevant when the "energy consumption" option is enabled:
+	cr.idleen = 0.25; // energy loss per step: not too big to make feeding effective, so user can prevent creature energy decrease and death by providing food items that have a default amount of energy
+	cr.energy0 = 500; // make creatures live not too long so death can be experienced, darkening with time is visible, and the effect of feeding is clearly visible. 500/0.25=2000 steps = 40 seconds at 50fps
+	cr.energy = cr.energy0;
+	
+	return cr;
+}
+
+function onLoad()
+{
+	if (_playground_water == null) //if so, this is the first run because it is not initialized
+		_playground_water = 1;
+	if (_playground_envtype == null) //as above
+		_playground_envtype = 3;
+	if (_playground_consume_energy == null) //as above
+		_playground_consume_energy = 0;
+	if (_playground_show_nn == null) //as above
+		_playground_show_nn = 1;
+	if (_playground_clear == null) //as above
+		_playground_clear = 0;
+
+	GLDisplay.desiredsimspeed = 50;
+	GLDisplay.user_interaction = 8 + 4 + 2 + 1 + 32;
+	GLDisplay.world_visibility = 1 + 2 + 4 + 8 + 16;
+	GLDisplay.dustcolor = 0xe6d1a8;
+	ShowManager.dispinfo = 0;
+	GLDisplay.back_action = "onBack";
+
+	ExpProperties.MaxCreated = 0;
+	World.wrldsiz = 40;
+	World.wrldbnd = 1;
+
+	ShowProperties.water = _playground_water;
+	ShowProperties.envtype = _playground_envtype;
+	ShowProperties.energy = _playground_consume_energy;
+	ShowProperties.show_nn = _playground_show_nn;
+
+	ShowProperties_water_set();
+	ShowProperties_envtype_set();
+	ShowProperties_energy_set();
+
+	loadCurrent();
+	if (!_playground_clear)
+		restoreSavedCreatures();
+
+	var cr = getCurrentCreature();
+	// Current creature may be already created by restoreSavedCreatures()
+	if (!cr)
+	{
+		// Not adding more Creatures from the same genotype (likely the user does not want it... they would then need to delete copies).
+		// User can always use "Clone this creature" if they really want more of the same.
+		cr = addCreatureFromGenotype(GenePools[0][0]);
+	}
+	CreatureSelection.clear();
+	CreatureSelection.add(cr);
+
+	TrackingCam.cam_zoom = 0.6; //default zoom: when a single creature is selected, show enough detail of its body but also its surroundings. Also a tradeoff between good-looking "single selected creature" and good-looking "entire world when nothing selected". Unfortunately, 0.6 zooms in too much on fF (foraminifera) creatures - their Parts have very small size, compared to, for example, food (default Parts).
+	TrackingCam.cam_dir = 80;
+
+	GUI.newButton("feed", "Drop food");
+	GUI.newButton("creature", "");
+
+	// Ideally, individual menu items would be hidden or displayed depending on
+	// the selected creature and other conditions, but popup menus created with
+	// GUI.newMenu() cannot be modified afterwards - so we prepare several menu
+	// versions instead.
+
+	var current_name = "\"" + GenePools[0][0].name + "\""; //here the name of a genotype can be empty when the user made it so. However, the "selected creature button" (GUI->creature) gets its label from the creature name (which will be auto-named if its genotype has the empty name), so there will be a discrepancy between the menu item (current_name=="") and the button label (auto-named).
+	var add = String.char(27)+"Tadd-icon; ";
+	var del = String.char(27)+"Tdelete-icon; ";
+	var delmore = String.char(27)+"Tdeletemore-icon; "; //or the icon could be "multiplied" by the number of elements to delete - this produces a nice informative effect (tested!), max(0,min(10,Populations[0].size)), but then the menu string should be updated when the number of creatures/apples changes.
+	var clone = String.char(27)+"tclone-icon; ";
+	
+	g_menudefs = {
+	"menu_food":
+	[[del+"Delete this food item","delete","p",function onMenuDelete],
+	 [delmore+"Delete all food","delete_all","p",function onMenuDeleteAll]],
+	
+	"menu_creature":
+	[[del+"Delete this creature","delete","p",function onMenuDelete],
+	 [clone+"Clone this creature","clone","p",function onMenuClone]],
+	
+	"menu_creature_more":
+	[[del+"Delete this creature","delete","p",function onMenuDelete],
+	 [delmore+"Delete others","delete_others","p",function onMenuDeleteOther],
+	 [clone+"Clone this creature","clone","p",function onMenuClone]],
+	
+	"menu_notselected":
+	[["Select "+current_name,"select_current","p",function onMenuSelectCurrent]],
+	
+	"menu_notselected_more":
+	[["Select "+current_name,"select_current","p",function onMenuSelectCurrent],
+	 [delmore+"Delete all creatures","delete_all","p",function onMenuDeleteAll]],
+
+	"menu_notselected_nocurrent":
+	[[add+"Add "+current_name,"add_current","p",function onMenuAddCurrent],
+	 [delmore+"Delete all","delete_all","p",function onMenuDeleteAll]],
+
+	"menu_notselected_empty":
+	[[add+"Add "+current_name,"add_current","p",function onMenuAddCurrent]]
+	};
+
+	for(var name in g_menudefs.keys)
+	{
+		var menu = GUI.newMenu(name, g_menudefs[name]);
+		menu.addTo(GUI->creature);
+		menu.setAutolayout(0,0,0,0,0,0,1,1);
+		menu.visible = 0;
+	}
+
+	g_helptxt = "<h1>Welcome to the playground room!</h1>"+
+	"<p>Feed your creature by dropping food."+
+	"<p>Use the Camera/Manipulator toggle to switch to \"Manipulator\" mode. Once in this mode, use your finger to drag a creature (or food) around."+
+	"<p>Double-tap a creature or food to select it and access options like clone or delete. Double-tap empty space to deselect all. Pinch to zoom."+
+	"<p>If a creature has any neurons, receptors, or effectors, you will see the neural network window. You can move and resize it, add probes to neurons by double-tapping them (the probes can also be moved and resized), and force a neuron's output by dragging up or down the black handle on its probe."+
+	"<p>Click the \"menu\" button to adjust the environment."+
+	"<p>When \"energy consumption\" is enabled, the brightness of creatures reflects their energy level."+
+	"<p>Have fun exploring and interacting!</p>";
+
+	if (Sharing.supported)
+	{
+		var but = GUI.newButton("share", "");
+		but.image = "share-icon-shadow";
+		but.style = 1;
+		but.addTo(GUI.top_right);
+	}
+
+	addHelpButton(GUI.top_right);
+
+	g_hide_screenshot = ["share", "feed", "helpbut", "creature"];
+	displayTopStatus(makeBreadcrumbPath([BREADCRUMB_YOUR_CREATURES, BREADCRUMB_CURRENT, "Playground"]));
+}
+
+function allCreatureMenuObjects()
+{
+	return [GUI->creature_menu, GUI->creature_more_menu, GUI->notselected_menu, GUI->notselected_more_menu];
+}
+
+function beforeLoad()
+{
+	GLDisplay.menu_visible = 0;
+}
+
+function saveCreatures()
+{
+	Simulator.export(CREATURES_SNAPSHOT_FILENAME, 256+32, -1, -1);
+}
+
+function restoreSavedCreatures()
+{
+	Simulator.import("scripts_output" + File.pathseparator + CREATURES_SNAPSHOT_FILENAME, 256);
+}
+
+function updateCreatureButton()
+{
+	var b = GUI->creature;
+	if (CreatureSelection.count > 0)
+	{
+		var c = CreatureSelection[0];
+		b.text = c.name;
+	}
+	else
+		b.text = "No selection";
+	resizeCreatureButton();
+}
+
+function resizeCreatureButton()
+{
+	var bottom_h = GUI.bottom_center.rect.height;
+	var bottom_y = GUI.rect.height-bottom_h;
+	var b = GUI->creature;
+	if (GUI.rect.width < GUI.rect.height)
+		b.setRect(GUI.rect.width-(GLDisplay.menu_visible?0:bottom_h)-b.minimal_rect.width, bottom_y, b.minimal_rect.width, bottom_h);
+	else
+		b.setRect((GUI.rect.width-b.minimal_rect.width)/2, bottom_y, b.minimal_rect.width, bottom_h);
+}
+
+function updateNNVisibility()
+{
+	if (CreatureSelection.count > 0 && ShowProperties.show_nn)
+	{
+		var c = CreatureSelection.get(0);
+		if (c.numneurons > 0)
+			showNN(c);
+		else
+			hideNN();
+	}
+	else
+		hideNN();
+}
+
+function hideCreatureMenu()
+{
+	var hidden = 0;
+	for(var name in g_menudefs.keys)
+	{
+		var menu = GUI[name];
+		if (menu.visible)
+		{
+			menu.visible = 0;
+			hidden = 1;
+		}
+	}
+	return hidden;
+}
+
+function onMenuDelete()
+{
+	if (CreatureSelection.count == 0)
+		return;
+	Populations[0].delete(CreatureSelection[0]);
+}
+
+function onMenuDeleteAll()
+{
+	if (CreatureSelection.count == 0)
+		Populations[0].clear();
+	else
+		CreatureSelection[0].population.clear();
+}
+
+function onMenuDeleteOther()
+{
+	var thisone = (CreatureSelection.count > 0) ?
+		CreatureSelection[0] : getCurrentCreature();
+	if (thisone == null)
+		return;
+	var pop = Populations[0];
+	for(var i = 0; i < pop.size; i++)
+	{
+	Simulator.print("onMenuDeleteOther #"+i+" "+pop[i].name);
+		if (pop[i] != thisone)
+		{
+		    pop.delete(i);
+		    i--;
+		}
+	}
+}
+
+function onMenuAddCurrent()
+{
+	var cr = addCreatureFromGenotype(GenePools[0][0]);
+	CreatureSelection.add(cr);
+}
+
+function onMenuClone()
+{
+	if (CreatureSelection.count == 0)
+		return;
+	var existing = CreatureSelection[0];
+	var cr = addCreatureFromGenotype(existing.geno);
+	CreatureSelection.clear();
+	CreatureSelection.add(cr);
+}
+
+function onMenuSelectCurrent()
+{
+	if (CreatureSelection.count > 0)
+		CreatureSelection.clear();
+	var c = getCurrentCreature();
+	if (c)
+		CreatureSelection.add(c);
+}
+
+function onSelectionChange()
+{
+	hideCreatureMenu();
+	updateNNVisibility();
+	updateCreatureButton();
+}
+
+function showNN(c)
+{
+	if (g_neurowin == null)
+	{
+		g_neuro = NeuroDiagram.new();
+		g_neurowin = GLDisplay.createWindow(1 + 2 + 4 + 16, "Neural network", g_neuro);
+		g_neurowin.backcolor = 0x80ffdddd;
+		g_neurowin.size_x = GLDisplay.size_x / 3;
+		g_neurowin.size_y = GLDisplay.size_y / 3;
+		g_neurowin.pos_x = 0;
+		g_neurowin.pos_y = GLDisplay.size_y*0.9-g_neurowin.size_y;
+	}
+	g_neuro.showCreature(c);
+}
+
+function hideNN()
+{
+	if (g_neurowin)
+		GLDisplay.deleteWindow(g_neurowin);
+	g_neurowin = null;
+	g_neuro = null;
+}
+
+function onResize()
+{
+	if (g_neurowin)
+	{
+	g_neurowin.size_x = GLDisplay.size_x / 3;
+	g_neurowin.size_y = GLDisplay.size_y / 3;
+	g_neurowin.pos_x = 0;
+	g_neurowin.pos_y = GLDisplay.size_y*0.9-g_neurowin.size_y;
+	}
+	var b = GUI->feed;
+	var top_h = GUI.top_center.rect.height;
+	var x = (GUI.rect.width-b.minimal_rect.width)/2;
+	if (x+b.minimal_rect.width > GUI.rect.width-2*top_h)
+	   x = GUI.rect.width-2*top_h-b.minimal_rect.width;
+	b.setRect(x, 0, b.minimal_rect.width, top_h);
+	resizeCreatureButton();
+}
+
+function getCurrentCreature()
+{
+	for(var cr in Populations[0])
+		if (cr.genotype == GenePools[0][0].genotype)
+			return cr;
+	return null;
+}
+
+function getSharingTitleAndPayload()
+{
+	return ["Share the current view", 1];
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (handleHelp(elem)) return;
+	if (handleSharing(elem)) return;
+	switch(elem.name)
+	{
+	case "feed":
+	{
+		var food = Populations[1].add("//0\nm:Vstyle=food\np:");
+
+		if (CreatureSelection.count > 0)
+		{
+			var cr = CreatureSelection[0];
+			food.locationSetBboxLow(cr.bboxLow.x + cr.bboxSize.x * Math.rnd01 - food.bboxSize.x * 0.5, cr.bboxLow.y + cr.bboxSize.y * Math.rnd01 - food.bboxSize.y * 0.5, 3);
+		}
+		return;
+	}
+
+	case "creature":
+	if (!hideCreatureMenu())
+	{
+		if (CreatureSelection.count > 0)
+		{
+			if (CreatureSelection[0].population.index==1)
+				GUI->menu_food.visible = 1;
+			else if (Populations[0].size > 1)
+				GUI->menu_creature_more.visible = 1;
+			else
+				GUI->menu_creature.visible = 1;
+		}
+		else
+		{
+			if (Populations[0].size > 0)
+			{
+				if (getCurrentCreature())
+				{
+					if (Populations[0].size > 1)
+						GUI->menu_notselected_more.visible = 1;
+					else
+						GUI->menu_notselected.visible = 1;
+				}
+				else
+				{
+				    GUI->menu_notselected_nocurrent.visible = 1;
+				}
+			}
+			else
+				GUI->menu_notselected_empty.visible = 1;
+		}
+	}
+	return;
+	}
+
+	if (String.startsWith(elem.name,"menu_"))
+	{
+		elem.visible = 0;
+		for(var item in g_menudefs[elem.name])
+			if (arg == 0)
+			{
+				call(item[3])();
+				break;
+			}
+			else
+				arg--;
+	}
+}
+
+function onKey(code)
+{
+	if (code == GUI.KEY_BACK)
+	{
+		onBack();
+		return 1;
+	}
+	return 0;
+}
+
+function ShowProperties_envtype_set()
+{
+	switch(ShowProperties.envtype)
+	{
+	case 0:
+		World.wrldtyp = 0;
+		break;
+	case 1:
+		World.wrldtyp = 1;
+		World.wrldmap = "m 5 5 55555 55555 55955 55555 55555";
+		break;
+	case 2:
+		World.wrldtyp = 1;
+		World.wrldmap = "m 3 3 3-5 3-5 3-5";
+		break;
+	case 3:
+		World.wrldtyp = 1;
+		World.wrldmap = "m 4 4 33-5 5555 6555 65-8";
+		break;
+	}
+	_playground_envtype = ShowProperties.envtype;
+}
+
+function ShowProperties_water_set()
+{
+	World.wrldwat = [ -5.0, -0.5, 1.0, 3.5][ShowProperties.water];
+	_playground_water = ShowProperties.water;
+}
+
+function ShowProperties_show_nn_set()
+{
+	updateNNVisibility();
+	_playground_show_nn = ShowProperties.show_nn;
+}
+
+function ShowProperties_energy_set()
+{
+	Populations[0].energy = ShowProperties.energy;
+	Populations[0].death = ShowProperties.energy;
+	_playground_consume_energy = ShowProperties.energy;
+}
+
+~
+
+property:
+id:envtype
+name:Environment
+type:d 0 3 3 ~Flat~Tower~Slope~Playground
+
+property:
+id:water
+name:Water level
+type:d 0 3 1 ~None~Low~Medium~High
+
+property:
+id:energy
+name:Creature energy consumption
+help:The energy of each creature will decrease in each simulation step. When it reaches zero, the creature will die. You can feed creatures with food to increase their energy level.
+type:d 0 1 0
+
+property:
+id:show_nn
+name:Show neural network window
+type:d 0 1 1

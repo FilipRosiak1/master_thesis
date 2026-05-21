@@ -52,6 +52,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mutation-attempts", type=int, default=2000)
     parser.add_argument("--cma-sigma", type=float, default=None)
     parser.add_argument("--condition-fitness", type=float, default=None, help="Raw target fitness for conditional decoders")
+    parser.add_argument("--condition-length", type=float, default=None, help="Raw target genotype string length for structural conditional decoders")
+    parser.add_argument("--condition-segments", type=float, default=None, help="Raw target X segment count for structural conditional decoders")
     parser.add_argument("--seed", type=int, default=321)
     parser.add_argument("--output", default=None, help="Combined CSV output path")
     parser.add_argument("--history-output", default=None, help="Combined per-iteration history CSV path")
@@ -229,6 +231,8 @@ def main() -> None:
         "time_budget_seconds": args.time_budget_seconds,
         "split_time_budget_across_seeds": args.split_time_budget_across_seeds,
         "condition_fitness": args.condition_fitness,
+        "condition_length": args.condition_length,
+        "condition_segments": args.condition_segments,
         "runs": {},
     }
     all_history_rows: list[dict[str, Any]] = []
@@ -283,6 +287,8 @@ def main() -> None:
         _add_optional(cmd, "--seed-max-fitness", args.seed_max_fitness)
         _add_optional(cmd, "--cma-sigma", args.cma_sigma)
         _add_optional(cmd, "--condition-fitness", args.condition_fitness)
+        _add_optional(cmd, "--condition-length", args.condition_length)
+        _add_optional(cmd, "--condition-segments", args.condition_segments)
         if args.split_time_budget_across_seeds:
             cmd.append("--split-time-budget-across-seeds")
 

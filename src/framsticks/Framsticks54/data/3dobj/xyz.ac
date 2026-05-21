@@ -1,0 +1,843 @@
+AC3Db
+MATERIAL "vrlmat0" rgb 0 0 0 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat1" rgb 1 1 1 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat2" rgb 0.627451 0.25098 0.25098 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat3" rgb 1 0.2 0.2 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat4" rgb 1 0.466667 0 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat5" rgb 0.2 0.2 1 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat6" rgb 0.2 1 0.2 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat7" rgb 0.270588 0.52549 0.454902 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat8" rgb 0.627451 0.752941 0.878431 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat9" rgb 0 0 1 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat10" rgb 0.509804 0 0.294118 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat11" rgb 0.933333 0.501961 0.933333 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat12" rgb 0.266667 0.266667 0.266667 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat13" rgb 0.533333 0.533333 0.533333 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat14" rgb 0.8 0.8 0.8 amb 0.2 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat15" rgb 1 1 0 amb 0.5 0.5 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat16" rgb 0 1 0 amb 0.2 0.5 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+MATERIAL "vrlmat17" rgb 1 0 0 amb 0.5 0.2 0.2 emis 0 0 0 spec 0.5 0.5 0.5 shi 10 trans 0
+OBJECT world
+kids 12
+OBJECT poly
+name "cylinder"
+numvert 12
+0.0124998 0.9 0.0216507
+-0.0125 0.9 0.0216507
+-0.0250001 0.9 0
+-0.0125 0.9 -0.0216507
+0.0124998 0.9 -0.0216506
+0.0249999 0.9 0
+0.0124998 0 0.0216507
+-0.0125 0 0.0216507
+-0.0250001 0 0
+-0.0125 0 -0.0216507
+0.0124998 0 -0.0216506
+0.0249999 0 0
+numsurf 12
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 5
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 5
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 5
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 5
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 5
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 5
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 5
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 5
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 5
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 5
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 7
+-1.19209e-07 1.1 0
+0.0499997 0.9 0.0866026
+-0.0500002 0.9 0.0866026
+-0.1 0.9 0
+-0.0500002 0.9 -0.0866026
+0.0499997 0.9 -0.0866024
+0.0999999 0.9 0
+numsurf 6
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+2 0 0
+1 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+3 0 0
+2 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+4 0 0
+3 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+5 0 0
+4 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+6 0 0
+5 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+1 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "disk"
+numvert 7
+0.0249999 0 0
+0.0124998 0 0.0216507
+-0.0125 0 0.0216507
+-0.0250001 0 0
+-0.0125 0 -0.0216507
+0.0124998 0 -0.0216507
+0 0 0
+numsurf 6
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+1 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+1 0 0
+2 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+2 0 0
+3 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+3 0 0
+4 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+4 0 0
+5 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 12
+0.05 0.9 0.0866026
+-0.05 0.9 0.0866026
+-0.1 0.9 0
+-0.05 0.9 -0.0866026
+0.05 0.9 -0.0866026
+0.0999999 0.9 0
+0.0125 0.9 0.0216507
+-0.0125 0.9 0.0216507
+-0.025 0.9 0
+-0.0125 0.9 -0.0216507
+0.0125 0.9 -0.0216507
+0.0250001 0.9 0
+numsurf 12
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 5
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 5
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 5
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 5
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 5
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 5
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 5
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 5
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 5
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 5
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 5
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 12
+0.9 -0.0124998 0.0216507
+0.9 0.0125 0.0216507
+0.9 0.0250001 0
+0.9 0.0125 -0.0216507
+0.9 -0.0124998 -0.0216506
+0.9 -0.0249999 0
+0 -0.0124997 0.0216507
+0 0.0125 0.0216507
+0 0.0250001 0
+0 0.0125 -0.0216507
+0 -0.0124997 -0.0216506
+0 -0.0249998 0
+numsurf 12
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 3
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 3
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 3
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 3
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 3
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 3
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 3
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 3
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 3
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 3
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 7
+1.1 1.19209e-07 0
+0.9 -0.0499997 0.0866026
+0.9 0.0500002 0.0866026
+0.9 0.1 0
+0.9 0.0500002 -0.0866026
+0.9 -0.0499997 -0.0866024
+0.9 -0.0999999 0
+numsurf 6
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+2 0 0
+1 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+3 0 0
+2 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+4 0 0
+3 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+5 0 0
+4 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+6 0 0
+5 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+1 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "disk"
+numvert 7
+0 -0.0249998 0
+0 -0.0124997 0.0216507
+0 0.0125 0.0216507
+0 0.0250001 0
+0 0.0125 -0.0216507
+0 -0.0124997 -0.0216507
+0 0 0
+numsurf 6
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+1 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+1 0 0
+2 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+2 0 0
+3 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+3 0 0
+4 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+4 0 0
+5 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 12
+0.9 -0.05 0.0866026
+0.9 0.05 0.0866026
+0.9 0.1 0
+0.9 0.05 -0.0866026
+0.9 -0.05 -0.0866026
+0.9 -0.0999999 0
+0.9 -0.0125 0.0216507
+0.9 0.0125 0.0216507
+0.9 0.025 0
+0.9 0.0125 -0.0216507
+0.9 -0.0125 -0.0216507
+0.9 -0.0250001 0
+numsurf 12
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 3
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 3
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 3
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 3
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 3
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 3
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 3
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 3
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 3
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 3
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 3
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 12
+0.0216507 -0.0124998 -0.9
+0.0216507 0.0125 -0.9
+0 0.0250001 -0.9
+-0.0216507 0.0125 -0.9
+-0.0216506 -0.0124998 -0.9
+0 -0.0249999 -0.9
+0.0216507 -0.0124997 0
+0.0216507 0.0125 0
+0 0.0250001 0
+-0.0216506 0.0125 0
+-0.0216505 -0.0124997 0
+0 -0.0249998 0
+numsurf 12
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 6
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 6
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 6
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 6
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 6
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 6
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 6
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 6
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 6
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 6
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 7
+0 1.19209e-07 -1.1
+0.0866026 -0.0499997 -0.9
+0.0866026 0.0500002 -0.9
+0 0.1 -0.9
+-0.0866026 0.0500002 -0.9
+-0.0866024 -0.0499997 -0.9
+0 -0.0999999 -0.9
+numsurf 6
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+2 0 0
+1 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+3 0 0
+2 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+4 0 0
+3 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+5 0 0
+4 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+6 0 0
+5 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+1 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "disk"
+numvert 7
+0 -0.0249998 0
+0.0216507 -0.0124997 0
+0.0216507 0.0125 0
+0 0.0250001 0
+-0.0216506 0.0125 0
+-0.0216506 -0.0124997 0
+0 0 0
+numsurf 6
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+1 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+1 0 0
+2 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+2 0 0
+3 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+3 0 0
+4 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+4 0 0
+5 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0
+OBJECT poly
+name "cylinder"
+numvert 12
+0.0866026 -0.05 -0.9
+0.0866026 0.05 -0.9
+0 0.1 -0.9
+-0.0866026 0.05 -0.9
+-0.0866026 -0.05 -0.9
+0 -0.0999999 -0.9
+0.0216507 -0.0125 -0.9
+0.0216507 0.0125 -0.9
+0 0.025 -0.9
+-0.0216507 0.0125 -0.9
+-0.0216507 -0.0125 -0.9
+0 -0.0250001 -0.9
+numsurf 12
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+7 0 0
+6 0 0
+SURF 0x0
+mat 6
+refs 3
+0 0 0
+1 0 0
+7 0 0
+SURF 0x0
+mat 6
+refs 3
+1 0 0
+8 0 0
+7 0 0
+SURF 0x0
+mat 6
+refs 3
+1 0 0
+2 0 0
+8 0 0
+SURF 0x0
+mat 6
+refs 3
+2 0 0
+9 0 0
+8 0 0
+SURF 0x0
+mat 6
+refs 3
+2 0 0
+3 0 0
+9 0 0
+SURF 0x0
+mat 6
+refs 3
+3 0 0
+10 0 0
+9 0 0
+SURF 0x0
+mat 6
+refs 3
+3 0 0
+4 0 0
+10 0 0
+SURF 0x0
+mat 6
+refs 3
+4 0 0
+11 0 0
+10 0 0
+SURF 0x0
+mat 6
+refs 3
+4 0 0
+5 0 0
+11 0 0
+SURF 0x0
+mat 6
+refs 3
+5 0 0
+6 0 0
+11 0 0
+SURF 0x0
+mat 6
+refs 3
+5 0 0
+0 0 0
+6 0 0
+kids 0

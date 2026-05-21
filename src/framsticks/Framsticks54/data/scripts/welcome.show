@@ -1,0 +1,57 @@
+show:
+info:
+expdef:standard
+code:~
+
+function onLoad()
+{
+	World.wrldsiz = 20;
+	World.wrldwat = -1.0;
+	VisualStyle.style = "theater";
+
+	ShowManager.info = "\nClick \"Menu\" -> \"Select a show...\" to choose a show and its options.\nWithin most shows, you can also drag the mouse with the left button pressed to adjust the camera, and double click on objects to select them. Use the mouse wheel to zoom. Press the control key and click to grab a creature. Press Shift and right mouse click for additional actions.\n\nThe Framsticks Theater is a part of the Framsticks project. Please visit the web site for more details and software.";
+
+	TrackingCam.setViewDir(90, 20);
+	TrackingCam.cam_zoom = 0.6;
+
+	ExpProperties.MaxCreated = 1;
+	ExpProperties.feed = 0;
+	CreatureSelection.clear();
+
+	var pop = Populations[0];
+	pop.clear();
+	pop.death = 0;
+	pop.energy = 0; //just for consistency with AL-welcome, the energy loss is invisible anyway, because of the simplified theater.style
+	pop.initial_nn_active = 1;
+
+	var pool = GenePools[0];
+	pool.clear();
+	Simulator.import("theaterwelcome.gen", 2);
+	//var cr=Population.createFromString("rrlllllX(,,LLXX,,XX(XX,XlX,),)");
+	var cr = pop.add(pool[0]);
+	cr.locationSetBboxLow((World.wrldsiz - cr.bboxSize.x) / 2, (World.wrldsiz - cr.bboxSize.y) / 2, -2);
+
+	var i;
+
+	for (i = 1; i < 7; i++)
+	{
+		var c = pop.add(pool[i]);
+		c.locationSetBboxLow((World.wrldsiz - cr.bboxSize.x) * 0.5 + World.wrldsiz * 0.3 * Math.cos(i),
+		                     (World.wrldsiz - cr.bboxSize.y) * 0.5 + World.wrldsiz * 0.3 * Math.sin(i),
+		                     -2);
+	}
+
+	pool.clear();
+	Populations[1].death = 0;
+
+	GLDisplay.desiredsimspeed = 100;
+}
+
+function onShowStep()
+{
+	var anim = Math.time;
+	TrackingCam.setViewDir(90.0 + 10.0 * Math.sin(anim * 0.5), 20.0 + 10.0 * Math.cos(anim * 0.5));
+	TrackingCam.cam_zoom = 0.8 * (2.5 + Math.sin(anim * 0.15)) / 2.5;
+}
+
+~

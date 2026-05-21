@@ -1,0 +1,9 @@
+# Extremely high "performance sampling period" in the first population to measure distance and velocity rectilinearly.
+# Such a long period (likely longer than lifespan) results in only two sampling events: at birth and at death.
+# See http://www.framsticks.com/a/al_params.html#exper-perfcalc
+#
+# Before loading this file, load base settings, e.g. "eval-allcriteria.sim".
+# Put this file in the "data" subdirectory within the Framsticks distribution.
+
+Population:
+perfperiod:999999

@@ -1,0 +1,157 @@
+expdef:
+name:Prime number finding
+info:~
+Prime - a simple prime number computation experiment used to illustrate Framsticks parallel processing architectures.
+
+The description below shows how a Framsticks client could pass input data to the remote server running custom experiment definition, how to initiate processing, wait on completion signal, and receive the result. This experiment definition also works with the regular (non-server) Framsticks; see prime-mt.expdef for local parallelization.
+
+[1] The Framsticks server must be started with this particular expdef pre-selected (because of the FramScript limitation), for example:
+./frams.linux "Simulator.expdef=\"prime\";" -n
+
+[2] The client communicates using the Framsticks network protocol and uses /simulator/netload and /simulator/netsave to send data to and receive data from the server.
+
+[3] Recommended procedure (see [4] for details):
+
+reg /simulator/running_changed - so the client is notified when calculations complete (optional)
+call /simulator netload - the client sends the input file
+call /simulator init - initialize the experiment (optional - otherwise the experiment will be continued from the last saved state: compare ExpState.current_number vs. ExpParams.from_number)
+call /simulator start
+...wait for the event... (there will be 2 events - running_changed to 1 and then back to 0)
+call /simulator netsave - the client receives the result (and can submit another piece of work)
+
+
+[4] Transcript of the sample network session (using telnet):
+
+version 4
+ok
+reg /simulator/running_changed
+ok  /cli/events/e0
+call /simulator netload
+needfile "*.expt" "Experiment"
+file
+ExpParams:
+from_number:100
+to_number:200
+
+ExpState:
+current_number:150
+
+eof
+ok
+call /simulator start
+event /cli/events/e0 /simulator/running_changed
+file
+ValueChange:
+value:1
+
+eof
+file 
+Result:
+value:[]
+eof
+ok 
+event /cli/events/e0 /simulator/running_changed
+file
+ValueChange:
+value:0
+
+eof
+call /simulator netsave
+file experiment.expt "Current experiment state"
+# created Mon Jul  1 02:26:14 2013
+# by Framsticks 3.2rc6
+# saved by 'prime.expdef'
+ExpParams:
+from_number:100
+to_number:200
+
+ExpState:
+current_number:201
+result:@Serialized[151,157,163,167,173,179,181,191,193,197,199]
+
+
+eof
+ok
+~
+code:~
+
+
+function onExpDefLoad()
+{
+  GenePools.clear();
+  Populations.clear();
+  ExpParams.from_number = 1;
+  ExpParams.to_number = 10;
+  onExpInit();
+}
+
+function onExpInit()
+{
+  ExpState.current_number = ExpParams.from_number;
+  ExpState.result = [];
+}
+
+function testPrime(N) //extremely inefficient, just for illustration
+{
+	var i;
+	for(i=2;i<N;i++)
+		if ((N/i)*i==N) return 0;
+	return 1;
+}
+
+function onStep()
+{
+	if (ExpState.current_number > ExpParams.to_number)
+	{
+		Simulator.stop();
+		return;
+	} else
+	{
+		if (testPrime(ExpState.current_number))
+		{
+			ExpState.result.add(ExpState.current_number);
+			// Simulator.checkpointData(ExpState.current_number); //new in 3.2rc7 - optional data associated with a checkpoint
+		}
+		ExpState.current_number++;
+	}
+}
+
+
+// re: load/save - replacing ExpParams.*/ExpState.* with sim_params.* would allow one to automatically switch to the correct expdef upon loading the *.expt file, but this does not work on the server anyway (because of the FramsScript VM limitations), so we only save ExpParams/ExpState in this example, which creates a nice small file.
+
+function onExpLoad()
+{
+	Loader.addClass(sim_params.*);
+	Loader.run();
+}
+
+function onExpSave()
+{
+	File.writeComment("saved by '%s.expdef'" % Simulator.expdef);
+	File.writeObject(sim_params.*);
+}
+
+~
+
+prop:
+id:from_number
+name:First number
+type:d
+
+prop:
+id:to_number
+name:Last number
+type:d
+
+state:
+id:current_number
+name:Next number to test (read only)
+type:d
+flags:16
+
+state:
+id:result
+name:Found primes
+type:x
+flags:16
+

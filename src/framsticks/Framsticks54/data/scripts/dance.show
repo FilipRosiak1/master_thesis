@@ -1,0 +1,112 @@
+show:
+name:Dance
+info:Dance
+expdef:dance
+code:~
+
+global g_lasttime; //for auto popsize
+
+function onLoad()
+{
+	ShowManager.info = Simulator.expdef_info;
+	TrackingCam.cam_chspeed = 0.5;
+	TrackingCam.cam_zoom = 1.2;
+
+	GLDisplay.desiredsimspeed = 30;
+	g_lasttime = Math.time;
+	ShowProperties.dancers = 0;
+	ShowProperties_dancers_set();
+}
+
+
+function onShowStep()
+{
+	TrackingCam.setViewDir(Math.sin(0.1 * Math.time) * 40, 20.0 + Math.sin(0.07 * Math.time) * 15);
+	if (ShowProperties.dancers == 0)
+		autoPopsize();
+}
+
+function autoPopsize()
+{
+	if (Math.time - g_lasttime > 5.0)
+	{
+		//Simulator.print(""+GLDisplay.desiredsimspeed+" "+Simulator.simspeed+" "+GLDisplay.fps+" fps");
+		g_lasttime = Math.time;
+		if ((GLDisplay.fps < (0.85 * GLDisplay.maxfps)) && ExpProperties.MaxCreated > 2)
+		{
+			ExpProperties.MaxCreated--;
+			setArrangeRequest(Simulator.stepNumber + 20);
+			//Simulator.print("-- ("+ExpProperties.MaxCreated+")");
+		}
+		if (GLDisplay.fps > (0.95 * GLDisplay.maxfps))
+		{
+			ExpProperties.MaxCreated++;
+			setArrangeRequest(Simulator.stepNumber + 20);
+			//Simulator.print("++ ("+ExpProperties.MaxCreated+")");
+		}
+	}
+}
+
+
+function ShowProperties_restart_land_call()
+{
+	ExpProperties_restart_land_call();
+}
+
+function ShowProperties_restart_water_call()
+{
+	ExpProperties_restart_water_call();
+}
+
+function ShowProperties_arrangement_call()
+{
+	ExpProperties_arrangement_call();
+}
+
+function ShowProperties_dancers_set()
+{
+	ExpProperties.MaxCreated = [9, 2, 3, 4, 9, 16][ShowProperties.dancers];
+	setArrangeRequest(Simulator.stepNumber + 20);
+}
+
+function ShowProperties_tempo_set()
+{
+	ExpProperties.tempo = ShowProperties.tempo;
+}
+
+function ShowProperties_sound_set()
+{
+	ExpProperties.sound = ShowProperties.sound;
+}
+~
+
+property:
+id:restart_land
+name:Land dance
+type:p
+
+property:
+id:restart_water
+name:Water dance
+type:p
+
+property:
+id:dancers
+name:Number of dancers
+type:d 0 5 ~Auto~2~3~4~9~16
+help:"Auto" adjusts the number of dancers to the speed of your computer.
+
+property:
+id:tempo
+name:Dance tempo
+type:d 0 2 ~Slow~Medium~Fast
+
+property:
+id:arrangement
+name:Change arrangement
+type:p
+
+property:
+id:sound
+name:Beat
+type:d 0 1 1

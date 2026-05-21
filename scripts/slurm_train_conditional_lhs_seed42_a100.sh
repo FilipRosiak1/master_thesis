@@ -2,11 +2,10 @@
 #SBATCH -J train_cond_lhs
 #SBATCH -A inz_csolso
 #SBATCH -p hgx
-#SBATCH -w hgx2
 #SBATCH -n1
 #SBATCH --gres=gpu:1
-#SBATCH --mem=64G
-#SBATCH --time=24:00:00
+#SBATCH --mem=128G
+#SBATCH --time=72:00:00
 
 set -euo pipefail
 

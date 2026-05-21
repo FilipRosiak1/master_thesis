@@ -1,0 +1,1 @@
+..\theater -g - <viewgeno-ex6-genotype.txt

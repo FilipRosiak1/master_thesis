@@ -1,0 +1,155 @@
+script:
+name:WorldMap faces
+help:Internal function. Generates the list of 3D faces (quads or triangles) of the world surface. For details, read docs on WorldMap.getAsString().
+code:~
+function main_args()
+{
+	var ret = "";
+	switch (World.wrldtyp)
+	{
+	case 0:
+		ret = makeFlatFaces();
+		break;
+	case 1:
+		ret = makeBlockFaces();
+		break;
+	case 2:
+		ret = makeHeightfieldFaces();
+		break;
+	}
+	return ret;
+}
+
+function makeFlatFaces()
+{
+	return "v 0 0 0\n"
+	       + "v " + World.wrldsiz + " 0 0\n"
+	       + "v " + World.wrldsiz + " " + World.wrldsiz + " 0\n"
+	       + "v 0 " + World.wrldsiz + " 0\n"
+	       + "f 1 2 3 4\n";
+}
+
+function makeBlockFaces()
+{
+	var xs = WorldMap.xsize - 2, ys = WorldMap.ysize - 2;
+	var blockx = World.wrldsiz / xs, blocky = World.wrldsiz / ys;
+	var mx, my, x, y;
+	var xyz = "";
+	var ci = "";
+	var ind = 1, ind0;
+	y = 0.0;
+	for (my = 1; my <= ys; my++)
+	{
+		x = 0.0;
+		for (mx = 1; mx <= xs; mx++)
+		{
+
+			var z, z0, zx, zy, zxy, zy0, zy1, zx0, zx1, n1, nn;
+			z = WorldMap.getMap(mx, my).z;
+
+			switch (WorldMap.getMap(mx, my).type)
+			{
+			case 0:
+				z0 = z;
+				zx = z;
+				zy = z;
+				zxy = z;
+				break;
+			case 1:
+				z0 = WorldMap.getMap(mx - 1, my).z;
+				zy = z0;
+				zx = WorldMap.getMap(mx + 1, my).z;
+				zxy = zx;
+				break;
+			case 2:
+				z0 = WorldMap.getMap(mx, my - 1).z;
+				zx = z0;
+				zy = WorldMap.getMap(mx, my + 1).z;
+				zxy = zy;
+				break;
+			}
+			var x2 = x + blockx, y2 = y + blocky;
+			ind0 = ind;
+			xyz += "v " + x + " " + y + " " + z0 + "\nv " + x2 + " " + y + " " + zx + "\n"
+			     + "v " + x2 + " " + y2 + " " + zxy + "\nv " + x + " " + y2 + " " + zy + "\n";
+			ci += "f " + ind + " " + (ind+1) + " " + (ind+2) + " " + (ind+3) + "\n";
+			ind += 4;
+
+			switch (WorldMap.getMap(mx, my - 1).type)
+			{
+			case 0:
+				zy0 = WorldMap.getMap(mx, my - 1).z;
+				zy1 = zy0;
+				break;
+			case 1:
+				zy0 = WorldMap.getMap(mx - 1, my - 1).z;
+				zy1 = WorldMap.getMap(mx + 1, my - 1).z;
+				break;
+			case 2:
+				zy0 = z0;
+				zy1 = z0;
+				break;
+			}
+			if ((z0 != zy0) || (zx != zy1))
+			{
+				xyz += "v " + x + " " + y + " " + zy0 + "\nv " + x2 + " " + y + " " + zy1 + "\n";
+				ci += "f " + (ind0+1) + " " + ind0 + " " + ind + " " + (ind+1) + "\n";
+				ind += 2;
+			}
+
+			switch (WorldMap.getMap(mx - 1, my).type)
+			{
+			case 0:
+				zx0 = WorldMap.getMap(mx - 1, my).z;
+				zx1 = zx0;
+				break;
+			case 1:
+				zx0 = z0;
+				zx1 = z0;
+				break;
+			case 2:
+				zx0 = WorldMap.getMap(mx - 1, my - 1).z;
+				zx1 = WorldMap.getMap(mx - 1, my + 1).z;
+				break;
+			}
+			if ((z0 != zx0) || (zy != zx1))
+			{
+				xyz += "v " + x + " " + y2 + " " + zx1 + "\nv " + x + " " + y + " " + zx0 + "\n";
+				ci += "f " + ind0 + " " + (ind0+3) + " " + ind + " " + (ind+1) + "\n";
+				ind += 2;
+			}
+
+
+			x += blockx;
+		}
+		y += blocky;
+	}
+
+	return xyz + ci;
+}
+
+function makeHeightfieldFaces()
+{
+	var xyz = "", ci = "";
+	var i, j;
+	var bx = World.wrldsiz / (WorldMap.xsize-1);
+	var by = World.wrldsiz / (WorldMap.ysize-1);
+
+	for (j = 0; j < WorldMap.ysize; j++)
+		for (i = 0; i < WorldMap.xsize; i++)
+		{
+			xyz += "v " + (bx * i) + " " + (by * j) + " " + WorldMap.getMap(i, j).z + "\n";
+		}
+
+	var ind;
+	for (j = 0; j < (WorldMap.ysize-1); j++)
+		for (i = 0; i < (WorldMap.xsize-1); i++)
+		{
+			ind = WorldMap.xsize * j + i + 1;
+			ci += "f " + ind + " " + (ind + 1) + " " + (ind + WorldMap.xsize + 1) + "\n";
+			ci += "f " + ind + " " + (ind + WorldMap.xsize + 1) + " " + (ind + WorldMap.xsize) + "\n";
+		}
+	return xyz + ci;
+}
+
+~

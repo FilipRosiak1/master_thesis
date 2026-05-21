@@ -1,0 +1,950 @@
+show:
+name:Genetic editor
+info:~
+~
+expdef:standard
+code:~
+
+@include "AL-shared.inc"
+@include "AL-modal.inc"
+
+global viewer, editor, nextbut;
+global g_button_sets;
+global g_valid;
+global g_key_width, g_key_height;
+global g_format;
+global g_allowed_chars;
+global g_mode, g_modenames, g_scroll;
+global g_tools_def;
+global g_editarea, g_editarea_pos, g_toparea, g_using_textedit;
+global g_fields, g_types, g_values, g_min, g_max, g_slider, g_buttons, g_selected, g_FIRST_BUTTON;
+global fun_textFromEditor;
+global fun_textToEditor;
+global fun_events;
+global fun_keys;
+global g_partlabels;
+
+function makeKeyButton(char, x, y)
+{
+	var but = GUI.newButton("edit" + char, char);
+	but.addTo(g_editarea);
+	but.setAutolayout(0, 0, 0, 0, x, y, g_key_width, g_key_height);
+	but.tooltip = "add " + char;
+	but.font = 3;
+	but.autorepeat = 1;
+	nextbut = x + g_key_width;
+	return but;
+}
+
+function onLoad()
+{
+	TrackingCam.cam_zoom = 1;
+	GLDisplay.desiredsimspeed = 0;
+	GLDisplay.user_interaction = 0;
+	GLDisplay.world_visibility = 1;
+	GLDisplay.skybox = "cubeworld";
+	ShowManager.dispinfo = 0;
+
+	g_tools_def = 
+	    [["Mutate","mutate","p"],
+	    ["Copy","copy","p"],
+	    ["Paste","paste","p"],
+	    ["White background","whitebg","d 0 1",0],
+	    ["Full screen","fullscreen","d 0 1",0],
+	    ["Part labels","partlabels","d 0 1",0]];
+
+	loadCurrent();
+	prepareEditor(GenePools[0][0].geno.format);
+	call(fun_textToEditor)(GenePools[0][0].geno.rawgenotype, 0);
+	updateEditing();
+	displayTopStatus(makeBreadcrumbPath([BREADCRUMB_YOUR_CREATURES, BREADCRUMB_CURRENT, "Edit genotype"]));
+}
+
+function default_textFromEditor()
+{
+	return editor.text;
+}
+
+function default_textToEditor(text, animate)
+{
+	if (animate)
+	{
+		var d = String.diff(editor.text, text);
+		editor.edit(d);
+	}
+	else
+	{
+		editor.text = text;
+		editor.selected = String.len(text);
+	}
+}
+
+// used in f9 - g_types
+function makeInt(x)
+{
+	return int(x);
+}
+function makeFloat(x)
+{
+	return float(x);
+}
+
+function prepareEditor(format)
+{
+	g_format = format;
+
+	g_using_textedit = 1;
+	g_editarea_pos = 1;
+
+	var darken = GUI.newGroup("darken");
+	darken.bgcolor = 0x88000000;
+	darken.setAutolayout(0, 0, 0, 0, 0, 0, 1, 1);
+
+	viewer = GUI.newModel("mod1", "");
+	viewer.mode = 1 + 2; //show ground+nn
+	viewer.enabled = 1; //selection enabled
+	viewer.setAutolayout(10, 10, -20, -20, 0, 0, 1, 1);
+
+	g_editarea = GUI.newGroup("editarea");
+
+	editor = GUI.newTextview("ed", "");
+	editor.enabled = 0;
+	editor.mode = 2; //special mode displaying the cursor even though the field is not directly editable (all editing goes through the script and our custom keyboard)
+	editor.font = 3;
+
+	nextbut = 0.0;
+	var but;
+
+	fun_events = null;
+	fun_keys = null;
+	fun_textFromEditor = function default_textFromEditor;
+	fun_textToEditor = function default_textToEditor;
+
+// begin format-dependent code
+	if (g_format == "1")
+	{
+		fun_events = function f1_events;
+		fun_keys = function f1_keys;
+		g_allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ(,)[:].0123456789-@|/!= " + String.char(8);
+		g_key_width = 0.125;
+		g_key_height = 0.125;
+		g_editarea_pos = 0.75;
+		g_scroll = GUI.newScroll("scr");
+		g_scroll.addTo(g_editarea);
+		g_scroll.setAutolayout(0, 0, 0, 0, 0, 0, 0.125 * 7, 0.25);
+		g_scroll.scroll_w = GLDisplay.size_x * 0.125 * 7;
+		g_scroll.scroll_h = 0.25 * GLDisplay.size_y * 2;
+		g_scroll.align = 1;
+
+		g_editarea = g_scroll;
+		g_key_height = 1.0 / 3 / 2;
+		g_modenames = [["Struct", "Structure modifiers: RCQL"], ["Colors", "Color modifiers: DGB"], ["Neuro", "Neurons"]];
+		var y = 0.0;
+		nextbut = 0;
+		g_key_width = 1.0 / 7;
+
+		makeKeyButton("X", nextbut, 0);
+		makeKeyButton(",", nextbut, 0);
+		nextbut += g_key_width;
+		makeKeyButton("R", nextbut, y);
+		makeKeyButton("C", nextbut, y);
+		makeKeyButton("Q", nextbut, y);
+		makeKeyButton("L", nextbut, y);
+		nextbut = 0;
+		y += g_key_height;
+		makeKeyButton("(", nextbut, y);
+		makeKeyButton(")", nextbut, y);
+		nextbut += g_key_width;
+		makeKeyButton("r", nextbut, y).bgcolor = 0xffbbbbbb;
+		makeKeyButton("c", nextbut, y).bgcolor = 0xffbbbbbb;
+		makeKeyButton("q", nextbut, y).bgcolor = 0xffbbbbbb;
+		makeKeyButton("l", nextbut, y).bgcolor = 0xffbbbbbb;
+
+		nextbut = 0;
+		y += g_key_height;
+		makeKeyButton("X", nextbut, y);
+		makeKeyButton(",", nextbut, y);
+		nextbut += g_key_width;
+		makeKeyButton("D", nextbut, y).bgcolor = 0xffffcccc;
+		makeKeyButton("G", nextbut, y).bgcolor = 0xfccfffcc;
+		makeKeyButton("B", nextbut, y).bgcolor = 0xfcccccff;
+		nextbut = 0;
+		y += g_key_height;
+		makeKeyButton("(", nextbut, y);
+		makeKeyButton(")", nextbut, y);
+		nextbut += g_key_width;
+		makeKeyButton("d", nextbut, y).bgcolor = 0xffddaaaa;
+		makeKeyButton("g", nextbut, y).bgcolor = 0xffaaddaa;
+		makeKeyButton("b", nextbut, y).bgcolor = 0xffaaaadd;
+
+		nextbut = 0;
+		y += g_key_height;
+		g_key_width = 1.0 / 8;
+		makeKeyButton("[", nextbut, y).bgcolor = 0xffddddff;
+		makeKeyButton("]", nextbut, y).bgcolor = 0xffddddff;
+		but = makeKeyButton("N", nextbut, y);
+		but.name = "neuro";
+		but.bgcolor = 0xffddffdd;
+		makeKeyButton("0", nextbut, y);
+		makeKeyButton("1", nextbut, y);
+		makeKeyButton("2", nextbut, y);
+		makeKeyButton("3", nextbut, y);
+		makeKeyButton("4", nextbut, y);
+		nextbut = 0;
+		y += g_key_height;
+		g_key_width = 1.0 / 9;
+		makeKeyButton(",", nextbut, y).bgcolor = 0xffddddff;
+		makeKeyButton(":", nextbut, y).bgcolor = 0xffddddff;
+		makeKeyButton(".", nextbut, y);
+		makeKeyButton("-", nextbut, y);
+		makeKeyButton("5", nextbut, y);
+		makeKeyButton("6", nextbut, y);
+		makeKeyButton("7", nextbut, y);
+		makeKeyButton("8", nextbut, y);
+		makeKeyButton("9", nextbut, y);
+
+		g_editarea = GUI->editarea;
+		g_key_width = 0.125;
+		g_key_height = 0.125;
+		nextbut = 0.125 * 7;
+		but = makeKeyButton("<", nextbut, 0);
+		but.text = "<<";
+		but.tooltip = "Backspace";
+		but.bgcolor = 0xffff4444;
+		but.fgcolor = 0xffffffff;
+		but = makeKeyButton("???", 0.125 * 7, 0.125);
+		but.name = "mode";
+		but.font = 0;
+		but.bgcolor = 0xff777777;
+		but.fgcolor = 0xffffffff;
+
+		nextbut=0.375;
+
+		g_mode=-1;
+		nextScrollMode();
+      
+		g_helptxt="""<h1>Welcome to the genetic manipulation room f-one.</h1><br>
+This place is for geeks! Be sure to first get the <b>f9</b> seed and visit the genetic manipulation room <b>f-nine</b>. In this room you can directly modify the <b>f1</b> genotype, so you can build a creature of your dreams here, but it is not easy!<br>
+<br>
+You have to discover the meaning of <b>f1</b> genes. Here are some tips: <b>X</b> creates a stick, parentheses introduce a branching with individual branches separated with a comma. <b>DGB</b> genes determine colors (red, green, blue) of sticks. Capital letters increase a property, lowercase letters decrease it. <b>RCQL</b> genes influence structure (rotation, curvedness, twist, and length).<br>
+<br>
+Try it yourself and enter a few simple genotypes:<br>
+<b>  X<br>
+  XXX<br>
+  XXX(X,XX)<br>
+  RXXX(X,X(GGddbX,DDgbX))</b><br>
+and then introduce more genes.<br>
+<br>
+The part of the body that is created by the gene under your cursor is highlighted in green.<br>
+<br>
+Genes in square brackets <b>[...]</b> describe neurons, receptors, and muscles. The syntax for each neuron is <b>[NeuronType, index: weight, index: weight, ...]</b>. "index" is a relative number of the neuron whose output you want to connect to the current neuron. If you skip "NeuronType", the standard sigmoid neuron will be used. Neurons are introduced by mutations, but if you are brave, you may also edit them manually.<br>
+<br>
+When you write an invalid genotype, an automated correction tool may help, but it will only be able to fix simple errors. Good luck!<br>
+<br>
+<p>(and, if you want to discover more, see <a href="https://www.framsticks.com/a/al_geno_f1.html">here</a>).
+""";
+	}
+	else if (g_format=="9")
+	{
+		g_allowed_chars="LRUDBF"+String.char(8);
+		g_key_width=1.0/7; g_key_height=g_key_width;
+		g_editarea_pos=1.0-g_key_height;
+
+		// colors from f9_oper.cpp, slightly darkened (by 16 per channel)
+		makeKeyButton("L", nextbut, 0).fgcolor = 0xffb80000;
+		makeKeyButton("R", nextbut, 0).fgcolor = 0xffb80086;
+		makeKeyButton("D", nextbut, 0).fgcolor = 0xff0000b8;
+		makeKeyButton("U", nextbut, 0).fgcolor = 0xff0086b8;
+		makeKeyButton("B", nextbut, 0).fgcolor = 0xff00b800;
+		makeKeyButton("F", nextbut, 0).fgcolor = 0xff86b800;
+
+		but = makeKeyButton("<", nextbut, 0);
+		but.text = "<<";
+		but.tooltip = "Backspace";
+		but.bgcolor = 0xffff4444;
+		but.fgcolor = 0xffffffff;
+
+		g_helptxt = """<h1>Welcome to the genetic manipulation room f-nine.</h1><br>
+The <b>f9</b> genetic language is very easy.<br>
+Use 6 capital letters to move in 6 directions:<br><br>
+&nbsp;&nbsp;&nbsp;<b>L</b>eft, <b>R</b>ight,<br>
+&nbsp;&nbsp;&nbsp;<b>D</b>own, <b>U</b>p,<br>
+&nbsp;&nbsp;&nbsp;<b>B</b>ack, <b>F</b>orth<br><br>
+The starting point is black, and the current location is white.<br><br>
+Try it!
+""";
+	}
+	else if (g_format == "F")
+	{
+		g_using_textedit=0;
+		// each fields is array: ["name", min_value, max_value, format]. This could be read from c++ source if fF_genotype.cpp:fF_growth_params were known to the VM
+		g_fields = [["n", 1, 15, "%d"], ["sx", 1.0, 1.1, "%.2f"], ["sy", 1.0, 1.1, "%.2f"], ["sz", 1.0, 1.1, "%.2f"], ["tr", -1.0, 1.0, "%.2f"], ["a1", -3.1415926, 3.1415926, "%.2f"], ["a2", -3.1415926, 3.1415926, "%.2f"]];
+		var b_size = 1.0 / g_fields.size;
+		g_editarea_pos = 1.0 - b_size - 0.15;
+
+		g_types = [function makeInt, function makeFloat, function makeFloat, function makeFloat, function makeFloat, function makeFloat, function makeFloat]; // converting strings to appropriate numeric type
+		g_values = [];
+
+		g_FIRST_BUTTON = 100;
+		g_buttons = [];
+		for(var i = 0; i < g_fields.size; i++)
+		{
+			var b = GUI.newButton("b" + i, "");
+			b.addTo(g_editarea);
+			b.userdata = g_FIRST_BUTTON + i;
+			g_buttons[i] = b;
+			b.font = 5;
+			b.setAutolayout(0, 0, 0, 0, b_size * i, 0.15, b_size, b_size);
+		}
+		g_selected = -1;
+
+		g_min = GUI.newLabel("min", "");
+		g_min.addTo(g_editarea);
+		g_min.align = -1;
+		g_min.fgcolor = 0xffffffff;
+		g_min.visible = 0;
+		g_min.font = 3;
+		g_min.setAutolayout(0, 0, 0, 0, 0.02, 0.02, 1.0 - 0.02 * 2, 0.15 - 0.02 * 2);
+		g_max = GUI.newLabel("max", "");
+		g_max.addTo(g_editarea);
+		g_max.align = 1;
+		g_max.fgcolor = 0xffffffff;
+		g_max.visible = 0;
+		g_max.font = 3;
+		g_max.setAutolayout(0, 0, 0, 0, 0.02, 0.02, 1.0 - 0.02 * 2, 0.15 - 0.02 * 2);
+
+		g_slider = GUI.newSlider("sli", 0, -1, 1);
+		g_slider.addTo(g_editarea);
+		g_slider.setAutolayout(0, 0, 0, 0, 0.02, 0.02, 1.0 - 0.02 * 2, 0.15 - 0.02 * 2);
+		g_slider.visible = 0;
+
+		fun_textToEditor = function ff_textToEditor;
+		fun_textFromEditor = function ff_textFromEditor;
+		fun_events = function ff_events;
+
+		const FF_NONEDITABLE_VALUE = "0.1";
+		const FF_NONEDITABLE_COUNT = 3;
+
+		g_helptxt="""<p>Welcome to the genetic manipulation room <b>f-F</b>. You can modify Foraminifera genes here.
+<p>Click on a gene and use the slider to adjust the value.
+<p>More detailed information about this model is provided <a href="https://www.framsticks.com/foraminifera">here</a>.
+""";
+	} else
+	{
+		g_helptxt="<p>The genetic language used in this genotype is unknown (its signature suggests <b>f%s</b>), so you cannot modify it here!" % g_format;
+		// "Our current technology does not understand the genetics of this creature. However, the signature suggests its genetic encoding is fx. Our tools here cannot help you modify this genotype."
+	}
+	// end format-dependent code
+
+	g_toparea = GUI.newGroup("top");
+
+	var but;
+	but = GUI.newButton("save", "Save & back");
+	but.addTo(g_toparea);
+	but.setAutolayout(0, 0, 0, 0, 0.01, 0.03, 0.3, 0.94);
+	but = GUI.newButton("cancel", "Cancel & back");
+	but.addTo(g_toparea);
+	but.setAutolayout(0, 0, 0, 0, 0.31, 0.03, 0.3, 0.94);
+
+//but=GUI.newButton("share","Share");
+//but.visible=0;
+//g_tools_submenu.add(but);
+	but = GUI.newButton("tools", "");
+	but.image = "tool-icon-shadow";
+	but.style = 1;
+	var tools_menu = GUI.newMenu("tools_menu",g_tools_def);
+	tools_menu.addTo(but);
+	tools_menu.setAutolayout(0,0,0,0,0,0,1,1);
+	tools_menu.visible = 0;
+
+	but.addTo(GUI.top_right);
+	addHelpButton(GUI.top_right);
+
+	if (ShowProperties.fullscreen)
+	{
+		editor.visible = 0;
+		g_editarea.animSetBegin();
+		GUI->helpbut.visible = 0;
+		g_editarea.setAutolayout(0, 0, 0, 0, 0, 1, 1, 1);
+		viewer.setAutolayout(0, 0, 0, 0, 0, 0, 1, 1);
+		g_toparea.setAutolayout(0, 0, 0, 0, 0, -0.15, 1, 0.15);
+	}
+	else
+	{
+		editor.visible = g_using_textedit;
+		GUI->helpbut.visible = 1;
+		g_editarea.setAutolayout(0, 0, 0, 0, 0, g_editarea_pos, 1, 1);
+		viewer.setAutolayout(10, 10, -20, -20, 0, 0, 1, g_editarea_pos);
+		g_toparea.setAutolayout(0, 0, 0, 0, 0, 0, 1, 0.15);
+	}
+
+	if (ShowProperties.whitebg)
+	{
+		editor.fgcolor = 0xff000000;
+		GUI->darken.visible = 0;
+	}
+	else
+		editor.fgcolor = 0xffffffff;
+
+	editor.setAutolayout(0, 0, 0, 0, 0.01, 0.55, 0.98, g_editarea_pos - 0.55);
+}
+
+function ff_textFromEditor()
+{
+	var g = "";
+	for(var i = 0; i < g_fields.size; i++)
+	{
+		if (i > 0) g += ",";
+		g += "%g" % g_values[i];
+		if (i == 0)
+		{
+			for (var n = 0; n < FF_NONEDITABLE_COUNT; n++) g += "," + FF_NONEDITABLE_VALUE;
+		}
+	}
+	return g;
+}
+
+function ff_textToEditor(text, animate)
+{
+	var split = String.split(text, ",");
+
+	while(split.size < g_fields.size)
+		split.add("0");
+
+	while(split.size < (g_fields.size + FF_NONEDITABLE_COUNT))
+		split.insert(1, FF_NONEDITABLE_VALUE);
+
+	for(var i = 0; i < FF_NONEDITABLE_COUNT; i++) split.remove(1);
+
+	for(var i = 0; i < g_fields.size; i++)
+		g_values[i] = call(g_types[i])(split[i]);
+
+	updateButtonLabels();
+	setupSlider();
+}
+
+function updateButtonLabel(i)
+{
+	g_buttons[i].text = g_fields[i][0] + "\n" + (g_fields[i][3] % g_values[i]);
+}
+
+function updateButtonLabels()
+{
+	for(var i = 0; i < g_fields.size; i++)
+		updateButtonLabel(i);
+}
+
+function setupSlider()
+{
+	if (g_selected < 0) return;
+	var f = g_fields[g_selected];
+	g_min.text = " " + (f[3] % f[1]);
+	g_min.visible = 1;
+	g_max.text = "" + (f[3] % f[2]) + " ";
+	g_max.visible = 1;
+	g_slider.min = f[1];
+	g_slider.max = f[2];
+	g_slider.data = g_values[g_selected];
+}
+
+function ff_events(elem, arg)
+{
+	if ((typeof(elem.userdata) == "int") && (elem.userdata >= g_FIRST_BUTTON) && (elem.userdata < (g_FIRST_BUTTON + g_values.size)))
+	{
+		if (g_selected >= 0)
+			g_buttons[g_selected].selected = 0;
+		g_selected = elem.userdata - g_FIRST_BUTTON;
+		g_buttons[g_selected].selected = 1;
+		g_slider.visible = 1;
+		setupSlider();
+		return 1;
+	}
+	switch(elem.name)
+	{
+	case "sli":
+		{
+			var new_value = call(g_types[g_selected])(elem.data);
+			var old_txt = g_fields[g_selected][3] % g_values[g_selected];
+			var new_txt = g_fields[g_selected][3] % new_value;
+			if (new_txt != old_txt)
+			{
+				g_values[g_selected] = call(g_types[g_selected])(new_txt);
+				updateButtonLabel(g_selected);
+				updateEditing();
+			}
+			return 1;
+		}
+	}
+	return 0;
+}
+
+function hideF1NeuronsModal()
+{
+	var was_active = hideModal();
+	GUI.removeElement("neurolist");
+	GUI.removeElement("neurotitle");
+	GUI.removeElement("neurogroup");
+	return was_active;
+}
+
+global g_f1_neurons;
+
+function f1_keys(code)
+{
+	if ((code == GUI.KEY_BACK) && hideF1NeuronsModal())
+		return 1;
+	return 0;
+}
+
+function f1_events(elem, arg)
+{
+	Simulator.print("f1 events:" + elem.name);
+	if (elem.name == "neuro")
+	{
+		if (GUI->neurogroup)
+		   return 1;
+		var gr = GUI.newGroup("neurogroup");
+		gr.bgcolor = 0xcc555555;
+		var title = GUI.newLabel("neurotitle", "Add a neuron:");
+		title.align = 0;
+		title.bgcolor = 0x22ffffff;
+		title.fgcolor = 0xffcccccc;
+		var list = GUI.newList("neurolist");
+		title.addTo(gr);
+		list.addTo(gr);
+		list.row_height = 2 * GUI.fontHeight(2);
+		list.align = 1;
+		list.valign = 0;
+		if (g_f1_neurons == null)
+		{
+			g_f1_neurons = [];
+			for (var i = 0; i < NeuroClassLibrary.count; i++)
+			{
+				NeuroClassLibrary.class = i;
+				g_f1_neurons.add([NeuroClass.name, NeuroClass.longname]);
+			}
+		}
+		for(var n in g_f1_neurons)
+			list.addItem(n[0] + ": " + n[1]);
+		title.setAutolayout(0, 0, 0, 2 * GUI.fontHeight(2), 0, 0, 1, 0);
+		list.setAutolayout(0, 2 * GUI.fontHeight(2), 0, -2 * GUI.fontHeight(2), 0, 0, 1, 1);
+		showModal(gr);
+		gr.setAutolayout(0, 0, 0, 0, 0.2, 0.2, 0.6, 0.6);
+		return 1;
+	}
+	if (elem.name == "neurolist")
+	{
+		var n = g_f1_neurons[GUI->neurolist.selected][0];
+		Simulator.print(n);
+		editor.edit(n);
+		updateEditing();
+		hideF1NeuronsModal();
+		return 1;//must return "handled", otherwise onGUIEvent wants to access removed gui element
+	}
+	if (elem.name == "modal_fade")
+	{
+		hideF1NeuronsModal();
+		return 1;//as above
+	}
+	return 0;
+}
+
+
+function onShowStep()
+{
+	TrackingCam.setOrient(viewer.orient);
+	updatePartLabels();
+}
+
+function setButtonsVisible(names, vis)
+{
+	for(var n in names)
+		GUI["edit" + n].visible = vis;
+}
+
+function genoFromEditor()
+{
+	var t = call(fun_textFromEditor)();
+	return Geno.newFrom(t, g_format, "", "");
+}
+
+function createPartLabels()
+{
+	if (g_partlabels != null) //destroy old
+	{
+		for (var lab in g_partlabels)
+			GUI.removeElement(lab);
+		g_partlabels = null;
+	}
+	if (!ShowProperties.partlabels) return;
+	g_partlabels = [];
+	var m = Model.newFromString(viewer.text);
+	for(var i = 0; i < m.numparts; i++)
+	{
+		var p = m.getPart(i);
+		var lab = GUI.newLabel("part" + i, i);
+		lab.font = 4;
+		lab.bgcolor = 0x88ff0000;
+		lab.align = 0;
+		lab.valign = 0;
+		lab.rect = lab.minimal_rect;
+		lab.height = 0.8 * lab.height;
+//  var lab=GUI.newBubble("part"+i,i);
+		lab.userdata = (p.x, p.y, p.z);
+		g_partlabels.add(lab);
+		lab.addTo(viewer);
+	}
+}
+
+function updatePartLabels()
+{
+	if (g_partlabels == null) return;
+	for (var lab in g_partlabels)
+	{
+		var pos = GLDisplay.project3D(viewer, lab.userdata);
+		if (pos)
+			lab.setPos(pos.x - lab.width / 2, pos.y - lab.height / 2);
+	}
+}
+
+// update model viewer, check validity, update save button state
+function updateEditing()
+{
+	var geno = genoFromEditor();
+	viewer.text = geno.genotype;
+	g_valid = geno.is_valid;
+	var but = GUI->save;
+	if (g_valid)
+	{
+		but.text = "Save & back";
+		but.bgcolor = 0xff66cc66;
+		but.fgcolor = 0xffffffff;
+		viewer.selected = editor.selected;
+		createPartLabels();
+	}
+	else
+	{
+		var fixable = GenMan.validate(geno).is_valid;
+		but.bgcolor = 0xffcc0000;
+		but.text = "Invalid.\n";
+		if (fixable)
+		{
+			but.text += "Click to repair";
+			but.fgcolor = 0xffffffff;
+		}
+		else
+		{
+			but.text += "Cannot repair";
+			but.fgcolor = 0xffffbbbb; //namiastka disable
+		}
+	}
+}
+
+function createMutant(original_g)
+{
+	var new_g = GenMan.mutate(original_g);
+	if (!new_g.is_valid) return null;
+	new_g.info = "mutated '" + original_g.name + "'";
+	return new_g;
+}
+
+function mutate()
+{
+	var g = genoFromEditor();
+	var new_g = createMutant(g);
+	if (new_g != null)
+	{
+		call(fun_textToEditor)(new_g.rawgenotype, 1);
+		updateEditing();
+	}
+}
+
+function showGenotype(txt, guimode)
+{
+	var g = Geno.newFromString(txt); // case 1: contains /*format*/
+	if (!g.is_valid)
+	{
+		g = Geno.newFrom(txt, g_format, "", ""); // case 2: raw genotype for current format
+		if (!g.is_valid)
+		{
+			if (guimode)
+			{
+				GUI.playSound("bzzt");
+				GUI.messageBox("Invalid genotype (Ignored)", txt);
+			}
+			else
+			{
+				Simulator.message("Invalid genotype:\n" + txt, 2);
+			}
+			return 0;
+		}
+	}
+	if (g_format != g.format)
+	{
+		// format changed - reconfigure the editor
+		GUI.removeAll();
+		g_scroll = null;
+		g_partlabels = null;
+		ALsharedResetGUI();
+		prepareEditor(g.format);
+	}
+	call(fun_textToEditor)(g.rawgenotype, 0);
+	updateEditing();
+	return 1;
+}
+
+function paste()
+{
+	var t = GUI.clipboard;
+	if (t != "")
+		showGenotype(t, 1);
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (handleHelp(elem)) return;
+
+	if (fun_events)
+		if (call(fun_events)(elem, arg)) return;
+
+	switch(elem.name)
+	{
+	case "save":
+		{
+			var geno = genoFromEditor();
+			if (g_valid)
+			{
+				GenePools[0].clear();
+				var g = GenePools[0].add(geno);
+				setInitialDataDictionary(g);
+				g.data->edited = 1;
+				g.info_timestamp = Math.time;
+				saveCurrent();
+				ShowManager.show = "AL-eval";
+				return;
+			}
+			else
+			{
+				call(fun_textToEditor)(GenMan.validate(geno).rawgenotype, 0);
+				updateEditing();
+				return;
+			}
+		}
+
+	case "cancel":
+		ShowManager.show = "AL-main";
+		return;
+
+	case "tools":
+		GUI->tools_menu.visible = !GUI->tools_menu.visible;
+		return;
+
+	case "tools_menu":
+		if (g_tools_def[arg][2] == "d 0 1")
+			ShowProperties.[g_tools_def[arg][1]] = g_tools_def[arg][3];
+		else switch(arg)
+			{
+			case 0: mutate(); break;
+			case 1: GUI.clipboard = genoFromEditor().genotype; break;
+			case 2: paste(); break;
+			}
+		return;
+
+	case "mode":
+		nextScrollMode();
+		return;
+	}
+
+	if (String.startsWith(elem.name, "edit"))
+	{
+		var ch = elem.text;
+		if (ch == "<<") ch = String.char(8);
+		editor.edit(ch);
+		updateEditing();
+		return;
+	}
+
+	if (elem.name == "ed")
+	{
+		if (g_valid)
+			viewer.selected = editor.selected;
+	}
+
+	if (elem.name == "mod1")
+	{
+		if (g_valid)
+		{
+			var sel = viewer.selected;
+			if (sel >= 0) editor.selected = sel;
+		}
+	}
+}
+
+function setScrollMode(m)
+{
+	g_mode = m;
+	var i = g_modenames[g_mode];
+	GUI->mode.text = i[0];
+	GUI->mode.tooltip = i[1];
+}
+
+function scrollModeFromScrollLater()
+{
+	GUI.setTimeout("scrolling", 0.5, function scrollModeFromScroll);
+}
+
+function scrollModeFromScroll()
+{
+	if (g_scroll == null) return;
+	var m = int(-g_scroll.scroll_y / g_scroll.page_h + 0.5);
+	m = Math.max(0, Math.min(g_modenames.size - 1, m));
+	if (m != g_mode) setScrollMode(m);
+	scrollModeFromScrollLater();
+}
+
+function nextScrollMode()
+{
+	setScrollMode((g_mode + 1) % g_modenames.size);
+	g_scroll.scroll_y = -g_scroll.page_h * g_mode;
+	scrollModeFromScrollLater();
+}
+
+function onResize()
+{
+	if (g_scroll)
+	{
+		g_scroll.scroll_w = GLDisplay.size_x * 0.125 * 7;
+		g_scroll.page_h = GLDisplay.size_y * 0.25;
+		g_scroll.scroll_h = g_scroll.page_h * g_modenames.size;
+		g_scroll.scroll_y = -g_scroll.page_h * g_mode;
+	}
+}
+
+function onKey(code)
+{
+	if (fun_keys && call(fun_keys)(code))
+		return 1;
+	if (code == GUI.KEY_BACK)
+	{
+		if (hideModal()) return 1;
+		if (closePopup()) return 1;
+		onGUIEvent(GUI["cancel"], null);
+		return 1;
+	}
+//CLI.println("code="+code);
+	if ((code == GUI.KEY_LEFT) || (code == GUI.KEY_RIGHT))
+	{
+		editor.edit(code);
+		if (g_valid)
+			viewer.selected = editor.selected;
+		return 1;
+	}
+	var ch = String.char(code);
+	if ((!ShowProperties.fullscreen) && (String.indexOf(g_allowed_chars, ch) >= 0))
+	{
+		editor.edit(ch);
+		updateEditing();
+	}
+	return 0;
+}
+
+function ShowProperties_whitebg_set()
+{
+	if (ShowProperties.whitebg)
+	{
+		GLDisplay.bgcolor = 0xffffff;
+		GLDisplay.world_visibility = 0;
+		editor.fgcolor = 0xff000000;
+		GUI->darken.visible = 0;
+	}
+	else
+	{
+		GLDisplay.world_visibility = 1;
+		editor.fgcolor = 0xffffffff;
+		GUI->darken.visible = 1;
+	}
+}
+
+function ShowProperties_fullscreen_set()
+{
+	if (ShowProperties.fullscreen)
+	{
+		editor.visible = 0;
+		GUI->helpbut.visible = 0;
+		g_editarea.animSetBegin();
+		g_editarea.setAutolayout(0, 0, 0, 0, 0, 1, 1, 1);
+		g_editarea.animSetEnd();
+		viewer.animSetBegin();
+		viewer.setAutolayout(0, 0, 0, 0, 0, 0, 1, 1);
+		viewer.animSetEnd();
+		g_toparea.animSetBegin();
+		g_toparea.setAutolayout(0, 0, 0, 0, 0, -0.15, 1, 0.15);
+		g_toparea.animSetEnd();
+	}
+	else
+	{
+		editor.visible = g_using_textedit;
+		GUI["helpbut"].visible = 1;
+		g_editarea.animSetBegin();
+		g_editarea.setAutolayout(0, 0, 0, 0, 0, g_editarea_pos, 1, 1);
+		g_editarea.animSetEnd();
+		viewer.animSetBegin();
+		viewer.setAutolayout(10, 10, -20, -20, 0, 0, 1, g_editarea_pos);
+		viewer.animSetEnd();
+		g_toparea.animSetBegin();
+		g_toparea.setAutolayout(0, 0, 0, 0, 0, 0, 1, 0.15);
+		g_toparea.animSetEnd();
+	}
+	if (viewer.width > 0) //workaround: when called before the gui is first displayed (e.g. from command line), viewer.size is not yet calculated and animation would fail
+	{
+		g_toparea.startAnimation(1.0);
+		g_editarea.startAnimation(1.0);
+		viewer.startAnimation(1.0);
+	}
+}
+
+function ShowProperties_partlabels_set()
+{
+	createPartLabels();
+	updatePartLabels();
+}
+
+function ShowProperties_genotype_set()
+{
+	if (!showGenotype(ShowProperties.genotype, 0))
+		showGenotype("""//0
+p: sh = 1, sx = 1, sy = 1, sz = 1, vr = 1, vg = 1, vb = 0
+p: -0.4, -0.8, 0.4, sx = 0.15, sy = 0.15, sz = 0.15, sh = 1, vr = 0, vg = 0, vb = 0
+p: 0.4, -0.8, 0.4, sx = 0.15, sy = 0.15, sz = 0.15, sh = 1, vr = 0, vg = 0, vb = 0
+p: 0, -0.95, 0, sh = 1, sx = 0.25, sy = 0.1, sz = 0.1, vr = 1, vg = 0, vb = 0
+p: -0.35, -0.9, -0.15, sh = 1, sx = 0.25, sy = 0.1, sz = 0.1, ry = 0.6, rz = -0.4, vr = 1, vg = 0, vb = 0
+p: 0.35, -0.9, -0.15, sh = 1, sx = 0.25, sy = 0.1, sz = 0.1, ry = -0.6, rz = 0.4, vr = 1, vg = 0, vb = 0
+j: 0, 1, sh = 1
+j: 0, 2, sh = 1
+j: 0, 3, sh = 1
+j: 0, 4, sh = 1
+j: 0, 5, sh = 1
+""", 0);
+}
+~
+
+property:
+id:whitebg
+name:White background
+type:d 0 1
+
+property:
+id:fullscreen
+name:Full screen
+help:Hide user interface
+type:d 0 1
+
+property:
+id:partlabels
+name:Display part labels
+type:d 0 1
+
+property:
+id:genotype
+name:Genotype to display
+type:s

@@ -1,0 +1,234 @@
+expdef:
+name:Evolutionary optimization (generational)
+info:~
+A simple "evolutionary algorithm" experiment:
+
+- two gene pools (previous and current generation)
+- one population for individuals
+- generational replacement of genotypes
+- selection: tournament, roulette, random 
+- fitness formula entered directly into the group's field
+~
+code:~
+
+@include "standard_placement.inc"
+@include "standard_select.inc"
+@include "standard_loadsave.inc"
+
+function onExpDefLoad()
+{
+	var g = GenePools[0];
+	g.name = "Current generation";
+	g.fitness = "return this.velocity;";
+	g = GenePools.addGroup("Previous generation");
+	g.fitness = "return this.velocity;";
+
+	var p = Populations[0];
+	p.name = "Creatures";
+	p.initial_nn_active = 1;
+	p.initial_perf_measuring = 1;
+	p.death = 1;
+	p.energy = 1;
+	p.selfmask = p.othermask = 1;
+
+	ExpProperties.initialgen = "X";
+	ExpProperties.capacity = 100;
+	ExpProperties.creath = 0.1;
+	ExpProperties.p_nop = 20;
+	ExpProperties.p_mut = 64;
+	ExpProperties.p_xov = 16;
+	ExpProperties.selrule = 2;
+	ExpProperties.evaltime = 1000;
+	ExpState.epoch = 0;
+	ExpState.current = 0;
+}
+
+function onExpInit()
+{
+	var i;
+	Populations[0].clear();
+	GenePools[0].clear();
+	GenePools[1].clear();
+	var g = Geno.newFromString(ExpProperties.initialgen);
+	for (i = 0; i < ExpProperties.capacity; i++)
+		GenePools[0].add(g);
+	ExpState.current = 0;
+	ExpState.epoch = 0;
+}
+
+function onBorn(cr)
+{
+	placeCreatureRandomly(cr, 0, 4);
+	cr.energy0 = 100;
+	cr.energy = cr.energy0;
+	cr.idleen = cr.energy0 / ExpProperties.evaltime;
+}
+
+function onStep()
+{
+	if (Populations[0].size < 1)
+		Populations[0].add(GenePools[0][ExpState.current]);;
+}
+
+function onDied(cr)
+{
+	var g = GenePools[0][ExpState.current];
+	g.instances = 0;
+	g.addPerformanceFromCreature(cr);
+
+	ExpState.current++;
+
+	if (ExpState.current >= GenePools[0].size)
+		prepareNewEpoch();
+}
+
+function prepareNewEpoch()
+{
+	GenePools[1].clear();
+	for (var g in GenePools[0])
+		GenePools[1].add(g.geno);
+	GenePools[0].clear();
+	var retry = 100;
+	while (GenePools[0].size < ExpProperties.capacity)
+	{
+		var g = selectGenotype();
+		if (g == null)
+		{
+			retry--;
+			if (retry < 0)
+			{
+				Simulator.message("Failed to select a genotype, stopping", 2);
+				Simulator.stop();
+				return;
+			}
+			continue;
+		}
+		if (g.is_valid)
+			GenePools[0].add(g.geno);
+	}
+	ExpState.epoch++;
+	ExpState.current = 0;
+	Simulator.checkpoint();
+}
+
+function selectGenotype()
+{
+	var sel;
+	sel = (ExpProperties.p_nop + ExpProperties.p_mut + ExpProperties.p_xov) * Math.rnd01;
+	if (sel < ExpProperties.p_nop)
+		return selectedForCreationInPool(GenePools[1]);
+
+	sel = sel - ExpProperties.p_nop;
+	if (sel < ExpProperties.p_mut)
+	{
+		var selected = selectedForCreationInPool(GenePools[1]);
+		if (selected)
+		{
+			var g = Genotype.newFromGeno(GenMan.mutate(selected.geno));
+			g.gnum = selected.gnum + 1; //generation
+			return g;
+		}
+		return null;
+	}
+
+	var first = selectedForCreationInPool(GenePools[1]);
+	var other = selectedForCreationInPool(GenePools[1]);
+	if ((first != null) && (other != null))
+	{
+		var g = Genotype.newFromGeno(GenMan.crossOver(first.geno, other.geno));
+		if (!g.is_valid)
+			return null;
+		g.gnum = Math.max(first.gnum, other.gnum) + 1; //generation
+		return g;
+	}
+
+	return null;
+}
+
+function ExpProperties_reset_call()
+{
+	ExpState.current = 0;
+	Populations.clearGroup(0);
+}
+
+~
+
+property:
+id:initialgen
+name:Initial genotype
+type:s 1
+
+property:
+id:capacity
+name:Gene pool size
+type:d 1 2000
+
+property:
+id:p_nop
+name:Unchanged
+type:f 0 100
+group:Selection
+
+property:
+id:p_mut
+name:Mutated
+type:f 0 100
+group:Selection
+
+property:
+id:p_xov
+name:Crossed over
+type:f 0 100
+group:Selection
+
+property:
+id:selrule
+name:Selection rule
+type:~
+d 0 5 \~Random\~Fitness-proportional (roulette)\~Tournament (2 genotypes)\~Tournament (3 genotypes)\~Tournament (4 genotypes)\~Tournament (5 genotypes)~
+help:Positive selection: how to choose genotypes for cloning/mutation/crossover
+group:Selection
+
+property:
+id:evaltime
+name:Evaluation time
+type:d 100 100000
+
+property:
+id:restart
+name:Restart epoch
+help:Re-evaluate all genotypes in the current generation
+type:p
+
+property:
+id:creath
+name:Initial elevation
+type:f -1 50
+help:~
+Vertical position (above the surface) where newborn creatures are placed.
+Negative values are only used in the water area:
+  0   = at the surface
+-0.5 = half depth
+-1   = just above the bottom~
+
+state:
+id:notes
+name:Notes
+type:s 1
+help:~
+You can write anything here
+(it will be saved to the experiment file)
+~
+
+state:
+id:epoch
+name:Generation number
+type:d
+flags:16
+
+state:
+id:current
+name:Evaluating genotype
+type:d
+flags:16
+

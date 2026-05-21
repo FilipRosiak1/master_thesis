@@ -1,0 +1,4 @@
+VMNeuronManager.autoload: Neuro classes added: Delay Light Nn PIDP PIDV SeeLight SeeLight2 S0 S1 Thr 
+UserScripts.autoload: 20 user scripts added.
+MainProgram.Start: Application initialized
+MainProgram.Finish: Application ends

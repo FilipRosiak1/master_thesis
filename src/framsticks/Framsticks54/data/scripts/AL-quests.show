@@ -1,0 +1,390 @@
+show:
+name:Quests
+expdef:standard
+code:~
+
+@include "AL-shared.inc"
+@include "AL-quests.inc"
+
+global g_showing_detail, g_current_cat;
+
+function onBack()
+{
+	if (closePopup()) return;
+	if (g_showing_detail) backToCategories();
+	else ShowManager.show = "AL-top";
+}
+
+function onLoad()
+{
+	GLDisplay.simsteps = 0;
+	GLDisplay.user_interaction = 0;
+	GLDisplay.world_visibility = 1;
+	GLDisplay.back_action = "onBack";
+	ShowManager.dispinfo = 0;
+
+	var img = GUI.newImage("caticon", "");
+	img.visible = 0;
+	img.fgcolor = 0xaaffffff;
+	var lab = GUI.newLabel("cattitle", "");
+	lab.font = 3;
+	lab.visible = 0;
+	lab.align = 0;
+
+	var but; //TODO describe in help that "design a creature" means "engineer a genome" using genetic editor.
+
+	initQuestDefinitions();
+	loadQuests();
+	var done = g_quests_state.size;
+
+	var progress = GUI.newGroup("progress");
+	progress.bgcolor = 0x88000000;
+	var progress_fill = GUI.newGroup("");
+	progress_fill.setAutolayout(0, 0, 0, 0, 0.01, 0.05, float(done) / g_quests.size * 0.98, 0.9);
+	progress_fill.bgcolor = 0x6600ff00;
+	progress_fill.addTo(progress);
+	lab = GUI.newLabel("", "Progress: " + done + " / " + g_quests.size + " " + String.char(27) + "tstar_enabled;");
+	lab.addTo(progress);
+	lab.setAutolayout(0, 0, 0, 0, 0, 0, 1, 1);
+	lab.align = 0;
+
+	var li = GUI.newList("cats");
+	li.font = 3;
+	li.setAutolayout(0, 0, 0, 0, 0.05, 0.17, 0.9, 0.82); //the list takes 82% vertically
+	li.align = 1; // list scrolls vertically
+	li.valign = 0; // center list labels vertically
+
+	for(var gr in g_quest_categories)
+	{
+		var status = "";
+		for(var a in gr[3])
+		{
+			status += String.char(27) + "tstar_";
+			if (isQuestCompleted(a)) status += "enabled;";
+			else status += "disabled;";
+		}
+		var icon = gr[2];
+		if (!isQuestCategoryCompleted(gr))
+			icon += "_dis";
+		li.addItem([" " + gr[1] + "\n " + status, icon]);
+	}
+
+	var det = GUI.newTextview("detail", "");
+	det.mode = 1; //html
+	det.visible = 0;
+
+	g_showing_detail = 0;
+}
+
+function onResize()
+{
+	var y = GUI.top_center.rect.height;
+	var h = GLDisplay.size_y - y;
+	var w = GLDisplay.size_x * 0.9;
+	var x = GLDisplay.size_x * 0.05;
+	var m = y / 20;
+	var prog_y = m;
+	if (g_showing_detail)
+	{
+		GUI->caticon.setRect(y + m + m - y * 0.3, m - y * 0.3, y * 1.6, y * 1.6);
+		GUI->cattitle.setRect(y + m + m + y, m, GLDisplay.size_x - 2 * m - 2 * y, y);
+		prog_y -= y + m;
+	}
+	GUI->progress.setRect(y + m, prog_y, GLDisplay.size_x - 2 * y - 2 * m, y - 2 * m);
+	GUI->cats.setRect(x, y, w, h);
+	GUI->cats.row_height = GUI.fontHeight(3) * 3; //depends on the big_font height
+	GUI->detail.setRect(x, y, w, h);
+	var gis = Math.min(GLDisplay.size_x, GLDisplay.size_y) * 0.6;
+}
+
+function unicodeRelationSymbol(rel)
+{
+	var SYMBOLS = {"<": "<", ">": ">", "=": "=", "<=": "≤", ">=": "≥"};
+	return SYMBOLS[rel];
+}
+
+function describeCriterion(crit)
+{
+	var CRITERIA={
+		"format":"genetic encoding",
+		"numparts":"number of parts",
+		"numjoints":"number of sticks",
+		"numneurons":"number of neurons",
+		"velocity":"speed",
+		"water_velocity":"speed in water",
+		"vertpos":"height of the center"};
+	var txt;
+	if (crit[0] == "format")
+		txt = CRITERIA[crit[0]] + " f" + crit[2];
+	else if (crit[0] == "similar_to") //handled separately
+		return null;
+	else
+		txt = CRITERIA[crit[0]] + " " + unicodeRelationSymbol(crit[1]) + " " + crit[2];
+
+	txt = String.replace(txt, "<", "&lt;");
+	txt = String.replace(txt, ">", "&gt;");
+	return txt;
+}
+
+function describeOrigin(origin, simil)
+{
+	var o = "Design or evolve"; //default: origin not specified
+	if (origin == "D")
+		o = "Design";
+	else if (origin == "E")
+		o = "Evolve";
+	o += " a creature";
+	if (simil != null) o += " similar to&nbsp;&nbsp;" + String.char(27) + "tarrowright;<br>";
+	return o + " with:";
+}
+
+function stringFromArray(ar)
+{
+	var s = "";
+	for(var element in ar) s += element;
+	return s;
+}
+
+function htmlListFromArray(ar)
+{
+	var s = "";
+	for(var element in ar) s += "<li>" + element + "<br>";
+	return s;
+}
+
+function describeQuest(quest)
+{
+	var build = [];
+	var simil_gen = similGenotypeFromQuest(quest);
+	var special_origin_description = describeOrigin("", simil_gen);
+	for(var crit in quest->crit)
+	{
+//..."origin" influences the beginning of the sentence (not displayed as a condition) and it is optional in the quest dictionary
+		if (crit[0] == "origin")
+		{
+			special_origin_description = describeOrigin(crit[2], simil_gen);
+			continue;
+		}
+		var d = describeCriterion(crit);
+		if (d != null) build.add(d);
+	}
+	var combined = htmlListFromArray(build);
+	return special_origin_description + combined;
+}
+
+function similGenotypeFromQuest(quest)
+{
+	for(var crit in quest->crit)
+		if (crit[0] == "similar_to")
+			return crit[2];
+	return null;
+}
+
+function backToCategories()
+{
+	onResize();
+	GUI->cats.visible = 1;
+	var r = GUI->cats.rect;
+	GUI->cats.animSetEnd();
+	r.x -= GLDisplay.size_x;
+	GUI->cats.rect = r;
+	GUI->cats.animSetBegin();
+	GUI->cats.startAnimation(0.5);
+	r = GUI->detail.rect;
+	GUI->detail.animSetBegin();
+	r.x += GLDisplay.size_x;
+	GUI->detail.rect = r;
+	GUI->detail.animSetEnd();
+	GUI->detail.startAnimation(0.5);
+	GUI.setTimeout("anim", 0.5, function backToCategories_animFinished);
+	GUI->caticon.animSetBegin();
+	r = GUI->caticon.rect;
+	r.x -= GLDisplay.size_x * 0.8;
+	GUI->caticon.rect = r;
+	GUI->caticon.animSetEnd();
+	GUI->caticon.startAnimation(0.5);
+	GUI->cattitle.animSetBegin();
+	GUI->cattitle.y -= GUI.top_center.rect.height;
+	GUI->cattitle.animSetEnd();
+	GUI->cattitle.startAnimation(0.5);
+	r = GUI->progress.rect;
+	GUI->progress.animSetBegin();
+	r.y += GUI.top_center.rect.height;
+	GUI->progress.rect = r;
+	GUI->progress.animSetEnd();
+	GUI->progress.startAnimation(0.5);
+	g_showing_detail = 0;
+}
+
+function backToCategories_animFinished()
+{
+	GUI->detail.visible = 0;
+	GUI->caticon.visible = 0;
+	GUI->cattitle.visible = 0;
+	onResize();
+}
+
+function showQuests()
+{
+	var cat = g_quest_categories[GUI->cats.selected];
+	g_current_cat = cat;
+	var item_r = GUI->cats.getItemRect(GUI->cats.selected);
+	GUI->cats.selected = -1;
+
+	var r = GUI->cats.rect;
+	GUI->cats.animSetBegin();
+	r.x -= GLDisplay.size_x;
+	GUI->cats.rect = r;
+	GUI->cats.animSetEnd();
+	GUI->cats.startAnimation(0.5);
+	GUI.setTimeout("anim", 0.5, function showQuests_animFinished);
+	GUI->detail.animSetEnd();
+	r = GUI->detail.rect;
+	GUI->detail.visible = 1;
+	r.x += GLDisplay.size_x;
+	GUI->detail.rect = r;
+	GUI->detail.animSetBegin();
+	GUI->detail.startAnimation(0.5);
+	r = GUI->progress.rect;
+	GUI->progress.animSetBegin();
+	r.y -= GUI.top_center.rect.height;
+	GUI->progress.rect = r;
+	GUI->progress.animSetEnd();
+	GUI->progress.startAnimation(0.5);
+
+	if (item_r)
+	{
+		var y = GUI.top_center.rect.height;
+		var h = GLDisplay.size_y - y;
+		var w = GLDisplay.size_x * 0.9;
+		var x = GLDisplay.size_x * 0.05;
+		var m = y / 20;
+		GUI->caticon.visible = 1;
+		GUI->cattitle.visible = 1;
+		var icon = cat[2];
+		if (!isQuestCategoryCompleted(cat)) icon += "_dis";
+		GUI->caticon.image = icon;
+		GUI->cattitle.text = cat[1];
+
+		GUI->caticon.setRect(m + m + y - y * 0.3, m - y * 0.3, y * 1.6, y * 1.6);
+		GUI->caticon.animSetEnd();
+		GUI->caticon.setRect(item_r.x, item_r.y, item_r.height, item_r.height);
+		GUI->caticon.animSetBegin();
+		GUI->caticon.startAnimation(0.5);
+
+		GUI->cattitle.setRect(m + m + y + y, m, GLDisplay.size_x - 2 * y - 2 * m, y);
+		GUI->cattitle.animSetEnd();
+		GUI->cattitle.y -= y;
+		GUI->cattitle.animSetBegin();
+		GUI->cattitle.startAnimation(0.5);
+	}
+
+	var html = "";
+	var level = 1;
+	for(var a_id in cat[3])
+	{
+		var icon;
+		var completed = isQuestCompleted(a_id);
+		var a = g_quests_by_id[a_id];
+		var simil_genotype = similGenotypeFromQuest(a);
+
+		if (completed)
+			icon = "star_enabled";
+		else
+			icon = "star_disabled";
+		var side_creature = "";
+		if (simil_genotype != null)
+		{
+			side_creature = "<a href=\"button:" + (level + 100) + "\"><img src=\"creature:" + String.urlEncode(simil_genotype) + "\" bgcolor=\"#44ffffff\" width=\"4em\"></a>";
+		}
+		else if (completed)
+		{
+			side_creature = "<a href=\"button:" + level + "\"><img src=\"creature:" + String.urlEncode(completed->genotype) + "\" bgcolor=\"#44ffffff\" width=\"4em\"></a>";
+		}
+		html += "<table><tr><td minwidth=\"2.5em\" align=\"right\"><img src=\"" + icon + "\" width=\"2.5em\"></td><td maxwidth=\"15em\">";
+		html += " <b>Goal " + level + "</b><br>";
+		html += describeQuest(a);
+		html += "</td>";
+		html += "<td width=\"30%\" minwidth=\"4em\" maxwidth=\"40%\" align=\"left\">" + side_creature + "</td>";
+		html += "</tr></table>";
+		if (completed)
+			html += "<center>This was first fulfilled by <a color=\"#66ff66\" href=\"button:" + level + "\">" + completed->name + ".</a></center>";
+		html += "<br>";
+		level++;
+	}
+	GUI->detail.text = html;
+	g_showing_detail = 1;
+}
+
+function showQuests_animFinished()
+{
+	GUI->cats.visible = 0;
+	onResize();
+}
+
+global g_fulfilled;
+
+function msgboxClosed(arg)
+{
+	if (arg == 0) // "go to..."
+	{
+		loadHistory();
+		for(var g in GenePools[0])
+			if (g_fulfilled->genotype == g.genotype)
+			{
+				GenePools[0].clear();
+				g.moveTo(GenePools[0]);
+				saveCurrent();
+				ShowManager.show = "AL-main";
+				return;
+			}
+		GUI.messageBox(g_fulfilled->name, "This creature is no longer in your collection.");
+	}
+}
+
+function genotypeClicked(arg)
+{
+	var fulfilled = 1;
+	if (arg > 100)
+	{
+		arg -= 100;
+		fulfilled = 0;
+	}
+	var a_id = g_current_cat[3][arg - 1];
+	if (!fulfilled)
+	{
+		var a = g_quests_by_id[a_id];
+		var simil_gen = similGenotypeFromQuest(a);
+		if (simil_gen != null)
+		{
+			var popup = "<center><img src=\"creature:" + String.urlEncode(simil_gen) + "\" width=60%% height=60%%></center>";
+			GUI.messageBox4("Goal " + arg, popup, "OK", null);
+		}
+	}
+	else
+	{
+		var completed = isQuestCompleted(a_id);
+		if (completed)
+		{
+			g_fulfilled = completed;
+			var popup = "<center><img src=\"creature:" + String.urlEncode(completed->genotype) + "\" width=60%% height=60%%></center>";
+			GUI.messageBox4(completed->name, popup, ["Close", "Go to..."], function msgboxClosed);
+		}
+	}
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (handleHelp(elem)) return;
+	switch(elem.name)
+	{
+	case "cats":
+		showQuests();
+		break;
+	case "detail":
+		genotypeClicked(arg);
+		break;
+	}
+}
+
+~

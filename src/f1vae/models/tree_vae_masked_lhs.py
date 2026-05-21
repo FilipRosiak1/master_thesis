@@ -204,3 +204,69 @@ class FitnessConditionedLHSMaskedTreeGrammarVAE(LHSConditionedMaskedTreeGrammarV
         z = self.reparameterize(mu, logvar)
         reconstruction = self.decode(z, x, teacher_forcing_ratio, fitness_condition=fitness_condition)
         return reconstruction, mu, logvar
+
+
+class StructuralConditionedLHSMaskedTreeGrammarVAE(LHSConditionedMaskedTreeGrammarVAE):
+    def __init__(
+        self,
+        num_classes: int,
+        emb_dim: int,
+        hidden_dim: int,
+        latent_dim: int,
+        max_length: int,
+        pad_rule_idx: int,
+    ) -> None:
+        super().__init__(num_classes, emb_dim, hidden_dim, latent_dim, max_length, pad_rule_idx)
+        self.condition_dim = 3
+        self.decoder = LHSConditionedMaskedTreeAwareDecoder(
+            num_classes=num_classes,
+            emb_dim=emb_dim,
+            hidden_dim=hidden_dim,
+            latent_dim=latent_dim + self.condition_dim,
+            max_length=max_length,
+            pad_rule_idx=pad_rule_idx,
+            lhs_vocab_size=len(self.lhs_map),
+        )
+
+    def _condition_tensor(self, z: torch.Tensor, condition: torch.Tensor | list[float] | tuple[float, ...] | float | None) -> torch.Tensor:
+        if condition is None:
+            return torch.zeros(z.size(0), self.condition_dim, dtype=z.dtype, device=z.device)
+        if not isinstance(condition, torch.Tensor):
+            condition = torch.tensor(condition, dtype=z.dtype, device=z.device)
+        condition = condition.to(device=z.device, dtype=z.dtype)
+        if condition.dim() == 0:
+            condition = condition.repeat(z.size(0), self.condition_dim).view(z.size(0), self.condition_dim)
+        elif condition.dim() == 1:
+            if condition.numel() == self.condition_dim:
+                condition = condition.unsqueeze(0).repeat(z.size(0), 1)
+            elif condition.numel() == z.size(0):
+                condition = condition.unsqueeze(1).repeat(1, self.condition_dim)
+            else:
+                raise ValueError(f"Cannot broadcast condition shape {tuple(condition.shape)}")
+        if condition.size(0) == 1 and z.size(0) != 1:
+            condition = condition.repeat(z.size(0), 1)
+        if condition.shape != (z.size(0), self.condition_dim):
+            raise ValueError(f"Expected condition shape {(z.size(0), self.condition_dim)}, got {tuple(condition.shape)}")
+        return condition
+
+    def decode(
+        self,
+        z: torch.Tensor,
+        target_seq: torch.Tensor | None = None,
+        teacher_forcing_ratio: float = 0.5,
+        max_steps: int | None = None,
+        fitness_condition: torch.Tensor | list[float] | tuple[float, ...] | float | None = None,
+    ) -> torch.Tensor:
+        condition = self._condition_tensor(z, fitness_condition)
+        return self.decoder(torch.cat([z, condition], dim=-1), target_seq, teacher_forcing_ratio, max_steps)
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        fitness_condition: torch.Tensor | list[float] | tuple[float, ...] | float | None = None,
+        teacher_forcing_ratio: float = 0.5,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        reconstruction = self.decode(z, x, teacher_forcing_ratio, fitness_condition=fitness_condition)
+        return reconstruction, mu, logvar

@@ -1,0 +1,127 @@
+show:
+name:Open external file
+expdef:standard
+code:~
+@include "AL-shared.inc"
+
+function onLoad()
+{
+GLDisplay.simsteps = 0;
+GLDisplay.user_interaction=0;
+GLDisplay.world_visibility=1;
+GLDisplay.skybox="cubeworld";
+ShowManager.dispinfo=0;
+
+Simulator.import(ShowManager.openfilename,2);
+
+var li = GUI.newList("genos");
+li.items = function dataForListItem;
+li.item_count = GenePools[0].size;
+li.valign = 0;
+
+if (GenePools[0].size>0)
+  {
+  var lab=GUI.newLabel("title","Importing a genotype " + String.ESC + "Tcut(ddbd)perf_symbols;");
+  lab.align=0; lab.valign=-1;
+  lab.font=3;
+  GUI.newModel("model","");
+  var b=GUI.newButton("ok","Import");
+  b.bgcolor=0xff66cc66; b.fgcolor=0xffffffff;
+  b=GUI.newButton("cancel","Cancel");
+  }
+else
+  {
+  var lab=GUI.newLabel("","Invalid file");
+  lab.setAutolayout(0,0,0,0, 0.1,0.1,0.8,0.8);
+  lab.align=0; lab.valign=0;
+  var b=GUI.newButton("cancel","Back");
+  b.setAutolayout(0,0,0,0, 0.3,0.8,0.4,0.15);
+  }
+
+if (li.item_count>0)
+   {
+   li.selected=0;
+   useSelected();
+   }
+}
+
+function dataForListItem(i)
+{
+return GenePools[0][i].name;
+}
+
+function onResize()
+{
+if (GenePools[0].size>0)
+  {
+  if (GLDisplay.size_x > GLDisplay.size_y)
+	{
+	GUI->title.setAutolayout(0,0,0,0, 0.3,0.05,0.7,0.1);
+	GUI->genos.setAutolayout(0,0,0,0, 0.025,0.05,0.275,0.9);
+	GUI->model.setAutolayout(0,0,0,0, 0.3,0.1,0.7,0.7);
+	GUI->ok.setAutolayout(0,0,0,0, 0.35,0.8,0.25,0.15);
+	GUI->cancel.setAutolayout(0,0,0,0, 0.7,0.8,0.25,0.15);
+	}
+  else
+	{
+	GUI->title.setAutolayout(0,0,0,0, 0,0.025,1,0.05);
+	GUI->model.setAutolayout(0,0,0,0, 0,0.1,1,0.35);
+	GUI->genos.setAutolayout(0,0,0,0, 0.05,0.45,0.9,0.35);
+	GUI->ok.setAutolayout(0,0,0,0, 0.05,0.85,0.4,0.1);
+	GUI->cancel.setAutolayout(0,0,0,0, 0.55,0.85,0.4,0.1);
+	}
+ }
+}
+
+function useSelected()
+{
+var li = GUI->genos;
+var sel = li.selected;
+if (sel < 0) return;
+GUI->model.text = GenePools[0][sel].genotype;
+var ok=selectionIsValid();
+GUI->ok.enabled=ok;
+GUI->ok.bgcolor=ok?0xff66cc66:0xffcc6666;
+GUI->ok.text=ok?"Accept":"Invalid";
+
+}
+
+function selectionIsValid()
+{
+var li = GUI->genos;
+var sel = li.selected;
+if (sel < 0) return 0;
+return GenePools[0][sel].is_valid;
+}
+
+function onGUIEvent(elem,arg)
+{
+switch(elem.name)
+  {
+  case "ok":
+      {
+      if (!selectionIsValid())
+            return;
+      var saved=GenePools[0][GUI->genos.selected];
+      setInitialDataDictionary(saved);
+      saved.data->imported=1;
+      saved.info_timestamp = Math.time;
+      GenePools[0].clear();
+      saved.moveTo(GenePools[0]);
+      saveCurrent();
+      ShowManager.show="AL-eval";
+      }
+      break;
+
+  case "cancel":
+      ShowManager.show=ShowManager.prev_show;
+      if (ShowManager.show=="AL-openfile")
+        ShowManager.show="AL-history";
+      break;
+
+  case "genos":
+      useSelected();
+      break;
+  }
+}
+~

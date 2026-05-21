@@ -1,0 +1,31 @@
+# Assumes "show_evol.sim" was loaded first.
+# Vertical velocity criterion
+sim_params:
+cr_c:0
+cr_life:0
+cr_v:0
+cr_gl:0
+cr_joints:0
+cr_nnsiz:0
+cr_nncon:0
+cr_di:0
+cr_vpos:0
+cr_vvel:1
+cr_norm:0
+cr_simi:0
+
+GenePool:
+name:Genotypes
+fitness:~
+if (this.numparts>50 || this.numjoints>100 || this.numneurons>50 || this.numconnections>100) return -1; //too complex
+return this.vertvel;
+~
+fitfun:0
+fitm:2
+fitma:2
+
+# Intermediate "performance sampling period" in the first population.
+# Averaged performance of sampled values is returned as the final value.
+
+Population:
+perfperiod:100

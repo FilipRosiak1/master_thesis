@@ -1,0 +1,336 @@
+show:
+name:Creature
+expdef:standard
+code:~
+@include "AL-shared.inc"
+@include "AL-quests.inc"
+@include "AL-sending.inc"
+@include "AL-objects.inc"
+
+global g_floating;
+global g_floating_orient;
+global g_restore_anim;
+global g_added_name;
+global _playground_clear; //toggle button on the main screen (this variable is also used in AL-play). The name starts with "_" so the value survives leaving and re-entering this show
+
+
+function printobj3d(o, indent)
+{
+	var t = "";
+	for(var i = 0; i < indent; i++) t += "   ";
+	t += o;
+	t += " \"" + o.name + "\" " + o.material + " (" + o.children + " children) size:" + o.size;
+	Simulator.print(t);
+	for(var i = 0; i < o.children; i++)
+		printobj3d(o[i], indent + 1);
+}
+
+function genotypeByID(id)
+{
+	for(var g in GenePools[0])
+		if (g.num == id) return g;
+	return null;
+}
+
+function addDemoCreatures()
+{
+	//prepare world
+	World.wrldsiz = 20;
+	World.wrldtyp = 1;
+	World.wrldmap = "m 3 3 555595555";
+	World.wrldwat = -10;
+	World.wrldbnd = 2; //teleport
+	ExpProperties.MaxCreated = 0;
+
+	//load and add to population
+	var selected_IDs = [56, 58, 59, 60, 61, 62, 63, 64, 65, 73, 77, 79, 86, 87, 89, 91, 287];
+	Simulator.import("walking.gen");
+	Populations[0].energy = 0;
+	for(var count = 3; count > 0; count--)
+	{
+		var cr = Populations[0].add(genotypeByID(selected_IDs[Math.random(selected_IDs.size)]));
+		cr.nnenabled = 1;
+		var a = Math.rnd01 * Math.pi * 2;
+		cr.locationSetBboxLow(10.0 + 8.0 * Math.cos(a) - cr.bboxSize.x / 2, 10.0 + 8.0 * Math.sin(a) - cr.bboxSize.y / 2, cr.bboxGroundOffset);
+		cr.rotate(0, 0, Math.rnd01 * Math.twopi);
+	}
+}
+
+function beforeLoad()
+{
+	GLDisplay.back_action = "";
+}
+
+function addText3D(txt, align, size, rotation)
+{
+	var ret = null, newline, moretxt = "", t = null, shift = 0.0;
+	while(txt != "")
+	{
+		newline = String.indexOf(txt, "\n");
+		if (newline >= 0)
+		{
+			moretxt = String.substr(txt, newline + 1);
+			txt = String.substr(txt, 0, newline);
+		}
+		else moretxt = "";
+		if (t != null)
+		{
+			if (ret == null) ret = GLDisplay.world3d.add(Obj3D.newEmpty());
+			ret.add(t);
+			shift += size * 1.1;
+		}
+		t = GLDisplay.world3d.add(Obj3D.newText(txt, align, -1, Matrix.newScale(size).rotate((1, 0, 0), 1.57).rotate((0, 1, 0), rotation)));
+		if (shift > 0) t.transform = t.transform.translate((0, 0, -shift));
+		txt = moretxt;
+	}
+	if (ret)
+	{
+		ret.add(t);
+		return ret;
+	}
+	else return t;
+}
+
+function loadCurrentAndDisplayName()
+{
+	loadCurrent();
+	if (g_added_name) g_added_name.delete();
+	g_added_name = addText3D(GenePools[0][0].name, 0, 0.5, 0); //will return null for empty name
+	g_added_name.position = (10, 7.2, 6);
+	Simulator.print("txt=" + typeof(g_added_name));
+}
+
+function performanceRow(label, format, value, value_for_sym, sym_max, sym_format, sym_count)
+{
+	return "<tr><td align=right width=40%>" + label + ":</td><td valign=bottom width=60%>" + (format % value) + ((sym_max > 0) ? symbolsForValue(value_for_sym, sym_max, sym_format, sym_count) : "") + "</td></tr>";
+}
+
+function onLoad()
+{
+	if (_playground_clear == null) //if so, this is the first run because it is not initialized
+		_playground_clear = 0;
+
+	GLDisplay.user_interaction = 2;
+	GLDisplay.world_visibility = 1 + 4 + 8;
+	GLDisplay.dustcolor = 0xffffff;
+	GLDisplay.back_action = "onBack";
+	ShowManager.dispinfo = 0;
+
+	initQuestDefinitions();
+	loadQuests();
+
+	Math.randomize();
+
+	if (ShowManager.prev_show == "")
+		addDemoCreatures();
+
+	loadCurrentAndDisplayName();
+
+	var g = GenePools[0][0];
+	var txt = "";
+	txt += "<table>";
+	if (g.data->imported)
+		txt += performanceRow("Imported", "%s", String.ESC + "Tcut(ddbd)perf_symbols;", 0, 0, 0, 0);
+	if (g.data->edited)
+		txt += performanceRow("Edited", "%s", String.ESC + "Tcut(ddad)perf_symbols;", 0, 0, 0, 0);
+	if (g.data->selections > 0)
+		txt += performanceRow("Selective breeding", "%d <small>generations</small>", g.data->selections, g.data->selections, SCALE_MAX_SELECTIONS, String.ESC + "Tcut(db%sa)perf_symbols_2;", 4);
+	if (g.data->evaluations > 0)
+		txt += performanceRow("Evolved by evaluating", "%d <small>genotypes</small>", g.data->evaluations, scaleNumberOfEvaluations(g.data->evaluations), SCALE_MAX_EVALUATIONS, String.ESC + "Tcut(db%sb)perf_symbols_2;", 4);
+
+	if (g.velocity > 0)
+		txt += performanceRow("Land speed", "%.6f", g.velocity, g.velocity, SCALE_MAX_VELOCITY, String.ESC + "Tcut(dd%sa)perf_symbols;", 4);
+	if (g.vertpos > 0)
+		txt += performanceRow("Height", "%.2f", g.vertpos, g.vertpos, SCALE_MAX_VERTPOS, String.ESC + "Tcut(dd%sb)perf_symbols;", 4);
+	if (g.data->water_velocity > 0)
+		txt += performanceRow("Water speed", "%.6f", g.data->water_velocity, g.data->water_velocity, SCALE_MAX_WATERVELOCITY, String.ESC + "Tcut(dd%sc)perf_symbols;", 4);
+	txt += "</table>";
+
+	var cats = categoryIDsFromQuestIDs(questIDsCompletedByGenotype(g.genotype));
+	if (cats != null)
+	{
+		for(var i = 0; i < cats.size; i++)
+			txt += "<img src=\"" + g_quest_categories_by_id[cats.getKey(i)][2] + "\" width=2em height=2em>";
+	}
+
+	var inf = GUI.newTextview("info", txt);
+	inf.mode = 1; //html
+	inf.fgcolor = 0xff000000;
+
+	var o = Obj3D.newFromCreature(GenePools[0][0].genotype);
+	var pos = (0, 0, 0);
+	var center = o.center;
+	var scale = 2.5 / o.size;
+	center.scale(scale);
+	pos.sub(center);
+	var m = Matrix.newTranslation(pos);
+	m = m.scale(scale);
+	o.transform = m;
+	g_floating_orient = Matrix.new();
+
+	var anchor = Obj3D.newEmpty();
+	anchor.transform = Matrix.newTranslation((10, 10, 4));
+	g_floating = Obj3D.newEmpty();
+
+	GLDisplay.world3d.add(anchor);
+	anchor.add(g_floating);
+	g_floating.add(o);
+
+	CreatureSelection.clear();
+
+	var but;
+	but = GUI.newButton("AL-play", "Playground");
+	but.setAutolayout(0, 0, 0, 0, 0.01, 1.0 - 0.15 - 0.01, 0.3, 0.15);
+	//but.image = "button-icon-main-hand"; //experimenting with icons on buttons... they would help with "mental associations" for rooms (gene editor = letters, evolution = green performance progress plot, playground = robot hand holding a creature, guide evolution = 3x3 grid), but then the GUI would become more crowded and cluttered... the icons need to be properly designed and have appropriate colors (surprisingly, gray, muted, washed out icons were more confusing than black/high-contrast ones)
+	var nbsp = String.char(0xC2)+String.char(0xA0); //non-breaking space
+	var clear = GUI.newCheckbox("clear", "Remove existing creatures on"+nbsp+"entry"); //Alternatively, "Clear on entry" or "Reset on entry" or "Fresh start on entry"
+	clear.style = 1;
+	clear.font = 0;
+	//clear.setAutolayout(...) // moved to onResize()
+	clear.selected = _playground_clear;
+
+	var y = 1.0;
+	var butdefs = [
+	                  ["AL-edit", "Edit genotype"], //"Genetic Lab"
+	                  ["AL-biomorph", "Guide evolution"], //"Evolutionary steps"
+	                  ["AL-evol", "Evolve"]]; //"Evolutionary reactor" (or "loop")
+	for(var b in butdefs)
+	{
+		but = GUI.newButton(b[0], b[1]);
+		y -= 0.15;
+		but.setAutolayout(0, 0, 0, 0, 1.0 - 0.3 - 0.01, y, 0.3, 0.15);
+	}
+	y -= 0.15;
+	but = GUI.newLabel("lab-modify", "Modify this creature:");
+	but.setAutolayout(0, 0, 0, 0, 1.0 - 0.3 - 0.01, y, 0.3, 0.15);
+	but.align = 0;
+	but.valign = 1;
+	but.fgcolor = 0xff000000;
+
+	g_helptxt = """<h1>Welcome to the Artificial Life laboratory!</h1><br>
+Use buttons to visit rooms in the lab. You can guide selection of creatures, see their evolution, play with them, and, if you are really ambitious, you can modify their genes manually in the genetic manipulation room!<br><br>Mutations in the genetic code occur randomly, so your results will be unique.""";
+
+	if (Sharing.supported)
+	{
+		but = GUI.newButton("share", "");
+		but.image = "share-icon-shadow";
+		but.style = 1;
+		but.addTo(GUI.top_right);
+	}
+
+	addHelpButton(GUI.top_right);
+
+	GLDisplay.skybox = "whiteworld_";
+	GLDisplay.envmap_probe_position = (10, 10, 5);
+	addBottleObject();
+
+	TrackingCam.cam_world = 0;
+
+	TrackingCam.cam_change = 1;
+	TrackingCam.setTarget(10, 10, 3, 7);
+	TrackingCam.tick(0);
+
+	TrackingCam.cam_change = 2;
+	TrackingCam.setTarget(10, 10, 3, 12);
+
+	g_restore_anim = 0;
+
+	if (Populations[0].size > 0)
+		GLDisplay.desiredsimspeed = 50;
+
+	g_hide_screenshot = ["AL-play", "lab-modify", "AL-evol", "AL-edit", "AL-biomorph", "helpbut", "share", "clear"];
+	displayTopStatus(makeBreadcrumbPath([BREADCRUMB_YOUR_CREATURES, BREADCRUMB_CURRENT]));
+}
+
+function onResize()
+{
+	if (GUI.rect.width > GUI.rect.height)
+		GUI->info.setRect(0, GUI.top_left.height, Math.min(GUI.fontHeight(2) * 13, GUI.rect.width * 0.7), GUI.rect.height * 0.8 - GUI.top_left.height);
+	else
+		GUI->info.setRect(0, GUI.top_left.height, GUI.rect.width, GUI.rect.height * 0.5 - GUI.top_left.height);
+
+
+	// Let's layout the GUI->clear toggle and its label text, controlling text wrap and how many lines we want
+	const MAIN_BUTTON_WIDTH = 0.3; // Could use GUI["AL-play"].rect.width, but it returns 1.0 - not yet calculated?
+	var button_width = MAIN_BUTTON_WIDTH * GUI.rect.width; //[px]
+	var one_line_toggle_and_label_width = GUI->clear.minimal_rect.width; //[px] the GUI->clear toogle would require as many pixels for its toggle control and label to fit one long line of text
+	
+	var toggle_width = 2.5 * GUI.fontHeight(0); //[px] estimate the width of the toggle control itself (i.e., only the "on/off" button) - in C++: swi.getMinimalSize() in ScriptCheckbox::getMinimalSize_RecommendedHelper()
+	var label_width = one_line_toggle_and_label_width - toggle_width; //[px] width of text label alone
+	
+	//now: we want to ensure the label next to the GUI->clear toggle has 2 lines of text (even if one long line would fit, it is nicer to have two shorter, balanced lines to create a "corner" above the Playground button, keep controls near edges and leave more empty space in the middle)
+	const lines = 1.5; // Ideally, this would be 2 (if we could break lines between every letter), but words are not broken in the middle, so we must add some slack. This value can be tuned for intended/best layout outcomes
+	var width_limit = label_width/lines; //[px]
+	
+	var percentage_limit = (toggle_width+width_limit)/GUI.rect.width;
+	//Simulator.print("percentage_limit = "+percentage_limit);
+	percentage_limit = Math.min(percentage_limit, 0.5); //never more than 0.5 of the screen width (even when this will require more than 2 lines of text), to leave some space to the right column of main buttons (this capping becomes effective only for a large/wide font and/or an extremely narrow portrait screen)
+	
+	GUI->clear.setAutolayout(0, 0, 0, 0, 0.014, 1.0 - 0.22 - 0.01, percentage_limit, 0.05); //0.014 to align the left side with the Playground button
+}
+
+function onShowStep()
+{
+	g_floating_orient = g_floating_orient.mul(Matrix.newRotation((Math.sin(Math.time * 0.03) * 0.01, Math.sin(Math.time * 0.04) * 0.01, Math.sin(Math.time * 0.05) * 0.01)));
+
+	g_floating.transform = g_floating_orient.mul(Matrix.newTranslation((Math.sin(Math.time * 0.21) * 0.2, Math.sin(Math.time * 0.23) * 0.2, Math.sin(Math.time * 0.09) * 0.3)));
+
+	var anim = Math.time;
+	if ((TrackingCam.interacting == 0) && (g_restore_anim == 0))
+	{
+		TrackingCam.setViewDir(90.0 + 30.0 + 20.0 * Math.sin(anim * 0.43), 10.0 + 10.0 * Math.cos(anim * 0.5));
+	}
+	else
+	{
+		if (g_restore_anim == 0)
+			g_restore_anim = Math.time + 5.0;
+	}
+	if ((g_restore_anim > 0) && (Math.time > g_restore_anim))
+	{
+		g_restore_anim = 0;
+	}
+
+//printobj3d(GLDisplay.world3d,0);
+}
+
+function getSharingTitleAndPayload()
+{
+	return ["Share the view or genotype of your current creature", 1+2];
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (handleHelp(elem)) return;
+	if (handleSharing(elem)) return;
+
+	if (elem.name == "clear")
+		_playground_clear = elem.selected;
+
+	if (String.startsWith(elem.name, "AL-"))
+	{
+		ShowManager.show = elem.name;
+		return;
+	}
+}
+
+global g_go_up_scheduled;
+
+function onBack()
+{
+	if (closePopup()) return;
+	if (g_go_up_scheduled)
+	{
+		goUp();
+		return;
+	}
+	GUI.setTimeout("back", 1, function goUp);
+	g_go_up_scheduled = 1;
+	TrackingCam.cam_change = 2;
+	TrackingCam.setTarget(10, 10, 3, 30);
+}
+
+function goUp()
+{
+	ShowManager.show = "AL-history";
+}
+~

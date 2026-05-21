@@ -1,0 +1,70 @@
+# Gene pool: "foraminifera"
+# This gene pool contains creatures that use the "fF" genetic encoding.
+# More information at http://www.framsticks.com/foraminifera
+#
+# Downloaded on 2024-02-18 from Framsticks Experimentation Center
+
+org:
+name:Foraminifera (planispiral)
+genotype:/*F*/13,0.1,0.1,0.1,1.1,1.1,1.1,0.54,2.75,0
+info_timestamp:1442966400.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:http://www.framsticks.com/foraminifera
+info_origin:1
+info_how_created:
+info_performance:
+num:456
+instances:0
+data:
+
+org:
+name:Foraminifera (uniserial)
+genotype:/*F*/8,0.1,0.1,0.1,1.03,1.05,1.05,0,-1.11,1.27
+info_timestamp:1442966400.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:http://www.framsticks.com/foraminifera
+info_origin:1
+info_how_created:
+info_performance:
+num:457
+instances:0
+data:
+
+org:
+name:Foraminifera (twisted biserial)
+genotype:/*F*/11,0.1,0.1,0.1,1.1,1.1,1.1,0.3,0,0
+info_timestamp:1442966400.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:http://www.framsticks.com/foraminifera
+info_origin:1
+info_how_created:
+info_performance:
+num:458
+instances:0
+data:
+
+org:
+name:Foraminifera (trochospiral)
+genotype:/*F*/11,0.1,0.1,0.1,1.1,1.1,1.1,0.8,1.64,0
+info_timestamp:1442966400.0
+info_author:Maciej Komosinski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:http://www.framsticks.com/foraminifera
+info_origin:1
+info_how_created:
+info_performance:
+num:459
+instances:0
+data:
+

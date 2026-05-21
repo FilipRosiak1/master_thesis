@@ -1,0 +1,469 @@
+expdef:
+name:Evolutionary optimization (steady-state), multithreaded
+info:~
+Runs a number of parallelized "standard" experiments, migrating the genotypes between Slave simulations. On each migration the genotypes are also merged and transferred to the main simulator.
+
+The gene pool capacity set in this experiment applies to each parallel simulation, not the main simulation, so the main gene pool will normally contain (N*capacity) genotypes.
+
+Changing the experiment configuration during simulation has no effect - you have to stop/start to transfer the new parameters into the parallelized Slave simulators.
+
+Beware, some advanced features of the "standard" experiment might crash or work incorrectly when used in parallelized mode.
+
+Read more about this experiment:
+http://www.framsticks.com/bib/Komosinski-and-Ulatowski-2013r
+http://www.framsticks.com/bib/Komosinski-and-Ulatowski-2016
+~
+code:~
+
+global SHOULD_STOP;
+global g_goal_reached;
+global g_starttime, g_slavestart, g_slavetiming;
+
+function onExpDefLoad()
+{
+	SHOULD_STOP = 0;
+
+	GenePools[0].name = "Genotypes";
+
+	var p = Populations[0];
+	p.name = "Creatures";
+	p.initial_nn_active = 1;
+	p.initial_perf_measuring = 1;
+	p.death = 1;
+	p.energy = 1;
+	p.selfmask = 0x10001;
+	p.othermask = 0x20001;
+
+	p = Populations.addGroup("Food");
+	p.initial_nn_active = 0;
+	p.initial_perf_measuring = 0;
+	p.death = 1;
+	p.energy = 1;
+	p.selfmask = 0x20002;
+	p.othermask = 0x10002;
+
+	ExpProperties.initialgen = "X";
+	ExpProperties.capacity = 200;
+	ExpProperties.delrule = 0;
+	ExpProperties.MaxCreated = 1;
+	ExpProperties.p_nop = 20;
+	ExpProperties.p_mut = 64;
+	ExpProperties.p_xov = 16;
+	ExpProperties.xov_mins = 0;
+	ExpProperties.selrule = 2;
+	ExpProperties.cr_c = 0;
+	ExpProperties.cr_life = 0;
+	ExpProperties.cr_v = 1;
+	ExpProperties.cr_gl = 0;
+	ExpProperties.cr_joints = 0;
+	ExpProperties.cr_nnsiz = 0;
+	ExpProperties.cr_nncon = 0;
+	ExpProperties.cr_di = 0;
+	ExpProperties.cr_vpos = 0;
+	ExpProperties.cr_vvel = 0;
+	ExpProperties.cr_norm = 0;
+	ExpProperties.cr_simi = 0;
+	ExpProperties.Energy0 = 1000;
+	ExpProperties.e_meta = 1;
+	ExpProperties.feed = 0;
+	ExpProperties.feede0 = 200;
+	ExpProperties.feedtrans = 1;
+	ExpProperties.placement = 0;
+	ExpProperties.rotation = 0;
+	ExpProperties.creath = 0.1;
+	ExpProperties.foodgen = "";
+
+	ExpProperties.minfitness = 0;
+}
+
+function onExpInit()
+{
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	Genotype.newFromString(ExpProperties.initialgen).moveTo(GenePools[0]);
+	Interface.makeFrom(ExpState.*).setAllDefault(); //reset all values to 0 unless defaults are defined otherwise
+}
+
+function onStep()
+{
+	Simulator.sleep(10);
+
+	if (GenePools[0].size == 0) //should be in onStart() but stopping inside onStart() might be dangerous
+	{
+		Simulator.stop();
+		Simulator.message("No genotypes, aborting", 2);
+	}
+
+	//Simulator.print("step...");
+}
+
+// Randomly splits N objects into groups
+function randomAllocation(N, num_groups)
+{
+	var all = [];
+	for (var i = 0; i < N; i++)
+		all[i] = i;
+	var ret = [];
+	for (var g = 0; g < num_groups; g++)
+	{
+		var elems = [];
+		var number_of_elements = all.size / (num_groups - g);
+		for (var i = 0; i < number_of_elements; i++)
+		{
+			var e = Math.random(all.size);
+			elems.add(all[e]);
+			all.remove(e);
+		}
+		ret.add(elems);
+	}
+	return ret;
+}
+
+// Used in multithreaded Convection Selection, see http://www.framsticks.com/files/common/MultithreadedEvolutionaryDesign.pdf
+// Splits N genotypes into groups based on intervals ("bands") of fitness.
+// TODO add shifting (so these intervals are not fixed) and see if that makes any difference (if they are constant, that probably supposedly may sometimes facilitate stagnation within each interval?...)
+// TODO adjust interval widths inv. proportionally to the number of genotypes, to counteract loss of diversity
+function intervalEqualWidthAllocation(pool, num_groups)
+{
+	var best = pool.best();
+	var worst = pool.worst();
+	var ret = [];
+	for (var g = 0; g < num_groups; g++)
+	{
+		var elems = [];
+		var min = worst.fit2 + (best.fit2 - worst.fit2) * g / num_groups;
+		var max = worst.fit2 + (best.fit2 - worst.fit2) * (g + 1) / num_groups;
+		for (var i = 0; i < pool.size; i++)
+		{
+			if (pool[i].fit2 >= min && pool[i].fit2 <= max)
+				elems.add(i);
+		}
+		if (elems.size == 0) //no genotypes in this fitness interval?
+		{
+			if (g == 0) //is this the first ("worst") interval? so the worst genotype is even better and it is "above" this interval
+				elems.add(worst.index); //let this slave work on the worst genotype (since we don't want to introduce new genotypes here, like initialgen)
+			else
+				elems = ret[ret.size - 1]; //let this slave work on genotypes from the worse interval (try to "fix the convection gap")
+		}
+		ret.add(elems);
+	}
+	return ret;
+}
+
+function compareFitness(g1, g2) //for sorting genotypes in intervalEqualNumberAllocation()
+{
+	return g1.fit < g2.fit;
+}
+
+function intervalEqualNumberAllocation(pool, num_groups)
+{
+	var genos = [];
+	for(var g in pool)
+		genos.add(g);
+	genos.sort(function compareFitness);
+	var ret = [];
+	var from = 0;
+	//now that we have genotypes sorted according to fitness, we divide the genos vector into num_groups sections (each from..to)
+	for(var g = 0; g < num_groups; g++)
+	{
+		var elems = [];
+		var to = genos.size * (g + 1) / num_groups;
+		for(var e = from; e < to; e++)
+			elems.add(genos[e].index);
+		from = to;
+		ret.add(elems);
+	}
+	return ret;
+}
+
+
+function onStart()
+{
+	SHOULD_STOP = 0;
+	g_starttime = Math.time;
+	Simulator.slaves.stopAll();
+	Simulator.slaves.cancelAllEvents();
+	Simulator.slaves.size = getExpPropertiesThreads();
+	var t0 = Math.time;
+
+	var exported_settings = Simulator.export(null, 4 + 16 + 32, -1, -1); // -1 = export all groups
+	//Simulator.print("exported="+exported_settings);
+
+	for (var i = 0; i < Simulator.slaves.size; i++)
+	{
+		var s = Simulator.slaves[i];
+		s.expdef = "standard";
+		s.import("string://" + exported_settings, 4 + 8 + 16);
+	}
+
+	sendToSlaves();
+	GenePools[0].mergeInstances();
+	ExpState.migration_time += Math.time - t0;
+	Simulator.slaves.startAll();
+	g_slavestart = Math.time;
+	g_slavetiming = Simulator.slaves.size;
+}
+
+function onStop()
+{
+	if (SHOULD_STOP) //stop() was called by our internal stopping condition
+	{
+		SHOULD_STOP = 0; //"use" this value so that it does not persist
+		return; //slaves are already stopped and loadFromSlaves()'ed, so don't do anything
+	}
+	Simulator.slaves.stopAll();
+	ExpState.slave_time += (Math.time - g_slavestart) * g_slavetiming;
+	g_slavetiming = 0;
+	Simulator.slaves.cancelAllEvents();
+	if (ExpProperties.merge_unfinished)
+	{
+		var t0 = Math.time;
+		loadFromSlaves();
+		ExpState.migration_time += Math.time - t0;
+	}
+	ExpState.real_time += Math.time - g_starttime;
+}
+
+function onSlaveStop()
+{
+	Simulator.print("slave #" + StopEvent.index + " stopped");
+}
+
+function exportSelectedGenotypes(selection)
+{
+	var f = File.new(); //File.new() creates a new memory file, its content is then returned as a text string upon closing
+	for (var i = 0; i < selection.size; i++)
+		f.writeNameObject("org", GenePools[0][selection[i]]);
+	return f.close();
+}
+
+function loadFromSlaves()
+{
+	Simulator.print("loading genotypes from slaves... (migrations=" + ExpState.migrations + ")");
+	GenePools[0].clear();
+	for (var i = 0; i < Simulator.slaves.size; i++)
+	{
+		var s = Simulator.slaves[i];
+		var fromslave = s.export(null, 2, 0, 0);
+		Simulator.import("string://" + fromslave, 2 + 128);
+		ExpState.totaltestedcr += s.expstate.totaltestedcr;
+		ExpState.totaltests += s.expstate.totaltests;
+	}
+	ExpState.migrations++;
+	Simulator.checkpointData(ExpState.migrations);
+	if (ExpProperties.max_migrations > 0 && ExpState.migrations >= ExpProperties.max_migrations)
+		SHOULD_STOP = 1;
+}
+
+function printFitnesses(allocation)
+{
+	for (var i = 0; i < allocation.size; i++)
+	{
+		var s = "";
+		for(var e = 0; e < allocation[i].size; e++)
+			s += "," + GenePools[0][allocation[i][e]].fit2;
+		Simulator.print("" + i + "\t" + s);
+	}
+}
+
+function sendToSlaves()
+{
+	Simulator.print("sending genotypes to slaves...");
+
+	GenePools[0].splitInstances();
+
+	var mixed = []; //mixed[i] = genotypes exported for slave #i
+
+	if (GenePools[0].size <= ExpProperties.capacity)
+	{
+		// no need to randomize, each slave gets the complete pool of genotypes. For convection distribution, interval allocations could be used, but this is a rare situation anyway and in this situation sending all genotypes to each slave is not a bad idea
+		var exported_gen = Simulator.export(null, 2, 0, -1); // 0 = export pool #0
+		for (var i = 0; i < Simulator.slaves.size; i++)
+			mixed[i] = exported_gen;
+	}
+	else
+	{
+		// distribute genotypes
+		var a = null;
+		if (ExpProperties.distrrule == 0) a = randomAllocation(GenePools[0].size, Simulator.slaves.size);
+		//convection distributions gave better and more interesting results, and facilitated continuous progress - see http://www.framsticks.com/files/common/MultithreadedEvolutionaryDesign.pdf
+		if (ExpProperties.distrrule == 1) a = intervalEqualWidthAllocation(GenePools[0], Simulator.slaves.size);
+		if (ExpProperties.distrrule == 2) a = intervalEqualNumberAllocation(GenePools[0], Simulator.slaves.size);
+		//Simulator.print("alloc="+a);
+		//printFitnesses(a);
+		for (var i = 0; i < a.size; i++)
+			mixed[i] = exportSelectedGenotypes(a[i]);
+	}
+
+	//Simulator.print("mixed="+mixed);
+
+	for (var i = 0; i < Simulator.slaves.size; i++)
+	{
+		var s = Simulator.slaves[i];
+		s.genepools[0].clear();
+		s.import("string://" + mixed[i], 2 + 128); // import into slave
+		Simulator.print("slave #" + i + " has " + s.genepools[0].size + " genotypes");
+		s.genepools[0].mergeInstances();
+		s.expstate.totaltestedcr = 0;
+		s.expstate.totaltests = 0;
+	}
+
+	if (ExpProperties.keep_threads_running)
+		g_goal_reached = [0] * Simulator.slaves.size;
+	else
+		g_goal_reached = null;
+}
+
+function testAllGoalsReached()
+{
+	for (var v in g_goal_reached)
+		if (!v)
+			return 0;
+	return 1;
+}
+
+function onSlaveCheckpoint()
+{
+	//Simulator.print("slave #"+CheckpointEvent.index+" checkpoint:"+CheckpointEvent.data);
+	if (CheckpointEvent.data >= (ExpProperties.capacity * ExpProperties.mix_period / 100)) //desired number of evaluations?
+	{
+		if (g_goal_reached)
+		{
+			if (g_goal_reached[CheckpointEvent.index])
+				return ; //already handled
+
+			Simulator.print("Slave #" + CheckpointEvent.index + " " + CheckpointEvent.data + " evaluations");
+			g_goal_reached[CheckpointEvent.index] = 1;
+			if (testAllGoalsReached())
+			{
+				Simulator.slaves.stopAll();
+				ExpState.slave_time += (Math.time - g_slavestart) * g_slavetiming;
+				g_slavetiming = 0;
+				Simulator.slaves.cancelAllEvents();
+			}
+		}
+		else
+		{
+			Simulator.print("Slave #" + CheckpointEvent.index + " " + CheckpointEvent.data + " evaluations, stopping");
+			CheckpointEvent.slave.stop();
+			ExpState.slave_time += Math.time - g_slavestart;
+			g_slavetiming--;
+			Simulator.slaves.cancelEventsFromSlave(CheckpointEvent.slave);
+		}
+
+		if (Simulator.running && (Simulator.slaves.running == 0))
+		{
+			Simulator.print("migrating slave simulations...");
+			var t0 = Math.time;
+			loadFromSlaves(); // may set SHOULD_STOP
+			if (SHOULD_STOP)
+			{
+				Simulator.message("Done %d migrations, stopping." % ExpState.migrations, 0);
+				Simulator.stop();
+				GenePools[0].mergeInstances();
+				ExpState.migration_time += Math.time - t0;
+			}
+			else
+			{
+				sendToSlaves();
+				GenePools[0].mergeInstances();
+				ExpState.migration_time += Math.time - t0;
+				Simulator.slaves.startAll();
+				g_slavestart = Math.time;
+				g_slavetiming = Simulator.slaves.size;
+			}
+		}
+		else
+			Simulator.print("" + Simulator.slaves.running + " still running");
+	}
+}
+
+@include "standard_fitformula.inc"
+@include "standard_loadsave.inc"
+@include "standard_threads.inc"
+
+~
+
+#include "standard_props.inc"
+#include "standard_props_extras.inc"
+#include "standard_props_threads.inc"
+
+property:
+group:Parallelized
+id:mix_period
+name:Migration period
+help:Migrate genotypes after evaluating at least that many creatures in every simulation (percentage of the gene pool capacity)
+type:d 1 100000 1000
+
+property:
+group:Parallelized
+id:max_migrations
+name:Max number of migrations
+help:Number of migrations after which the experiment will automatically stop. 0 to disable this limit.
+type:d 0 100000 0
+
+property:
+group:Parallelized
+id:distrrule
+name:Distribution rule
+help:How to distribute genotypes to slave simulators? For details see http://www.framsticks.com/files/common/MultithreadedEvolutionaryDesign.pdf
+type:d 0 2 2 ~Randomly~Convection - fitness intervals (equal fitness width)~Convection - fitness intervals (equal number of genotypes)
+
+property:
+group:Parallelized
+id:keep_threads_running
+name:Maximize thread running time
+help:Keep each thread running after it completes the requested number of evaluations, until all threads do so. Otherwise threads that completed their work will wait for other threads to complete, wasting time but ensuring that each thread evaluates the same number of creatures.
+type:d 0 1 1
+
+property:
+group:Parallelized
+id:merge_unfinished
+name:Merge unfinished results
+help:Perform final migration when the experiment is stopped: slaves will deliver as much as they were able to evolve so that no work will be wasted.
+type:d 0 1 1
+
+state:
+id:migration_time
+name:Migration time
+help:Time spent on migration
+type:f
+flags:16
+
+state:
+id:slave_time
+name:Slave working time
+help:Total time spent by running slaves
+type:f
+flags:16
+
+state:
+id:real_time
+name:Working time
+help:Real time elapsed (stop-start)
+type:f
+flags:16
+
+state:
+id:totaltestedcr
+name:Evaluated creatures
+help:Total number of creatures evaluated in the experiment
+type:d
+flags:16
+
+state:
+id:totaltests
+name:Number of evaluations
+help:~
+Total number of evaluations in the experiment.
+This is equivalent to "Evaluated creatures" unless multiple evaluation is activated.~
+type:d
+flags:16
+
+state:
+id:migrations
+name:Migrations
+help:Number of migrations
+type:d
+flags:16

@@ -8,6 +8,7 @@ from .tree_vae_masked_lhs import (
     FitnessConditionedLHSMaskedTreeGrammarVAE,
     LHSConditionedMaskedTreeGrammarVAE,
     LHSDepthConditionedMaskedTreeGrammarVAE,
+    StructuralConditionedLHSMaskedTreeGrammarVAE,
 )
 from .vq_grammar_ae import VQGrammarAE
 
@@ -21,5 +22,6 @@ __all__ = [
     "LHSConditionedMaskedTreeGrammarVAE",
     "LHSDepthConditionedMaskedTreeGrammarVAE",
     "FitnessConditionedLHSMaskedTreeGrammarVAE",
+    "StructuralConditionedLHSMaskedTreeGrammarVAE",
     "VQGrammarAE",
 ]

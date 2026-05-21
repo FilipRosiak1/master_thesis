@@ -29,7 +29,7 @@ from f1vae.inference.evaluate import reconstruction_metrics
 from f1vae.models.registry import build_model, dataset_class_for_model
 
 
-TREE_MODELS = {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs", "tree_vae_masked_lhs_depth", "tree_vae_masked_lhs_cond"}
+TREE_MODELS = {"tree_vae", "tree_vae_masked", "tree_vae_masked_lhs", "tree_vae_masked_lhs_depth", "tree_vae_masked_lhs_cond", "tree_vae_masked_lhs_struct_cond"}
 MODIFIERS = set("RrQqCcLlWwMmIiFfAaSsEe")
 
 

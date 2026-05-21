@@ -68,6 +68,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mutation-attempts", type=int, default=2000)
     parser.add_argument("--mutation-require-grammar", action="store_true")
     parser.add_argument("--condition-fitness", type=float, default=None)
+    parser.add_argument("--condition-length", type=float, default=None)
+    parser.add_argument("--condition-segments", type=float, default=None)
     parser.add_argument("--seed", type=int, default=321)
     parser.add_argument("--output", default=None)
     parser.add_argument("--history-output", default=None)
@@ -281,14 +283,36 @@ def _plot_history(path: Path, rows: list[dict[str, Any]]) -> bool:
     return True
 
 
-def _condition_value(raw_fitness: float | None, run_config: dict[str, Any], checkpoint_meta: dict[str, Any]) -> float | None:
-    if raw_fitness is None:
+def _normalize_target(raw: float | None, mean: Any, std: Any, default: float = 0.0) -> float:
+    if raw is None:
+        return default
+    if mean is None or std is None:
+        return float(raw)
+    return (float(raw) - float(mean)) / max(float(std), 1e-8)
+
+
+def _condition_value(model, args, run_config: dict[str, Any], checkpoint_meta: dict[str, Any]) -> Any:
+    condition_dim = int(getattr(model, "condition_dim", 0))
+    if condition_dim <= 0:
         return None
-    fitness_mean = checkpoint_meta.get("fitness_mean", run_config.get("fitness_mean"))
-    fitness_std = checkpoint_meta.get("fitness_std", run_config.get("fitness_std"))
-    if fitness_mean is None or fitness_std is None:
-        return raw_fitness
-    return (raw_fitness - float(fitness_mean)) / max(float(fitness_std), 1e-8)
+    fitness = _normalize_target(
+        args.condition_fitness,
+        checkpoint_meta.get("fitness_mean", run_config.get("fitness_mean")),
+        checkpoint_meta.get("fitness_std", run_config.get("fitness_std")),
+    )
+    if condition_dim == 1:
+        return fitness if args.condition_fitness is not None else None
+    length = _normalize_target(
+        args.condition_length,
+        checkpoint_meta.get("length_mean", run_config.get("length_mean")),
+        checkpoint_meta.get("length_std", run_config.get("length_std")),
+    )
+    segments = _normalize_target(
+        args.condition_segments,
+        checkpoint_meta.get("segments_mean", run_config.get("segments_mean")),
+        checkpoint_meta.get("segments_std", run_config.get("segments_std")),
+    )
+    return [fitness, length, segments][:condition_dim]
 
 
 def main() -> None:
@@ -339,7 +363,7 @@ def main() -> None:
         ).to(device)
         model.load_state_dict(state_dict)
         model.eval()
-        condition_value = _condition_value(args.condition_fitness, run_config, checkpoint_meta)
+        condition_value = _condition_value(model, args, run_config, checkpoint_meta)
 
         seed_entries = _make_seed_entries(
             seed_source=args.seed_source,
@@ -461,6 +485,8 @@ def main() -> None:
                         "seed_min_fitness": args.seed_min_fitness,
                         "seed_max_fitness": args.seed_max_fitness,
                         "condition_fitness": args.condition_fitness,
+                        "condition_length": args.condition_length,
+                        "condition_segments": args.condition_segments,
                         "condition_value": condition_value,
                         "mutation_require_grammar": args.mutation_require_grammar,
                     }

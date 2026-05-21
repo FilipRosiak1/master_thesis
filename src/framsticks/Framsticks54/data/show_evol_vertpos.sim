@@ -1,0 +1,48 @@
+# Assumes "show_evol.sim" was loaded first.
+# Vertical position criterion - see the custom GenePool fitness below.
+sim_params:
+cr_c:0
+cr_life:0
+cr_v:0
+cr_gl:0
+cr_joints:0
+cr_nnsiz:0
+cr_nncon:0
+cr_di:0
+cr_vpos:1
+cr_vvel:0
+cr_norm:0
+cr_simi:0
+
+
+GenePool:
+name:Genotypes
+fitness:~
+if (this.numparts>50 || this.numjoints>100 || this.numneurons>50 || this.numconnections>100) return -1; //too complex
+
+// Unfortunately, using true vertical position for optimization yields a very discouraging fitness landscape when
+// evolution starts from simplest genotypes (like "X"). This is because the more sticks are added, the
+// lower negative vertical position (a flat creature is pressed into the ground).
+// To speed up evolution at this initial stage, we slightly modify fitness for creatures that have vertical
+// position below 0. If they have few sticks, we encourage more sticks. If they have enough sticks, we encourage volume.
+
+if (this.vertpos<0) //completely flat, pressed into ground. Let's build a better fitness landscape.
+{
+  if (this.numjoints<5) return 0.00000001*this.numjoints; //encourage more sticks
+  else if (this.numjoints<10) //enough sticks (5..9) to expect some volume
+  {
+    var m=this.getModel();
+    return 0.0000001*Math.min(Math.min(m.bboxSize.x,m.bboxSize.y),m.bboxSize.z); //encourage more volume
+  }
+}
+return this.vertpos; //either has true positive vertpos or has negative but >=10 sticks, so doesn't need fake fitness
+~
+fitfun:0
+fitm:2
+fitma:2
+
+# Very low "performance sampling period" in the first population to sample performance very often during lifespan
+# and avoid overlooking some behavior. Averaged performance of sampled values is returned as the final value.
+
+Population:
+perfperiod:2

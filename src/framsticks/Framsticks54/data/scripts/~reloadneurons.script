@@ -1,0 +1,21 @@
+# the '~' in file name is only used as a trick to make this script load first and appear on top of other script buttons in GUI
+script:
+name:Reload neuron definitions
+help:Reloads scripts/*.neuro files
+group:
+code:~
+function main()
+{
+	Simulator.reloadNeurons();
+	var msg = "";
+	for(var pop in Populations)
+		for(var cr in pop)
+		{
+			var outdated = cr.outdated_neuro_classes;
+			if (outdated != null)
+				msg += " - " + pop.name + "[" + pop.index + "] / #" + cr.uid + " " + cr.name + ": " + outdated + "\n";
+		}
+	if (msg != "")
+		Simulator.message("The following creatures are using outdated neuron definitions.\nRe-create these creatures to use current neuron definitions.\n" + msg, 1);
+}
+~

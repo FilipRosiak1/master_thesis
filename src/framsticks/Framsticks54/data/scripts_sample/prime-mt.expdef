@@ -1,0 +1,173 @@
+expdef:
+name:Prime - Multithreaded
+code:~
+
+global g_scheduled; //number of scheduled tasks
+
+function onExpDefLoad()
+{
+  GenePools.clear();
+  Populations.clear();
+  ExpParams.from_number = 1;
+  ExpParams.to_number = 100;
+  ExpParams.chunk = 10;
+  g_scheduled = 0;
+  onExpInit();
+}
+
+function onExpInit()
+{
+  ExpState.current_number = ExpParams.from_number;
+  ExpState.packet_counter = 0;
+  ExpState.result = [];
+}
+
+function onStep()
+{
+// All serious work is performed by slave simulators, but the supervising
+// simulator is also running and executing steps during the experiment
+// just to conform to the usual Framsticks behavior in GUI and other environments.
+// 
+// The empty onStep() would result in thousands of empty cycles/second and
+// would waste a lot of processing power for doing nothing, hence the sleep()
+// function that makes sure we only perform 10 empty steps per second and
+// give up the rest of CPU to the other tasks.
+
+	Simulator.sleep(100);
+	//Simulator.print("step...");
+}
+
+function onStart()
+{
+	Simulator.slaves.stopAll();
+	Simulator.slaves.size=getExpParamsThreads();
+	Simulator.print("Using "+Simulator.slaves.size+" threads");
+	g_scheduled = 0;
+	var i;
+	for(i=0;i<Simulator.slaves.size;i++)
+	{
+		scheduleChunkOfWork(Simulator.slaves[i]);
+	}
+}
+
+function onStop()
+{
+	if (g_scheduled>0)
+		Simulator.print("aborted?"); //this must have been an external stop() because we would not call stop() when g_scheduled>0
+	Simulator.slaves.stopAll();
+	Simulator.slaves.cancelAllEvents();
+}
+
+function scheduleChunkOfWork(slave)
+{
+if (ExpState.current_number <= ExpParams.to_number)
+  {
+   if (slave.running)
+   {
+      Simulator.print("Slave simulator is still running in scheduleChunkOfWork(); this should never happen unless there are bugs in Framsticks or expdef code!");
+      return; //or stop() and continue scheduling, but something went wrong anyway
+   }
+   slave.expdef="prime";
+   slave.expparams.from_number=ExpState.current_number;
+   slave.expparams.to_number=Math.min(ExpState.current_number+ExpParams.chunk-1,ExpParams.to_number);
+   slave.init();
+//   Simulator.print("slave #"+slave.identity+" scheduled "+slave.expparams.from_number+"..."+slave.expparams.to_number);
+   ExpState.current_number=slave.expparams.to_number+1;
+   slave.start();
+   g_scheduled++;
+  }
+}
+
+function onSlaveStop()
+{
+g_scheduled--;
+//Simulator.print("slave #"+StopEvent.index+" stopped");
+
+// For many experiments, saving the experiment state could be a more appropriate way for retrieving the result:
+// var s=StopEvent.slave.save(null); //null=save to string instead of named file
+// Simulator.print("saved by #"+StopEvent.index+" :"+s);
+
+// But here, we access the ExpState.result field directly:
+var res=StopEvent.slave.expstate.result;
+//Simulator.print("slave #"+StopEvent.index+" result:"+res);
+ExpState.packet_counter++;
+var i;
+for(i=0;i<res.size;i++)
+	ExpState.result.add(res[i]);
+
+  if (Simulator.running)
+  {
+   scheduleChunkOfWork(StopEvent.slave);
+
+   // It may be tempting to use Simulator.slaves.running to see if the computation
+   // is still advancing, but the right way is g_scheduled:
+   // g_scheduled==0 means that there is no scheduled work because we are done.
+   // Simulator.slaves.running==0 could mean the same, but it could also be 0
+   // because all the simulations have finished their current jobs and are waiting
+   // for the next assignments.
+
+   if (g_scheduled==0)
+      Simulator.stop();
+ }
+}
+
+function onSlaveCheckpoint()
+{
+	//This could be used to accumulate data progressively (instead of waiting for a complete set in onSlaveStop()).
+	Simulator.print("slave #"+CheckpointEvent.index+" checkpoint:"+CheckpointEvent.data);
+}
+
+function onExpLoad()
+{
+	Loader.addClass(ExpParams.*);
+	Loader.addClass(ExpState.*);
+	Loader.run();
+}
+
+function onExpSave()
+{
+	File.writeComment("saved by '%s.expdef'" % Simulator.expdef);
+	File.writeObject(ExpParams.*);
+	File.writeObject(ExpState.*);
+}
+
+@include "standard_threads.inc"
+
+~
+
+#include "standard_props_threads.inc"
+
+prop:
+id:chunk
+name:Work unit size
+group:Parallelized
+type:d
+
+prop:
+id:from_number
+name:First number
+type:d
+
+prop:
+id:to_number
+name:Last number
+type:d
+
+state:
+id:current_number
+name:Next number to test (read only)
+type:d
+flags:16
+
+state:
+id:result
+name:Found primes
+type:x 1
+flags:16
+
+state:
+id:packet_counter
+name:Result packets received
+type:d
+flags:16
+

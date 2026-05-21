@@ -1,0 +1,95 @@
+show:
+name:Performance evaluator
+info:
+expdef:standard-eval
+code:~
+
+@include "AL-shared.inc"
+@include "AL-quests.inc"
+
+function onLoad()
+{
+	GLDisplay.desiredsimspeed = 9999;
+	GLDisplay.user_interaction = 0;
+	ShowManager.dispinfo = 0;
+
+	GUI.newLabel("info", "Please wait, evaluating...").setAutolayout(0, 0, 0, 0, 0, 0, 1, 0.25);
+	GUI->info.align = 0;
+	GUI.newSpinner("waiting").setAutolayout(0, 0, 0, 0, 0.3, 0.3, 0.4, 0.4);
+
+	loadCurrent();
+	ExpProperties.evalsavefile = ""; //don't save to file
+	ExpProperties.evalcount = 4;
+	ExpProperties.evalsavedata = "eval_results";
+	ExpProperties.evalplan = "show_evol.sim+show_evol_vel.sim:velocity\n" //.sim names are used below in function onShowStep() as keys in dictionary
+	                       + "show_evol.sim+show_evol_vertpos.sim:vertpos\n"
+	                       + "show_evol.sim+show_evol_vel.sim+show_water.sim:velocity";
+	Simulator.init();
+}
+
+function onShowStep()
+{
+	if (GUI->waiting.visible == 0) return; //already stopped
+	if (GLDisplay.desiredsimspeed == 0) //standard-eval called stop()
+	{
+		GUI->waiting.visible = 0;
+		var g = GenePools[0][0];
+		var evals = g.data->eval_results;
+		if (evals==null)
+		{
+			GUI->info.text = "Evaluation failed. Something went wrong.";
+			GUI.newButton("back", "Back to \"My creatures\"").setAutolayout(0, 0, 0, 0, 0.25, 0.4, 0.5, 0.2);
+			return;
+		}
+
+		// keys in dictionary are from the function onLoad() above
+		g.velocity = evals["show_evol.sim+show_evol_vel.sim"]->velocity;
+		g.vertpos = evals["show_evol.sim+show_evol_vertpos.sim"]->vertpos;
+		g.data->water_velocity = evals["show_evol.sim+show_evol_vel.sim+show_water.sim"]->velocity;
+
+		g.data.remove("eval_results");
+		addHistory(g);
+		GenePools[0].clear();
+		g.moveTo(GenePools[0]);
+		saveCurrent();
+		initQuestDefinitions();
+		loadQuests();
+		var added = updateQuests();
+		if (added.size > 0)
+		{
+			var a_id = added[0];
+			var a = g_quests_by_id[a_id];
+			var cat = g_quest_categories_by_id[a->cat];
+			var info = "Well done!\nCompleted goal #" + a->goal + " from \"" + cat[1] + "\".\n";
+			var count_all = 0, count_ok = 0; //maybe "count_all" not needed
+			var stars = "";
+			for(a_id in cat[3])
+			{
+				stars += String.char(27) + "tstar_";
+				if (isQuestCompleted(a_id)) {stars += "enabled;"; count_ok++;}
+				else stars += "disabled;";
+				count_all++;
+			}
+			info += "Progress %d/%d: " % count_ok % count_all;
+			info += stars;
+			GUI.messageBox4("Quest progress", info, ["Back to creature", "Show quests"], function questInfoClicked);
+		}
+		else
+			ShowManager.show = "AL-main";
+	}
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (elem.name=="back")
+		ShowManager.show = "AL-history";
+}
+
+function questInfoClicked(button)
+{
+	if (button == 1)
+		ShowManager.show = "AL-main";
+	else
+		ShowManager.show = "AL-quests";
+}
+~

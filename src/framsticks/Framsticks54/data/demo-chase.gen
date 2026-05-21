@@ -1,0 +1,79 @@
+# for use with demo-chase.sim
+# "S1" receptors changed to "S" so that creatures also chase each other, not just food
+
+org:
+name:Basic Quadruped
+genotype:~
+GGMX[@*:-.4, 2:-2.890, 1:-1.808]Ggb(RX(FX, ), MX[@-1:1.849, 0:3.094, 0:-1.387][|-1:1.287, 0:.5]Gg(rX(, X), , RX(X, )), rX(, FX))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+A walking example.
+Manually created physical and neural structure, NN engram evolved.~
+info_performance:
+num:58
+instances:0
+data:
+
+org:
+name:Food Finder, 4 legs
+genotype:~
+lllfffX[0:2.420, 2:-2, 1:-1][-1:1, 0:1, 0:-1][-1:1](RRlllfffMMMX[|-1:-10]lllFFFMMMX[|-2:-1], fffIXlllfffMMMX[|6:10, 3:-10](RRlllfffMMMIX[|-4:-10]lllFFFMMMIX[|-5:-1][S:1], , RRlllfffMMMIX[|-7:10]lllFFFMMMIX[|-8:-1][S:1]), RRlllfffMMMX[|-10:10]lllFFFMMMX[|-11:-1.784])~
+info_timestamp:946684800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Land food finder
+info_origin:2
+info_how_created:
+info_performance:
+num:73
+instances:0
+data:
+
+org:
+name:Food Finder Worm
+genotype:~
+fffX(fffIX[S:1.017], RRlFFFMMMX[|-1:-10,
+3:9.501,in:0]llllFFMMMX[|1:-7.207]RlllFFFMMMX[|G:-5.088], fffIX[S:1.145])~
+info_timestamp:946684800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+Worm-like land food finder.
+In 2006, evolved for better behavior by Maciej Komosinski.~
+info_performance:
+num:74
+instances:0
+data:
+
+org:
+name:Walking Lizard
+genotype:~
+GGlllllffffXM(, , , , , , , lllllffffX, X[@1:1.272](RlllX[|=:0, 4:0.931][-2:-1.664, 4:4.985]M(llllFGGgbddDX[|-1:3.094][-1:109.385][-3:-0.322, T:-5.074], ), LfffX[1:-11.876, =:0, -1:8.608, -1:-3.403][|8:-2.496, 1:-2.898][@/:-2.809, -1:3.489](rllllGGgbddDX[@=:0.000, -1:-7.75][|=:0](, , lllllFX[0:-0.375, 1:4.712][@0:-27.137, -1:0.916][|G:-8.69, 2:14.084], ), ffffMGgGbX[@1:10.332, 1:-13.801, 1:0.545][|-9:-2.985]ffffMGGgX, RllllX(, lllllFgdDdDX, )), rllX(, lllllFGGgbddDX)))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:~
+A walking example. 
+Manually created physical and neural structure, NN engram evolved.
+
+2024-04, Maciej Komosinski: evolved weights of the NN for speed (in the direction of body main axis) after f1 modifiers changed slightly their behavior. One "broken leg" left unfixed (to fix its angle, just add one comma) because after such a fix, even though all four legs look identical, due o asymmetry in muscles, the movement trait does not look attractive (even if the NN is evolved to walk exactly in the direction of the initial body main axis, the middle part of the body is skewed, thus walking a bit sideways).~
+info_performance:
+num:59
+instances:0
+data:

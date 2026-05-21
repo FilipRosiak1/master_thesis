@@ -1,0 +1,41 @@
+script:
+name:Creatures circle
+help:~
+Arranges living creatures (first population) in a circle, tallest in the middle
+(the tallest one is selected based on the vertical position which should already be measured)~
+code:~
+function main()
+{
+	var count = Populations[0].size;
+	if (count <= 0)
+	{
+		Simulator.message("No living creatures to arrange!", 2);
+		return ;
+	}
+
+	var tallest = Populations[0][0];
+	for (var cr in Populations[0])
+		if (cr.vertpos > tallest.vertpos)
+			tallest = cr;
+
+	if (tallest.vertpos <= 0.0)
+		Simulator.message("Vertical positions are zero, are you sure you simulated the creatures for some time?", 1);
+	else
+		Simulator.print(tallest.name + " is the tallest.");
+
+	var halfwrldsiz = World.wrldsiz / 2;
+	tallest.locationSetBboxLow(halfwrldsiz - (tallest.bboxSize.x / 2), halfwrldsiz - (tallest.bboxSize.y / 2), tallest.bboxLow.z);
+
+	var x, y, i = 0;
+	for (var cr in Populations[0])
+	{
+		if (cr == tallest) continue;
+
+		x = Math.sin(Math.twopi * i / (count - 1)) * halfwrldsiz + halfwrldsiz;
+		y = Math.cos(Math.twopi * i / (count - 1)) * halfwrldsiz + halfwrldsiz;
+
+		cr.locationSetBboxLow(x - (cr.bboxSize.x / 2), y - (cr.bboxSize.y / 2), cr.bboxLow.z);
+		i++;
+	}
+}
+~

@@ -1,0 +1,102 @@
+show:
+name:Boids
+info:~
+Boids, developed by Craig Reynolds in 1986, is an artificial life program that simulates the flocking behaviour of birds.
+
+As with most artificial life simulations, Boids is an example of emergent behaviour; that is, the complexity of Boids arises from the interaction of individual agents (the boids, in this case) adhering to a set of simple rules. The rules applied in the simplest Boids world are as follows:
+
+    * separation: steer to avoid crowding local flockmates,
+    * alignment: steer towards the average heading of local flockmates,
+    * cohesion: steer to move toward the average position of local flockmates.
+~
+expdef:boids
+code:~
+
+global g_step;
+
+function onLoad()
+{
+//World.wrldsiz=50; //follow expdef behavior
+	GLDisplay.desiredsimspeed = 15;
+	ShowProperties_set();
+	TrackingCam.cam_tracking = 2;
+	TrackingCam.cam_trspeed = 2;
+	g_step = 0;
+}
+
+function ShowProperties_set()
+{
+	ExpProperties.crcount = [1, 30, 75, 200][ShowProperties.crcount];
+	ExpProperties.rule1 = ShowProperties.rule1;
+	ExpProperties.rule2 = ShowProperties.rule2;
+	ExpProperties.rule3 = ShowProperties.rule3;
+	ExpProperties.rule4 = ShowProperties.rule4;
+	ExpProperties.range = [3, 6, 9][ShowProperties.range];
+	ExpProperties.separ = [1, 2, 4][ShowProperties.separ];
+	ExpProperties.worldmap = ShowProperties.worldmap;
+}
+
+function onShowStep()
+{
+	g_step++;
+	if (g_step > 400)
+	{
+		if (CreatureSelection.count > 0)
+			CreatureSelection.clear();
+		else
+		{
+			TrackingCam.cam_trspeed = 10;
+			CreatureSelection.add(Populations[0][0]);
+		}
+		g_step = 0;
+	}
+}
+
+function onMouseClick(options, xy, point, vector)
+{
+	g_step = -2000;
+	return 0;
+}
+
+~
+
+property:
+id:crcount
+name:Number of boids
+type:d 0 3 1 ~1~30~75~200
+
+property:
+id:rule1
+name:Rule 1 – Separation
+type:d 0 1 1
+
+property:
+id:rule2
+name:Rule 2 – Alignment
+type:d 0 1 1
+
+property:
+id:rule3
+name:Rule 3 – Cohesion
+type:d 0 1 1
+
+property:
+id:rule4
+name:Rule 4 – Obstacle avoidance
+type:d 0 1 1
+
+property:
+id:range
+name:Neighborhood range
+type:d 0 2 1 ~Small~Medium~Big
+
+property:
+id:separ
+name:Separation distance
+type:d 0 2 1 ~Small~Medium~Big
+
+property:
+id:worldmap
+name:World setting
+type:d 0 5 2 ~No obstacles~Single peak~Three peaks~Four peaks~Corridor~Forest
+

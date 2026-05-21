@@ -1,0 +1,9 @@
+# back to land settings after applying show_water.sim
+sim_params:
+wrldwat:-1
+creath:0.1
+
+Population:
+name:Creatures
+initial_nn_active:2
+initial_perf_measuring:2

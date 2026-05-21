@@ -1,0 +1,145 @@
+show:
+name:Demonstration of evolutionary optimization
+info:evolution demo
+expdef:evolution_demo
+code:~
+
+/*
+Author: Marcin Szelag
+Supervisor: Maciej Komosinski
+Created: January-February 2005
+*/
+
+//================================================================================
+
+//Initialize experiment in ...set handlers or there will be global Simulator.init?
+global gInitializeExperiment;
+
+//================================================================================
+
+
+//todo: opis w teatrze na koncu tekstu opisu - najlepszy obecnie fitness
+//i ostatnio oceniony fitness (podobnie zmienia sie opis w biomorph.show).
+
+
+function onLoad()
+{
+	ShowManager.info = Simulator.expdef_info;
+	GLDisplay.desiredsimspeed = 500;
+
+	//Switch of experiment initialization in ...set handlers
+	gInitializeExperiment = 0;
+
+	ShowProperties.creaturesCount = 1;
+	ShowProperties.selectionMethod = 3;
+	ShowProperties.mutationAndCrossoverProbability = 1;
+	ShowProperties.geneticRepresentation = 1;
+	ShowProperties.predefinedSetup = 0;
+	ShowProperties_predefinedSetup_set();
+
+	//Global experiment initialization
+	Simulator.init();
+
+	//Switch on experiment initialization in ...set handlers
+	gInitializeExperiment = 1;
+}
+
+
+function onShowStep()
+{
+	TrackingCam.setViewDir(Math.sin(0.1 * Math.time) * 40, 20.0 + Math.sin(0.07 * Math.time) * 15);
+}
+
+
+
+function ShowProperties_creaturesCount_set()
+{
+	ExpProperties.MaxCreated = [5, 9, 13, 17][ShowProperties.creaturesCount]; //World capacity
+	if (gInitializeExperiment)
+		Simulator.init();
+}
+
+
+
+function ShowProperties_selectionMethod_set()
+{
+	ExpProperties.selrule = ShowProperties.selectionMethod;
+}
+
+
+
+function ShowProperties_mutationAndCrossoverProbability_set()
+{
+	switch (ShowProperties.mutationAndCrossoverProbability)
+	{
+	case 0:
+		ExpProperties.p_mut = 80;
+		ExpProperties.p_xov = 20;
+		break;
+	case 1:
+		ExpProperties.p_mut = 50;
+		ExpProperties.p_xov = 50;
+		break;
+	case 2:
+		ExpProperties.p_mut = 20;
+		ExpProperties.p_xov = 80;
+		break;
+	}
+}
+
+
+
+function ShowProperties_geneticRepresentation_set()
+{
+	switch (ShowProperties.geneticRepresentation)
+	{
+	case 0: //f0
+		ExpProperties.initialgen = "//0\np:\np:1\nj:0, 1, dx=1";
+		break;
+	case 1: //f1
+		ExpProperties.initialgen = "X";
+		break;
+	case 2: //f9
+		ExpProperties.initialgen = "/*9*/R";
+		break;
+	}
+
+	if (gInitializeExperiment)
+		Simulator.init();
+}
+
+
+
+function ShowProperties_predefinedSetup_set()
+{
+	ExpProperties.predefinedSetup = ShowProperties.predefinedSetup;
+}
+
+//================================================================================
+
+~
+
+property:
+id:creaturesCount
+name:Creatures count
+type:d 0 3 ~5~9~13~17
+
+property:
+id:selectionMethod
+name:Selection method
+type:d 0 5 ~Random~Fitness-proportional (roulette)~Tournament (2 genotypes)~Tournament (3 genotypes)~Tournament (4 genotypes)~Tournament (5 genotypes)
+
+property:
+id:mutationAndCrossoverProbability
+name:Prob. of mutation / crossover
+type:d 0 2 ~80% / 20%~50% / 50%~20% / 80%
+
+property:
+id:geneticRepresentation
+name:Genetic representation
+type:d 0 2 ~f0~f1~f9
+
+property:
+id:predefinedSetup
+name:Fitness: maximize
+type:d 0 2 ~Vertical position of body center~Velocity~Number of parts in body

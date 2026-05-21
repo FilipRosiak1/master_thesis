@@ -1,0 +1,571 @@
+expdef:
+name:Evolutionary optimization (steady-state)
+info:~
+This experiment definition can be used to perform a range of common experiments. It provides
+
+- one gene pool for genotypes
+- one population for simulated individuals
+- one "population" for food
+- steady-state evolutionary optimization
+- fitness as a weighted sum of performance values
+- custom fitness formulas
+- fitness scaling
+- selection: tournament or roulette 
+- multiple evaluation option, average and standard deviation available
+- can produce logs with average and best fitness
+- can detect stagnation and stop automatically, or start the second fast-convergence optimization phase
+- can save best genotypes
+~
+code:~
+
+global g_evaluated_genotype; //genotype uid for multiple evaluation mode
+global g_bestsofar; //last best
+global g_bestsofarnr; //last best time
+global g_uniquename; //used to save experiment files
+
+function onExpDefLoad()
+{
+	// define genotype and creature groups
+	GenePools[0].name = "Genotypes";
+	ExpProperties.cr_v = 1;
+	update_fitformula();
+
+	var p = Populations[0];
+	p.name = "Creatures";
+	p.initial_nn_active = 2;
+	p.initial_perf_measuring = 2;
+	p.selfmask = 0x10001;
+	p.othermask = 0x20001;
+
+	p = Populations.addGroup("Food");
+	p.initial_nn_active = 0;
+	p.initial_perf_measuring = 0;
+	p.selfmask = 0x20002;
+	p.othermask = 0x10002;
+
+	g_bestsofarnr = -1;
+	g_uniquename = "notinited";
+}
+
+function onExpInit()
+{
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	GenePools[0].add(ExpProperties.initialgen);
+	ExpState.totaltestedcr = 0;
+	ExpState.totaltests = 0;
+
+	g_evaluated_genotype = null;
+	g_bestsofarnr = -1;
+	g_uniquename = String.format("%06d", Math.time % 1000000) + String.format("%02d", (Math.time % 1) * 100);
+	ExpState.update_nsga_ranks_needed = 1;
+	if (ExpProperties.log > 0)
+	{
+		var unchanged;
+		if (ExpProperties.evalcount > 0)
+			unchanged = "" + ExpProperties.evalcount + "x ";
+		else
+			unchanged = "" + ExpProperties.p_nop + ",";
+		Simulator.print("[LOGTITLE] " + ["MECHA", "ODE"][World.simtype] + " rnd=(" +
+		                sim_params.bnoise_struct + "," + sim_params.bnoise_vel + "," + sim_params.randinit +
+		                ") genepool_size=" + ExpProperties.capacity +
+		                " gen_op_probs=(" + unchanged + ExpProperties.p_mut + "," + ExpProperties.p_xov + ")");
+	}
+}
+
+function creatureNumJointsForEnergy(cr)
+{
+	var n = cr.numjoints;
+	if (n == 0)
+		n = cr.numparts; //creatures with only one Part will live just as long as one-stick creatures
+	return n;
+}
+
+@include "standard_placement.inc"
+
+function onBorn(cr)
+{
+	const TRIALS = 50; //try to find free place 50 times
+	var retry = TRIALS;
+
+	/* if you want to rotate a creature differently each time it is evaluated during "multiple evaluation"
+	if (ExpProperties.evalcount == 6)
+	{
+	  //different rotation in each of the multiple evaluations: none, left, right, forth, back, upside-down
+	  var rotationsx = [0, 0,        0,         Math.pi2, -Math.pi2, 2.0*Math.pi2];
+	  var rotationsy = [0, Math.pi2, -Math.pi2, 0,        0,         0];
+	  var extrarotate = ExpState.totaltests % 6;
+	  cr.rotate(rotationsx[extrarotate],rotationsy[extrarotate],0);
+	}*/
+
+	var placed_ok = 0;
+	while (retry--)
+	{
+		var trycentral = (ExpProperties.placement == 1) && (retry == TRIALS - 1); //place central only in the first trial
+		placeCreatureRandomly(cr, trycentral, ExpProperties.rotation);
+		if (!cr.boundingBoxCollisions(0))
+		{
+			placed_ok = 1;
+			break;
+		}
+	}
+	if (!placed_ok)
+		Simulator.message("onBorn() could not avoid collisions.", 1);
+
+	if (cr.population.index == 0)
+	{
+		// creature
+		var n = creatureNumJointsForEnergy(cr);
+		cr.idleen = ExpProperties.e_meta * n;
+		cr.energy0 = cr.energy0 * ExpProperties.Energy0 * n;
+		cr.energy = cr.energy0;
+	}
+	else
+	{
+		// food
+		cr.name = "Food";
+		cr.idleen = 0;
+		cr.energy0 = ExpProperties.feede0;
+		cr.energy = cr.energy0;
+	}
+}
+
+function addfood()
+{
+	if (ExpProperties.foodgen == "")
+		return Populations[1].add("//0\nm:Vstyle=food\np:");
+	else
+		return Populations[1].add(ExpProperties.foodgen);
+}
+
+function onStep()
+{
+	if (Populations[0].size < ExpProperties.MaxCreated)
+	{
+		if (GenePools[0].size == 0)
+		{
+			Simulator.stop();
+			Simulator.message("This experiment is designed to build creatures from genotypes, but the GenePool is empty.", 2);
+		}
+		else
+		{
+			var g = selectGenotype();
+			//Simulator.print("g="+g);
+			if (g)
+			{
+				if (g.is_valid)
+				{
+					var cr_added = Populations[0].add(g);
+					if (cr_added && (ExpProperties.structured_output == 1))
+						cr_added.data->structured_output = g.data->structured_output; //creature remembers its parent's data so we can print it when this creature dies and its genotype is added to gene pool
+				}
+				else
+					Simulator.message("invalid genotype - ignored: " + g.info, 1);
+			}
+			else
+				Simulator.message("no genotype selected", 1);
+		}
+	}
+
+	if (ExpProperties.aging > 0)
+	{
+		for(var cr in Populations[0])
+			cr.idleen = ExpProperties.e_meta * creatureNumJointsForEnergy(cr)
+			            * Math.exp((0.6931471806 * cr.steps_in_lifespan) / ExpProperties.aging);
+	}
+
+	if (Populations[1].size < ExpProperties.feed)
+		addfood();
+}
+
+
+function saveGenotype(genotype, filename, description, append)
+{
+	var f;
+	if (append)
+		f = File.appendDirect(filename, description);
+	else
+		f = File.createDirect(filename, description);
+	f.writeNameObject("org", genotype);
+	f.close();
+}
+
+
+function addGenotypePerformanceFromCreature(g, cr)
+{
+// Want to copy customized values from Creature data fields to Genotype data fields? Do it here (or in a specialized Simulator.userscript function - see foodfinding-usercode.inc): g.data->myfield = cr.data->myfield;
+// Even better: want to take genotype instances into account and update "cumulative" average from potentially multiple evaluations? Do it here:
+// if (g.data.hasKey("myfield"))
+//   g.data->myfield = (float(g.data->myfield) * g.instances + cr.data->myfield) / (g.instances + 1);
+// else
+//   g.data->myfield = cr.data->myfield;
+// When in doubt, see https://www.youtube.com/watch?v=WQi8_8ecCTQ
+	g.addPerformanceFromCreature(cr); //averages performances of "g" according to instances and increments instances
+}
+
+global g_eval_again; //just to detect if some genotype is evaluated once again (and how much its average fitness varies from evaluation to evaluation even when they are repeated). Maybe this could be implemented better now that we have "data" dictionaries in Genotypes.
+
+// returns Genotype object that was updated or created from cr
+function updatePerformanceAndInstancesCount(cr)
+{
+	var GROUP_IDENTICAL_GENOTYPES = 1; //do you want identical genotypes to be grouped as one Genotype object (with instances>1 and averaged performances)?
+	if (ExpProperties.cr_nsga)
+		GROUP_IDENTICAL_GENOTYPES = 0; //for now, NSGA does not support genotype.instances
+	var g = null;
+	if (GROUP_IDENTICAL_GENOTYPES && ExpProperties.structured_output != 1) //if structured_output is on, we want clones to be considered new genotypes even though their parents are identical, so we disable grouping indentical genotypes. This also helps when the same genotype (as some existing one) is created accidentally from any other genotype.
+		g = GenePools[0].findGenotype(cr.geno); //will be either null (if no cr.geno exists in GenePools[0]) or some existing Genotype
+
+	if (g == null) //cr.geno not found, which means that we have to add a new Genotype
+	{
+		g = Genotype.newFromCreature(cr);
+		g.num = 0; // 0 = it will be filled automatically
+		g.moveTo(GenePools[0]);
+		g.instances = 0;
+	}
+
+	if (ExpProperties.evalcount > 0) //multiple evaluation
+	{
+		if (!g.data.hasKey("multieval") || typeof(g.data->multieval) != "Vector") //first evaluation or other, rare cases (e.g. mutation produced an already existing genotype)
+		{
+			if (g.data.hasKey("multieval")) g_eval_again = g.fit2; //was already evaluated! let's see how much its average fitness varies
+			g.data->multieval = [];
+		}
+		g.instances = g.data->multieval.size;
+	}
+
+	addGenotypePerformanceFromCreature(g, cr);
+
+	//multiple evaluation - tricks to compute stddev of fitness and to detect if the same genotype has been multiply evaluated in the past:
+	if (ExpProperties.evalcount > 0)
+	{
+		if (g_evaluated_genotype != null && GenePools[0].findUID(g_evaluated_genotype) < 0)
+			g_evaluated_genotype = null; //evaluated genotype was lost
+		if (g_evaluated_genotype == null)
+			g_evaluated_genotype = g.uid;
+		var total = g.data->multieval.size == 0 ? 0 : g.data->multieval.avg * g.data->multieval.size; //avoid [].avg undefined
+		g.data->multieval.add(g.fit * g.instances - total); //restore (and append to the data->multieval vector) the original fitness from Genotype.fit's incremental average which is fit1, (fit1+fit2)/2, (fit1+fit2+fit3)/3, ...
+		if (g.data->multieval.size < ExpProperties.evalcount)
+		{
+			g.instances = 0; //keep instances 0 ("has no fitness") until evaluated as many times as required
+			ExpState.totaltestedcr--; //don't count individual evaluations, increment only after ExpProperties.evalcount evaluations
+		}
+		else
+		{
+			g_evaluated_genotype = null; //no more evaluations needed for this one
+			g.data->multieval = g.data->multieval.stdev; //compute std.dev. for a vector of fitness values
+			g.instances = 1;
+			if (g_eval_again != null)
+			{
+				Simulator.print("Another multiple evaluation of '" + g.name + "': previous average fitness was " + g_eval_again + ", now changed by " + (g.fit2 - g_eval_again));
+				g_eval_again = null;
+			}
+		}
+	}
+	else if (ExpProperties.structured_output == 1)  //not tested with multiple evaluation mode, hence "else"
+	{
+		var dict = {"ID": "n" + g.num, "Time": Simulator.stepNumber, "Fitness": g.fit2};
+		Simulator.print("[BORN] " + String.serialize(dict));
+		dict = cr.data->structured_output; //information about parent genotype of this creature, and how this genotype was created (clone/mutant/crossover)
+		if (dict) //ensure data->structured_output was set in this creature
+		{
+			//only now we can print the information about parent->child IDs, because only now we know the "num" of the target (child) genotype - when the child dies. So this is delayed a lot and more complicated compared to reproduction.expdef
+			dict.set("ID", "n" + g.num);
+			Simulator.print("[OFFSPRING] " + String.serialize(dict));
+		}
+	}
+
+	//may be useful: save (append) all dying genotypes to a log file
+	//if (ExpProperties.evalcount == 0 || (ExpProperties.evalcount > 0 && g.instances == 1)) //no multiple evaluation: save all. multiple evaluation: save only when evaluation complete
+	//	saveGenotype(g, g_uniquename + "_died.gen", "Those who died", 1);
+
+	//extras:
+	var improvement = GenePools[0].genotype_instances > 0 && (g_bestsofarnr == -1 || stats.st_max_fit2 > g_bestsofar);
+	var logevery = [-1, 0, 1, 10, 100, 1000][ExpProperties.log];
+	var log = logevery == 0 && improvement; //either improved
+	if (logevery > 0) //or periodic log
+		if (ExpState.totaltestedcr % logevery == 0 || g_bestsofarnr == -1)
+			log = 1; //always log the first step
+	if (ExpProperties.evalcount > 0 && (g_evaluated_genotype != null))
+		log = 0; //avoid multiple logs on subsequent evaluations of the same genotype
+	if (improvement)
+	{
+		var ratio; //bigger improvement -> higher and longer sound (max. 0.1 sec for >=2x improvement)
+		if (g_bestsofarnr == -1 || g_bestsofar <= 0 || Math.abs(g_bestsofar) < 0.001)
+			ratio = 0.01;
+		else
+			ratio = (stats.st_max_fit2 / g_bestsofar - 1) / 10;
+		if (ratio < 0.01)
+			ratio = 0.01;
+		else if (ratio > 0.1)
+			ratio = 0.1;
+		if (ExpProperties.makesound)
+			Simulator.sound(2000.0 + 10000.0 * ratio, 1000.0 * ratio);
+		g_bestsofar = stats.st_max_fit2;
+		g_bestsofarnr = ExpState.totaltestedcr;
+		if (ExpProperties.savebest == 1)
+			saveGenotype(g, g_uniquename + ".gen", "Improvement snapshot", 0);
+		if (ExpProperties.savebest == 2)
+			saveGenotype(g, g_uniquename + ".gen", "Improvement snapshot", 1);
+		if (ExpProperties.savebest == 3)
+			Simulator.save(g_uniquename + ".expt");
+	}
+	var stagnation = ExpProperties.stagnation > 0 && g_bestsofar > ExpProperties.minfitness && ExpState.totaltestedcr > g_bestsofarnr + ExpProperties.stagnation;
+	if (log || (logevery >= 0 && stagnation))
+		Simulator.print("[LOG] " + ExpState.totaltestedcr + " " + GenePools[0].size + " " + stats.st_min_fit2 + " " + stats.st_avg_fit2 + " " + stats.st_max_fit2);
+	if (stagnation) //ExpProperties.stagnation of non-improving evaluations stops.
+	{
+		var mesg = "stagnation detected (" + ExpProperties.stagnation + ") at " + ExpState.totaltestedcr + " evals, best fitness = " + g_bestsofar + ", ";
+		if (ExpProperties.boostphase && ExpProperties.delrule != 2)
+		{
+			mesg += "starting boost phase.";
+			ExpProperties.delrule = 2;
+			ExpProperties.evalcount *= 2;
+			g_bestsofarnr = ExpState.totaltestedcr; //start stagnation detection again
+		}
+		else
+		{
+			mesg += "stopping.";
+			if (ExpProperties.makesound)
+				Simulator.sound(300, 200);
+			Simulator.stop();
+		}
+		Simulator.print(mesg);
+	}
+
+	return g;
+}
+
+@include "standard_select.inc" //includes also "standard_nsga_ii.inc"
+
+//returns Genotype object that was updated or created from cr (the returned value is used by standard-background.expdef)
+function onDied(cr)
+{
+	//Simulator.print("on died cr="+cr+" group="+cr.population.name+" (#"+cr.population.index+")");
+	var g = null;
+	if (cr.population.index != 0)
+		return null; // ignore food
+	if (cr.perf_measuring != 2)
+	{
+		ExpState.totaltestedcr++;
+		ExpState.totaltests++;
+		g = updatePerformanceAndInstancesCount(cr);
+		ExpState.update_nsga_ranks_needed = 1;
+	}
+	else   //the creature was killed before stabilization
+	{
+		if (ExpProperties.evalcount > 0) g_evaluated_genotype = null; //so don't try to evaluate it anymore. TODO seems that multiple evaluation mode does not handle this properly (this situation increases genotype count in group)
+	}
+	LimitGenePool();
+	Simulator.checkpointData(ExpState.totaltestedcr);
+	return g;
+}
+
+
+function selectGenotype() //returns Genotype object
+{
+	var sel, nop;
+	if (ExpProperties.evalcount > 0)
+	{
+		if (g_evaluated_genotype != null)
+		{
+			var gg = GenePools[0].findUID(g_evaluated_genotype);
+			if (gg < 0)
+				g_evaluated_genotype = null;
+			else
+			{
+				if (GenePools[0][gg].data->multieval.size < ExpProperties.evalcount)
+				{
+					return GenePools[0][gg];
+				}
+			}
+		}
+		if (g_evaluated_genotype == null)
+			nop = 0.0; //wanted a new mutation/xover to evaluate
+	}
+	else
+		nop = ExpProperties.p_nop;
+	var sum = nop + ExpProperties.p_mut + ExpProperties.p_xov;
+	sel = sum * Math.rnd01;
+	//Simulator.print("sum="+sum+" sel="+sel+" nop="+nop+" mut="+ExpProperties.p_mut+" xov="+ExpProperties.p_mut);
+	if (sel < nop || sum == 0)
+	{
+		//Simulator.print("selectGenotype() - nop");
+		var selected = selectedForCreationInPool(GenePools[0]);
+		if (selected)
+		{
+			if (ExpProperties.structured_output == 1)
+			{
+				var g = Genotype.newFromGeno(selected.geno); //for structured_output, we want clones to have different ID than parents, even though they are identical... but for consistency with reproduction.expdef, we consider clones different individuals than their parents
+				g.gnum = selected.gnum + 1; //generation
+				g.data->structured_output = {"FromIDs": ["n" + selected.num], "Inherited": [1.0], "Operation": "cloning"};
+				return g;
+			}
+			return selected;
+		}
+		else
+			return null;
+	}
+	else
+	{
+		sel = sel - nop;
+		if (sel < ExpProperties.p_mut)
+		{
+			// Simulator.print("selectGenotype() - mutate");
+			var selected = selectedForCreationInPool(GenePools[0]);
+			if (selected)
+			{
+				var g = Genotype.newFromGeno(GenMan.mutate(selected.geno));
+				g.gnum = selected.gnum + 1; //generation
+				if (ExpProperties.structured_output == 1)
+				{
+					var inherited = 1.0 - String.parseFloat(String.split(g.info, "%")[0]) / 100.0;
+					g.data->structured_output = {"FromIDs": ["n" + selected.num], "Inherited": [inherited], "Operation": "mutation"};
+				}
+				return g;
+			}
+			else
+				return null;
+		}
+		else
+		{
+			var first = selectedForCreationInPool(GenePools[0]);
+			var other;
+			if (ExpProperties.xov_mins > 0.0)
+				other = selectedSimilarInPool(GenePools[0]);
+			else
+				other = selectedForCreationInPool(GenePools[0]);
+			// Simulator.print("selectGenotype() - xover - first="+first+" other="+other);
+			if ((first != null) && (other != null))
+			{
+				var g = Genotype.newFromGeno(GenMan.crossOver(first.geno, other.geno));
+				g.gnum = Math.max(first.gnum, other.gnum) + 1; //generation
+				if (ExpProperties.structured_output == 1)
+				{
+					//todo get % of inherited genes by parsing strings like "Crossing over of 'Iwukap Sih' (66.67%) and 'Anymuw Syh' (33.33%)" :/
+					g.data->structured_output = {"FromIDs": ["n" + first.num, "n" + other.num], "Inherited": [0.5, 0.5], "Operation": "crossover"};
+				}
+				return g;
+			}
+			else
+			{
+				Simulator.print("crossover - second genotype not found?");
+				return null;
+			}
+		}
+	}
+}
+
+function onFoodCollision()
+{
+	var e = Collision.Part2.ing * ExpProperties.feedtrans;
+	//Simulator.print("transferring "+e+" from "+Collision.Creature1.name+" to "+Collision.Creature2.name);
+	Collision.Creature1.transferEnergyTo(Collision.Creature2, e);
+}
+
+function ExpProperties_cleardata_call()
+{
+	for(var g in GenePools[0])
+		g.instances = 0;
+	ExpState.update_nsga_ranks_needed = 1;
+	Simulator.print("Performance data reset.");
+}
+
+function LimitGenePool()
+{
+	var pool = GenePools[0];
+	if (pool.genotype_instances > (ExpProperties.capacity + 1)) // if removing more than 1, print a message
+		Simulator.print("Removing " + (pool.genotype_instances - ExpProperties.capacity) + " genotype instances");
+	while (pool.genotype_instances > ExpProperties.capacity)
+	{
+		var to_be_deleted = selectedForDeletionInPool(pool);
+		if (ExpProperties.structured_output == 1)
+		{
+			var dict = {"ID": "n" + to_be_deleted.num, "Time": Simulator.stepNumber};
+			Simulator.print("[DIED] " + String.serialize(dict));
+		}
+		to_be_deleted.deleteOne();
+		ExpState.update_nsga_ranks_needed = 1; //could be commented out to reduce the number of updateNsgaRanks() calls 2 times, with minor impact on the accuracy of NSGA negative selection
+	}
+}
+
+function ExpProperties_capacity_set()
+{
+	LimitGenePool();
+}
+
+function limitPopulation(pop, n)
+{
+	n = pop.size - n;
+	while (n > 0)
+	{
+		pop.delete(pop.size - 1);
+		n--;
+	}
+}
+
+function ExpProperties_MaxCreated_set()
+{
+	limitPopulation(Populations[0], ExpProperties.MaxCreated); //creatures
+}
+
+function ExpProperties_feed_set()
+{
+	limitPopulation(Populations[1], ExpProperties.feed); //food
+}
+
+@include "standard_fitformula.inc"
+@include "standard_events.inc"
+@include "standard_loadsave.inc"
+
+~
+
+#include "standard_props.inc"
+#include "standard_props_eval.inc"
+#include "standard_props_extras.inc"
+
+
+property:
+id:structured_output
+name:Print structured messages
+help:Print messages on evolution progress. Structured messages are json dictionaries - they are easier to parse by other programs than casual messages
+group:Extras
+type:d 0 1 0
+
+property:
+id:cleardata
+name:Clear performance info
+type:p
+help:~
+Sets the number of instances of each genotype to zero (as if it has never been evaluated).
+Genotype performance values stay intact, yet they are meaningless if a genotype has no instances.~
+
+state:
+id:notes
+name:Notes
+type:s 1
+help:~
+You can write anything here
+(it will be saved to the experiment file)~
+
+state:
+id:totaltestedcr
+name:Evaluated creatures
+help:Total number of creatures evaluated in the experiment
+type:d
+flags:16
+
+state:
+id:totaltests
+name:Number of evaluations
+help:~
+Total number of evaluations in the experiment.
+This is equivalent to "Evaluated creatures" unless multiple evaluation is activated.~
+type:d
+flags:16
+
+state:
+id:creaturesgrouploaded
+name:creaturesgrouploaded
+type:d
+flags:34

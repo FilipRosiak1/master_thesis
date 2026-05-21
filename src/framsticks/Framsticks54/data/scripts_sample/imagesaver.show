@@ -1,0 +1,83 @@
+show:
+name:Image Exporter
+info:Generate creature pictures using the ImageExport class
+expdef:standard
+code:~
+
+global g_genotype_index;
+global g_exportframe; //=1 only when the frame is to be (or has just been) exported
+global g_slowdown; //slowdown if you need more time to manually adjust camera while simulation is running
+
+function onLoad()
+{
+	Simulator.import("vertpos.sim"); //adjust as needed
+	Simulator.import("all-f0.gen"); //adjust as needed
+	Simulator.creatwarnfail = 0; //revive all creatures, even those with warnings
+	CreatureSettings.bnoise_vel = 0; //was >0 in evolution, but now we don't want to add random velocities
+	Populations[0].stabledist = 0.1; //zwiekszamy bo niektore sie wywracaja - musialy polegac na losowych silach i miec szczescie w ewolucji
+	
+	GLDisplay.simsteps = 1;
+
+	TrackingCam.cam_tracking = 1; //tracking = position
+	TrackingCam.cam_change = 1; //target change = cut
+	TrackingCam.cam_zoom = 1.1;
+	TrackingCam.cam_dir = 30;
+	TrackingCam.cam_h = 45;
+	ImageExport.imgex_outdir = "img-exported";
+	ImageExport.imgex_outfiles = "image%03d.ppm"; //set later anyway
+	ImageExport.imgex_format = 0; //0=ppm (lossless), 1=jpg (lossy)
+	ImageExport.imgex_skip = 0;
+
+	ExpParams.MaxCreated = 0;
+	ExpParams.placement = 1; //place in the center of the world
+	g_genotype_index = 0;
+	g_exportframe = 1;
+	g_slowdown = 10;
+	GLDisplay.user_interaction = 0; //hide menu button
+}
+
+function setBanner() //adjust to your liking
+{
+	ShowManager.dispinfo = 0;
+	//GLDisplay.banner=Populations[0][0].name;
+}
+
+function onShowStep()
+{
+	Simulator.sleep(g_slowdown);
+	var pop0 = Populations[0];
+	//Simulator.print(""+pop0.size + " " + g_exportframe + " " + g_genotype_index);
+	if (g_exportframe) //frame has just been exported
+	{
+		g_exportframe = 0;
+		//if (ImageExport.imgex_enabled)
+		ImageExport.imgex_disable();
+		if (g_genotype_index >= GenePools[0].size)
+		{
+			GLDisplay.quit();
+			return;
+		}
+		if (pop0.size > 0)
+			pop0.delete(0);
+		GenePools.genotype = g_genotype_index;
+		g_genotype_index++;
+		Populations.group = 0;
+		Populations.createFromGenotype();
+		CreatureSelection.clear();
+		if (pop0.size > 0)
+			CreatureSelection.add(pop0[0]);
+	}
+	if (pop0[0].perf==1) //stabilized -> time to export! remove this condition if you want to export creatures immediately after revival
+	{
+		//if (!ImageExport.imgex_enabled)
+		ImageExport.imgex_enable();
+		ImageExport.imgex_now(); //save current image now = without waiting for the next simulation step
+		ImageExport.imgex_outfiles = "image_" + String.format("%03d",g_genotype_index-1) + ".ppm";
+		Simulator.print("exporting "+ImageExport.imgex_outfiles);
+		setBanner();
+		g_exportframe = 1;
+	}
+}
+
+~
+

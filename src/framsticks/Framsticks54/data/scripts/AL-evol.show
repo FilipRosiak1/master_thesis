@@ -1,0 +1,651 @@
+show:
+name:Evolution
+info:
+expdef:standard-background
+code:~
+
+@include "AL-shared.inc"
+
+global _saved_criterion; //name starts with '_' -> the value will survive leaving and re-entering this show
+global _saved_water_evol_show; //name starts with '_' -> the value will survive leaving and re-entering this show
+global _saved_mutate_only_brain; //name starts with '_' -> the value will survive leaving and re-entering this show
+
+global g_step;
+global g_critGenoIds, g_dispNames, g_critNames, g_critFiles;
+global g_next_check;
+global g_infolabel;
+global g_infoframe;
+global g_keepon;
+global g_chart_max, g_chart_avg, g_chartdata, g_chartmax;
+global g_currentmodel, g_currentvalue;
+global g_saved_data;
+global g_fitcodes;
+global g_fitcode_errors;
+global g_is_paused;
+global g_fitcode_internal_change;
+
+const CUSTOM_FILENAME = "custom-fitness.data";
+const CUSTOM_VERSION = "1";
+
+function saveCustomFunctions()
+{
+	var f = File.createDirect(CUSTOM_FILENAME, "Persistent custom fitness storage");
+	f.writeString(CUSTOM_VERSION + "\n");
+	f.writeString(String.serialize(g_fitcodes) + "\n");
+	f.close();
+}
+
+function loadCustomFunctions()
+{
+	var f = File.open("scripts_output" + File.pathseparator + CUSTOM_FILENAME);
+	if (f != null)
+	{
+		var file_version = f.readLine();
+		var fromfile = String.deserialize(f.readUntilEOF());
+		f.close();
+		if (file_version == CUSTOM_VERSION)
+			g_fitcodes = fromfile;
+		Simulator.print("Loaded:\n" + g_fitcodes);
+	}
+	if (typeof(g_fitcodes) != "Vector")
+	{
+		g_fitcodes = [
+		"// Example 1. A simple way to promote\n// two criteria simultaneously\n// (velocity and height of center of mass).\nreturn this.velocity + 0.01 * this.vertpos;",
+		"// Example 2. Help start the evolution\n// of tall creatures by promoting\n// a high number of sticks for flat creatures.\nif (this.vertpos<0) //flat creature?\n{\n  if (this.numjoints<8)\n    return 0.00000001*this.numjoints; //encourage more sticks\n}\nreturn this.vertpos;",
+		"// Example 3. Fitness promotes \"density\" of\n// body (number of sticks per volume)\nvar bbsize=this.getModel().bboxSize;\nreturn this.numjoints/Math.max(bbsize.x,Math.max(bbsize.y,bbsize.z));"
+		];
+	}
+}
+
+function onLoad()
+{
+	Simulator.stop_on = 0;
+	loadCustomFunctions();
+	g_step = 1;
+    	g_fitcode_internal_change = 0;
+	TrackingCam.cam_chspeed = 0.5;
+	GLDisplay.user_interaction = 2 + 1;
+	ShowManager.dispinfo = 0;
+	g_dispNames = ["Velocity", "Vertical velocity", "Height", "Custom 1", "Custom 2", "Custom 3"];
+	g_critFiles = ["vel", "vertvel", "vertpos"];
+	g_critGenoIds = ["velocity", "vertvel", "vertpos", "fit", "fit", "fit"];
+
+	var but;
+	but = GUI.newButton("save", "Save & back");
+	but.setAutolayout(0, 0, 0, 0, 0.01, 0.01, 0.3, 0.15);
+	but.bgcolor = 0xff66cc66;
+	but.fgcolor = 0xffffffff;
+
+	but = GUI.newButton("cancel", "Cancel & back");
+	but.setAutolayout(0, 0, 0, 0, 0.31, 0.01, 0.3, 0.15);
+
+	g_infoframe = GUI.newImage("frame", "slider-bg");
+	g_infoframe.mode = 1; //border
+	g_infoframe.tex_margin = 0.5;
+	g_infoframe.border_margin = GUI.fontHeight(2) / 2;
+	g_infoframe.fgcolor = 0x55000000;
+	g_infolabel = GUI.newLabel("info", "");
+	g_infolabel.font = 4;
+	g_infolabel.valign = -1;
+	g_infolabel.addTo(g_infoframe);
+
+	g_chart_max = GUI.newDrawing("chart_max");
+	g_chart_max.mode = 3;
+	g_chart_max.fgcolor = 0x8800ff00;
+	g_chart_max.addTo(g_infoframe);
+
+	g_chart_avg = GUI.newDrawing("chart_avg");
+	g_chart_avg.mode = 3;
+	g_chart_avg.fgcolor = 0xff99ff99;
+	g_chart_avg.addTo(g_infoframe);
+
+	g_currentmodel = GUI.newModel("mod", "");
+	g_currentmodel.bgcolor = 0x44000000;
+	g_currentmodel.addTo(g_infoframe);
+	g_currentvalue = GUI.newLabel("val", "");
+	g_currentvalue.font = 4;
+	g_currentvalue.valign = 1;
+	g_currentvalue.align = 0;
+	g_currentvalue.addTo(g_currentmodel);
+	g_currentvalue.setAutolayout(0, 0, 0, 0, 0.02, 0.02, 0.96, 0.96);
+
+	if (GLDisplay.has_screen_timeout)
+	{
+		g_keepon = GUI.newCheckbox("keepon", "Keep screen on");
+		g_keepon.setAutolayout(0, 0, 0, 0, 0.01, 0.17, 0.98, 0.1 );
+		g_keepon.selected = !GLDisplay.screen_timeout_enabled;
+	}
+
+	resetChart();
+
+	loadCurrent();
+	ShowProperties.testgeno = GenePools[0][0].genotype;
+	g_saved_data = GenePools[0][0].data.clone();
+	ShowProperties_chartsize_set();//layouts some controls and calls updateBanner
+	GenePools.addGroup("Test genotype"); //'loadEvolParams()' below may need to validate the custom formula (if coming back to AL-evol after using the custom formula previously)
+	loadEvolParams();
+
+	var but;
+	but = GUI.newButton("rewindbut", "");
+	but.style = 1;
+	but.image = "rewind-icon-shadow";
+	but.addTo(GUI.top_right);
+	but = GUI.newButton("pausebut", "");
+	but.style = 1;
+	but.image = "pause-icon-shadow";
+	but.addTo(GUI.top_right);
+	but = GUI.newButton("playbut", "");
+	but.style = 1;
+	but.image = "play-icon-shadow";
+	but.addTo(GUI.top_right);
+
+	g_helptxt = "<h1>Welcome to the live evolution room!</h1>"+
+	"<p>Observe creatures evolving in real-time. Evolution is a gradual process, so patience is key!</p>"+
+	"<p><b>Choose a goal.</b> Select velocity or height as fitness. Creatures will be randomly mutated, combined (crossed over), and then selected based on how well they meet this goal. It takes more time to evolve fast creatures as it requires more complex adaptations (like brains!) than to evolve tall creatures."+
+	"<p><b>Monitor progress.</b> The chart shows the maximum and average fitness in the gene pool. The currently best creature in the gene pool is shown simulated in the world, while evolution happens continuously in the background."+
+	"<h2>For advanced users</h2>"+
+	"<p><b>Custom fitness</b> edit fields allow you to define your own complex fitness goals."+
+	"<p><b>Understanding room settings and starting fresh.</b> The room remembers your environment and fitness settings between visits. Evolution starts immediately when you enter the room, using the settings from your last session. If you enter the room and <b>then</b> start adjusting the settings, evolution will have already started and created new genotypes using the previous settings while you were making adjustments. To start evolution with specific settings immediately: first, adjust your desired settings, then exit the room (press \"Cancel &amp; back\") and re-enter it."; //The last advice is particularly useful for "only brain" evolution. Instead of "exit and re-enter" advice, we could add a button "Restart evolution with current settings from the original genotype" (does the same thing as cancel+re-enter) - but I doubt users would understand why this button would help them. This is a rare case with minimal impact, exiting and re-entering the room occurs all the time and is intuitive, so this help description should be sufficient.
+	addHelpButton(GUI.top_right);
+
+	if (_saved_criterion == null) //jesli tak to jest to pierwsze uzycie bo nie jest zainicjowany
+		_saved_criterion = 2; //...i zaczynamy od kryterium Height bo duzo prostsze niz Velocity
+	if (_saved_water_evol_show == null)
+		_saved_water_evol_show = 0;
+	if (_saved_mutate_only_brain == null)
+		_saved_mutate_only_brain = 0;
+	
+	var format = GenePools[0][0].geno.format;
+	var format_supports_mutate_only_brain = ["0", "1", "4", "H"].find(format) != -1;
+	if (!format_supports_mutate_only_brain) //only display property:id:mutate_only_brain for f0, f1, f4, fH - for example, f9 or fF do not support NN at all, so no use showing the "mutate_only_brain" toggle
+		ShowProperties._propertyChange("mutate_only_brain", "d", "Preserve body shape (only mutate brain)",/*flags:userhidden*/32, "");
+	
+	// na koncu, bo handler _set robi rozne rzeczy z gui wiec gui musi juz istniec:
+	ShowProperties.criterion = _saved_criterion;
+	ShowProperties.water = _saved_water_evol_show;
+	if (format_supports_mutate_only_brain) // only set the value of the mutate_only_brain property when the genetic format supports it. Since activating mutate_only_brain also turns off crossover, in a scenario when a user activated mutate_only_brain while evolving f1 genotype, then switched to f9 genotype and entered this show, the GUI mutate_only_brain property would be hidden, but without this "if", the line below would still call the _set() handler which would set all the mutate_only_brain parameters (irrelevant for f9) and would disable crossover for f9, which we don't want.
+		ShowProperties.mutate_only_brain = _saved_mutate_only_brain;
+
+	g_is_paused = 0;
+	GLDisplay.desiredsimspeed = 50; //setting simspeed starts the simulation, standard-background can't be started before the genepool is ready
+	displayTopStatus(makeBreadcrumbPath([BREADCRUMB_YOUR_CREATURES, BREADCRUMB_CURRENT, "Evolve"]));
+
+	updateButtonStates();
+	GLDisplay.menu_group = "ShowProperties";
+}
+
+function updateButtonStates()
+{
+	GUI->pausebut.visible = Simulator.running;
+	GUI->playbut.visible = !Simulator.running;
+	GUI->rewindbut.visible = (!Simulator.running && (ExpState.totaltestedcr > 0));
+}
+
+function beforeLoad()
+{
+	GLDisplay.menu_visible = 0;
+}
+
+function resetChart()
+{
+	g_chartdata = [];
+	g_chartmax = 1e-7;
+}
+
+function rewind()
+{
+	Populations[0].clear();
+	g_currentmodel.text = "";
+	g_currentvalue.text = "";
+	ExpProperties.cleardata();
+	ExpState.totaltestedcr = 0;
+	ExpState.totaltests = 0;
+	resetChart();
+	updateBanner();
+	updateButtonStates();
+}
+
+function pause()
+{
+	g_is_paused = 1;
+	GLDisplay.desiredsimspeed = 0;
+	Simulator.stop();
+	updateButtonStates();
+}
+
+function resume()
+{
+	if (usingCustomFitness() && !customFitcodeIsValid())
+	{
+		GUI.messageBox("Can't resume evolution", "Correct your custom fitness formula or select a different optimization criterion.");
+		return;
+	}
+	g_is_paused = 0;
+	GLDisplay.desiredsimspeed = 50;
+	updateButtonStates();
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (handleHelp(elem)) return;
+	switch(elem.name)
+	{
+	case "save":
+	{
+		GLDisplay.desiredsimspeed = 0; //stops the simulation, transfers full performance data from background thread
+		var g = GenePools[0].best();
+		GenePools[0].clear();
+		g.data = g_saved_data;
+		g.moveTo(GenePools[0]);
+		g.data->evaluations = g.data->evaluations + ExpState.totaltestedcr;
+		g.info_timestamp = Math.time;
+		saveCurrent();
+		ShowManager.show = "AL-eval";
+		break;
+	}
+	case "cancel":
+		ShowManager.show = "AL-main";
+		break;
+	case "pausebut":
+		pause();
+		break;
+	case "playbut":
+		resume();
+		break;
+	case "rewindbut":
+		rewind();
+		break;
+	case "keepon":
+		GLDisplay.screen_timeout_enabled = !elem.selected;
+		break;
+	}
+}
+
+function loadWaterLevel()
+{
+	if (ShowProperties.water != 0)
+		Simulator.import("show_water.sim");
+	else
+		Simulator.import("show_land.sim"); //defaults
+}
+
+function usingCustomFitness()
+{
+	return ShowProperties.criterion >= 3;
+}
+
+function loadEvolParams()
+{
+	Simulator.import("show_evol.sim");
+	if (!usingCustomFitness())
+	{
+		var critname = g_critFiles[ShowProperties.criterion];
+		var filename = "show_evol_" + g_critFiles[ShowProperties.criterion] + ".sim";
+		Simulator.print("Loading simulator parameters from " + filename);
+		Simulator.import(filename);
+		GenePools[0].fitness_step_limit = 0;
+		Simulator.stop_on = 0;
+	}
+	else
+	{
+		var custom = ShowProperties.criterion - 3;
+		Simulator.print("Loading simulator parameters from custom function #" + custom);
+		GenePools[0].fitness = g_fitcodes[custom];
+		GenePools[0].fitness_step_limit = 10000;
+		Simulator.stop_on = 2;
+	}
+	loadWaterLevel();
+	ExpProperties.monitor_variable = g_critGenoIds[ShowProperties.criterion];
+}
+
+function updateChartData(avg, max)
+{
+	if (max < 0) max = 0;
+	if (avg < 0) avg = 0;
+	g_chartdata.add(max);
+	g_chartdata.add(avg);
+	if (avg > g_chartmax) g_chartmax = avg * 2;
+	if (max > g_chartmax) g_chartmax = max * 2;
+	if (g_chartdata.size > 120)
+	{
+		g_chartdata.remove(0);
+		g_chartdata.remove(1);
+	}
+}
+
+function updateChart()
+{
+	var xy_max = [], xy_avg = [];
+	var xscale = g_chart_max.width / (120 - 2);
+	var yscale = -g_chart_max.height / g_chartmax;
+	var yoffset = g_chart_max.height;
+	var x, y;
+	var yw = g_chart_avg.height * 0.02;
+	for(var i = 0; i < g_chartdata.size; i += 2)
+	{
+		x = xscale * i;
+		xy_max.add(x);
+		y = yoffset + yscale * g_chartdata[i];
+		xy_max.add(y);
+		xy_max.add(x);
+		xy_max.add(yoffset);
+
+		xy_avg.add(x);
+		y = yoffset + yscale * g_chartdata[i + 1];
+		xy_avg.add(y);
+		xy_avg.add(x);
+		xy_avg.add(Math.min(yoffset, y + yw));
+	}
+	//CLI.println("updateChart: "+g_chart+" "+xy);
+	g_chart_max.data = xy_max;
+	g_chart_avg.data = xy_avg;
+}
+
+function evaluationsText(n)
+{
+	return symbolsForValue(scaleNumberOfEvaluations(n), SCALE_MAX_EVALUATIONS, String.ESC + "Tcut(db%sb)perf_symbols_2;", 4) + n;
+}
+
+function updateBanner()
+{
+	updateChartData(ExpState.avg_value, ExpState.max_value);
+	updateChart();
+	var t;
+	if (ShowProperties.chartsize)
+	{
+		t = "Fitness is " + g_dispNames[ShowProperties.criterion] + ".\n"
+		    + "Best fitness: " + ("%.6f" % ExpState.max_value) + "\n"
+		    + evaluationsText(ExpState.totaltestedcr) + " genotypes evaluated.";
+		g_infolabel.align = -1;
+	}
+	else
+	{
+		t = g_dispNames[ShowProperties.criterion] + ": " + ("%.6f" % ExpState.max_value) + "\nEvaluated: " + evaluationsText(ExpState.totaltestedcr);
+		g_infolabel.align = 1;
+	}
+	g_infolabel.text = t;
+	GLDisplay.banner = t;
+	g_next_check = Math.time + 1.0;
+}
+
+function onShowStep()
+{
+	if (g_is_paused)
+	    return;
+	if (!Simulator.running && !g_is_paused)
+		{
+		// can be unexpectedly stopped by the failing fitness formula (even though it normally
+		// should not, because we doTest() before using it).
+		// pause() updates the gui so user can restart the evolution after fixing the problem.
+		pause();
+		}
+	
+	TrackingCam.setViewDir(TrackingCam.cam_dir + 0.01, TrackingCam.cam_h);
+	g_step++;
+	if (Math.time > g_next_check)
+		updateBanner();
+	if (ExpState.currentgeno) if (g_currentmodel.text != ExpState.currentgeno.genotype)
+		{
+			g_currentmodel.text = ExpState.currentgeno.genotype;
+			g_currentvalue.text = "%.4f" % ExpState.currentvalue;
+		}
+	if (Populations[0].size > 0) //if we have a creature in the world...
+		if (GLDisplay.desiredsimspeed > 0) //if simulation is running...
+			if (Populations[0][0].perf_measuring == 2) //while the creature is waiting for stabilization...
+				GLDisplay.desiredsimspeed = 500; //make simulation faster (by skipping visualization frames)
+			else
+				GLDisplay.desiredsimspeed = 50; //when the creature is alive, restore simulation standard speed
+}
+
+function ShowProperties_criterion_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	var saved_total = ExpState.totaltestedcr; //totaltestedcr gets reset to 0 below when the criterion changes, but since the evolution continues, the gene pool persists, and the "evolutionary effort" still increases, we need to preserve the amount of creatures evaluated so far
+	_saved_criterion = ShowProperties.criterion;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	Simulator.print("Changing criterion to " + g_dispNames[ShowProperties.criterion]);
+	ShowProperties._propertyChange("showgroup_ShowPropertiesCustomfitnessfunction", "p", "Custom fitness",/*flags:userhidden*/usingCustomFitness() ? 0 : 32, "");
+	loadEvolParams();
+	ExpProperties.cleardata();
+	ExpState.totaltestedcr = saved_total; //keep increasing the totaltestedcr value after criterion change - the evolutionary process continues, the gene pool was not reset
+	updateBanner();
+	GLDisplay.desiredsimspeed = saved_simspeed;
+	resetChart();
+	if (usingCustomFitness())
+	{
+		g_fitcode_internal_change = 1;
+		ShowProperties.fitcode = g_fitcodes[ShowProperties.criterion - 3];
+		g_fitcode_internal_change = 0;
+		doTest();
+	}
+}
+
+function doTest()
+{
+	if (!usingCustomFitness())
+		return 0;
+	if (customFitcodeIsValid())
+	{
+		GenePools[1].clear();
+		GenePools[1].add(ShowProperties.testgeno);
+		var mc = MessageCatcher.new();
+		mc.store = 2;
+		var result = string(GenePools[1][0].fit) + "\n" + mc.messages;
+		mc.close();
+		Simulator.print("Result=" + result);
+		ShowProperties.testresult = result;
+		return 1;
+	}
+	else
+	{
+		if (!g_is_paused)
+			pause();
+		ShowProperties.testresult = "Invalid fitness function!\n\n" + g_fitcode_errors;
+		return 0;
+	}
+}
+
+function customFitcodeIsValid()
+{
+	if (ShowProperties.criterion < 3)
+		return 1;
+	GenePools[1].fitness = g_fitcodes[ShowProperties.criterion - 3];
+	GenePools[1].fitness_step_limit = 10000;
+	var mc = MessageCatcher.new();
+	mc.store = 2;
+	var is_valid = GenePools[1].fitness_is_valid;
+	mc.close();
+	g_fitcode_errors = mc.messages;
+	return is_valid;
+}
+
+function ShowProperties_fitcode_set()
+{
+	if (usingCustomFitness() && !g_fitcode_internal_change) // formula was edited from gui
+	{
+		g_fitcodes[ShowProperties.criterion - 3] = ShowProperties.fitcode;
+		saveCustomFunctions();
+		if (doTest())
+			ShowProperties_criterion_set();
+	}
+	// else ShowProperties.fitcode was changed internally from ShowProperties_criterion_set() in order to update the gui.
+	// not a real formula change. and the criterion change was already handled in ShowProperties_criterion_set().
+}
+
+function ShowProperties_testgeno_set()
+{
+	doTest();
+}
+
+function ShowProperties_water_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	Simulator.print("Changing water to " + ShowProperties.water);
+	_saved_water_evol_show = ShowProperties.water;
+	loadWaterLevel();
+	ExpProperties.cleardata();
+	GLDisplay.desiredsimspeed = saved_simspeed;
+	resetChart();
+}
+
+function ShowProperties_mutate_only_brain_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	Simulator.print("Changing mutate_only_brain to " + ShowProperties.mutate_only_brain);
+	// The list of IDs for parameters that are set to 0 when we want to disable changing body.
+	// More comments in file "only-brain.sim".
+	// Having this list of parameters makes importing that file unnecessary, because all of them need to be set to 0.
+	var params = ["p_xov", "f0_p_new", "f0_p_del", "f0_p_swp", "f0_p_pos", "f0_p_den", "f0_p_frc", "f0_p_ing", "f0_p_asm", "f0_p_color", "f0_j_new", "f0_j_del", "f0_j_stm", "f0_j_stf", "f0_j_rsf", "f0_j_color", "f1_smX", "f1_smJunct", "f1_smComma", "f1_smModif", "f4_mut_add_div", "f4_mut_add_rep", "f4_mut_add_simp", "f4_mut_del", "f4_mut_mod" /*, "fH_mut_add_joint", "fH_mut_handle", "fH_mut_property"*/]; //fH not compiled in the mobile artificial life app
+	var iface = Interface.makeFrom(sim_params.*); //"p_xov" is from ExpProperties.* and the rest is from GenMan.* - but all parameters are merged in sim_params.*
+	if (ShowProperties.mutate_only_brain != 0)
+		for (var p in params) iface.set(p, 0.0); //should be equivalent to Simulator.import("only-brain.sim");
+	else
+		for (var p in params) iface.setDefault(p); //defaults
+	//Could use a different approach for all parameters set in this show: on any GUI user setting change, revert all parameters to setDefaults(), and then "overlay" specific non-default .sim files/subsets of values depending on current GUI user settings (like I do in python - importing a sequence of small .sim files with non-default values).
+	_saved_mutate_only_brain = ShowProperties.mutate_only_brain;
+	GLDisplay.desiredsimspeed = saved_simspeed;
+}
+
+function ShowProperties_popsize_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	ExpProperties.capacity = ShowProperties.popsize;
+	GLDisplay.desiredsimspeed = saved_simspeed;
+}
+
+function ShowProperties_tournsize_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	ExpProperties.selrule = ShowProperties.tournsize;
+	GLDisplay.desiredsimspeed = saved_simspeed;
+}
+
+function ShowProperties_convergence_set()
+{
+	var saved_simspeed = GLDisplay.desiredsimspeed;
+	GLDisplay.desiredsimspeed = 0; // standard-background must be stopped and restarted for settings to take effect
+	if (ShowProperties.convergence == 0)
+		ExpProperties.delrule = 0; //random deletion
+	else
+		ExpProperties.delrule = 1; //inv-fitness
+	if (ExpProperties.delrule == 0)
+		Simulator.print("Genotype deletion: random");
+	if (ExpProperties.delrule == 1)
+		Simulator.print("Genotype deletion: inversely proportional to fitness");
+	GLDisplay.desiredsimspeed = saved_simspeed;
+}
+
+function ShowProperties_chartsize_set()
+{
+	switch(ShowProperties.chartsize)
+	{
+	case 0:
+		g_infoframe.setAutolayout(0, 0, 0, 0, 0, 0.85, 0.85, 0.15);
+		g_currentmodel.setAutolayout(0, 0, 0, 0, 0.99 - 0.2, 0.03, 0.2, 0.94);
+		g_infolabel.setAutolayout(0, 0, 0, 0, 0.05, 0.05, 0.9 - 0.2, 0.9);
+		g_chart_max.setAutolayout(0, 0, 0, 0, 0.01, 0.01, 0.98 - 0.2, 0.98);
+		g_chart_avg.setAutolayout(0, 0, 0, 0, 0.01, 0.01, 0.98 - 0.2, 0.98);
+		break;
+	case 1:
+		g_infoframe.setAutolayout(0, 0, 0, 0, 0, 0.4, 0.85, 0.6);
+		g_currentmodel.setAutolayout(0, 0, 0, 0, 0.99 - 0.2, 0.99 - 0.4, 0.2, 0.4);
+		g_infolabel.setAutolayout(0, 0, 0, 0, 0.05, 0.05, 0.9, 0.9);
+		g_chart_max.setAutolayout(0, 0, 0, 0, 0.01, 0.01, 0.98 - 0.2, 0.98);
+		g_chart_avg.setAutolayout(0, 0, 0, 0, 0.01, 0.01, 0.98 - 0.2, 0.98);
+		break;
+	}
+	updateBanner();
+}
+
+function onKey(code)
+{
+	if (code == GUI.KEY_BACK)
+	{
+		if (closePopup()) return 1;
+		onGUIEvent(GUI->cancel, null);
+		return 1;
+	}
+	return 0;
+}
+
+function onResize()
+{
+	g_infoframe.border_margin = GUI.fontHeight(2) / 2;
+	if (GLDisplay.menu_visible && (GUI.rect.width < GUI.rect.height))
+	{
+		GUI->cancel.setAutolayout(0, 0, 0, 0, 0.01, 0.16, 0.3, 0.15);
+		if (g_keepon)
+			g_keepon.setAutolayout(0, 0, 0, 0, 0.01, 0.31, 0.98, 0.1);
+	}
+	else
+	{
+		GUI->cancel.setAutolayout(0, 0, 0, 0, 0.31, 0.01, 0.3, 0.15);
+		if (g_keepon)
+			g_keepon.setAutolayout(0, 0, 0, 0, 0.01, 0.17, 0.98, 0.1);
+	}
+}
+
+~
+
+property:
+id:criterion
+name:Optimization criterion
+type:d 0 5 ~Velocity~Vertical velocity~Height~Custom 1~Custom 2~Custom 3
+
+property:
+id:showgroup_ShowPropertiesCustomfitnessfunction
+name:Custom fitness
+type:p
+
+property:
+id:fitcode
+name:Fitness formula
+type:s 1
+group:Custom fitness function
+
+property:
+id:testresult
+name:Test result (no simulation)
+type:s 1
+flags:16
+group:Custom fitness function
+
+property:
+id:testgeno
+name:Test genotype
+type:s 1
+group:Custom fitness function
+
+property:
+id:water
+name:Water environment
+type:d 0 1
+
+property:
+id:mutate_only_brain
+name:Preserve body shape (only mutate brain)
+type:d 0 1
+
+property:
+id:popsize
+name:Gene pool size
+type:d 10 200 20
+
+property:
+id:tournsize
+name:Selection – tournament size
+type:d 2 5 2
+
+property:
+id:convergence
+name:Fast convergence (remove unfit)
+type:d 0 1
+
+property:
+id:chartsize
+name:Big performance chart
+type:d 0 1 1

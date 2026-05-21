@@ -1,0 +1,715 @@
+# Gene pool: "swimming"
+# Creatures which swim (water environment)
+#
+# Downloaded on 2024-04-20 from Framsticks Experimentation Center
+
+org:
+name:Jellyfish #1
+genotype:~
+WX[S:-.1](X[S:1], XWXLWX[|-1:1, -2:1][@-1:-.1]LLWWrrX[|-2:.1, =:.01][@-2:-.1]rrLLWWX(, , rrllllllllllllwwX[G:-.6, =:1](, rrlllllwwXMX[|-1:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-3:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-5:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-7:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-9:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-11:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-13:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-15:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-17:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-19:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-21:-.75](wXX[|-1:-.3]), rrlllllwwXMX[|-23:-.75](wXX[|-1:-.3]), )))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:114
+instances:0
+data:
+
+org:
+name:Jellyfish #2
+genotype:~
+WX[S:-.1](X[S:1], XWXLWX[|-1:1, -2:1][@-1:-.1]LLWrrX[|-2:.1, =:.01][@-2:-.1]rrLLWWX(, , rrllllllllllllwwX[G:-.4, =:1](, rrlllllwwXMX[|-1:-2.2](XX[|-1:-.3]), rrlllllwwXMX[|-3:-2](XX[|-1:-.3]), rrlllllwwXMX[|-5:-2](XX[|-1:-.3]), rrlllllwwXMX[|-7:-2](XX[|-1:-.3]), rrlllllwwXMX[|-9:-2](XX[|-1:-.3]), rrlllllwwXMX[|-11:-1.8](XX[|-1:-.3]), rrlllllwwXMX[|-13:-1.8](XX[|-1:-.3]), rrlllllwwXMX[|-15:-2](XX[|-1:-.3]), rrlllllwwXMX[|-17:-2](XX[|-1:-.3]), rrlllllwwXMX[|-19:-2](XX[|-1:-.3]), rrlllllwwXMX[|-21:-2](XX[|-1:-.3]), rrlllllwwXMX[|-23:-2.2](XX[|-1:-.3]), )))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:115
+instances:0
+data:
+
+org:
+name:Jellyfish #3
+genotype:~
+WX[S:1](WX[S:-.1], XWXLWX[|-1:1, -2:1, =:.09][@2:1]LLWrrX[@-3:-1, -4:-1]rrLLWWX(, , rrllllllllllllwwX[G:-.38, =:1](, rrlllllwwXMX[|-1:-2.2](XMX[|-1:.4]), rrlllllwwXMX[|-3:-2](XMX[|-1:.5]), rrlllllwwXMX[|-5:-2](XMX[|-1:.5]), rrlllllwwXMX[|-7:-2](XMX[|-1:.5]), rrlllllwwXMX[|-9:-2](XMX[|-1:.5]), rrlllllwwXMX[|-11:-1.8](XMX[|-1:.6]), rrlllllwwXMX[|-13:-1.8](XMX[|-1:.6]), rrlllllwwXMX[|-15:-2](XMX[|-1:.5]), rrlllllwwXMX[|-17:-2](XMX[|-1:.5]), rrlllllwwXMX[|-19:-2](XMX[|-1:.5]), rrlllllwwXMX[|-21:-2](XMX[|-1:.5]), rrlllllwwXMX[|-23:-2.2](XMX[|-1:.4]), )))~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:116
+instances:0
+data:
+
+org:
+name:Catfish
+genotype:~
+rllllWWwdgDGbXlMMM(LLLLWWwX, , , RRllllMMXLllMMMMX[|1:0.74, 0:1.285]lMMMMX[|1:1.408]lMMX[|1:2.444]lMMMMX[|1:2.444]LLLLMMMdggGX[|-4:1.346, /:-0.434, !:1.0]Lm(lllllcccX(, , LcccCX[|1:1, =:.4], ), , , llllMX[1:1, 2:-1, !:.1, =:.8]LLLMM(, , , llllXX[S1:1, 1:-.75, !:.2, =:.8], , , , , llllXX[S1:.5, -1:-.75, !:.2, =:.8], , , ), , , llllCCCXl(, LCCCcX[|-3:1, =:.4], , )), , )~
+info_timestamp:883612800.0
+info_author:A. S. Wigand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:Physical and neural structure manually created, then evolved.
+info_performance:
+num:118
+instances:0
+data:
+
+org:
+name:Food finder
+genotype:~
+lllllfffMIX[|0:2.236, 3:-2.149, 1:-1][-1:1, 0:3.044, 0:-1](, , , LLLfffIX[S1:1], ffMIX[|-2:1, -1:-10, 8:10]ffMMIX[|-1:1, -2:-10, 7:10]llfffMIX[|-1:1, -3:-10, 6:10]llfffMIX[|-1:1]lllfffMMIX[|-1:1]llfffMIX[|-1:1]llfffMIX[|-1:1]LfffMIX[|-1:1], LLLfffIX[S1:1], , , )~
+info_timestamp:883612800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Underwater food finder.
+info_origin:2
+info_how_created:
+info_performance:
+num:119
+instances:0
+data:
+
+org:
+name:Food finder 3D
+genotype:~
+RR(, , LLfffIX[S1:1], lllllfffMIX[|0:2.236, 3:-2.149, 1:-1][-1:1, 0:3.044, 0:-1](, , , LLfffIX[S1:1], ffMX[|-2:1, -1:-10, 10:10]RRffMX[|-1:1, -2:-10, 9:10]RRRRRRfflllMX[|-6:1, 9:-1]llfffMX[|-2:1, -4:-10, 7:10]RRllfffMX[|-1:1]RRRRRRfflllMX[|-9:1, 5:-1]lllfffMX[|-2:1]llfffMX[|-1:1]llfffMX[|-1:1]LfffMX[|-1:1], LLfffX[S1:1], , , ), LLfffIX[S1:1], , )~
+info_timestamp:883612800.0
+info_author:Miron Sadziak
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Underwater food finder.
+info_origin:2
+info_how_created:
+info_performance:
+num:120
+instances:0
+data:
+
+org:
+name:Long swimmer
+genotype:~
+MX[@0:905.710]X[|0:-2.773, 1:0.795]XMMMX[|0:-0.797, 1:0.837]MX[|0:0.837, 1:2.543, -1:0.832]X[|0:0.854, 1:0.837]MMMMX[|0:0.977, 1:0.837]XMMMX[|0:0.854, 1:0.837]MX[|0:0.854, 1:1.282]X[|0:0.854, 1:0.837]MMMMX[|0:0.854, 1:0.837]MMMMXMMX[|0:0.854, 1:0.837]MX[|0:0.854, 1:2.478]X[|0:0.854, 1:0.837]MMMMX[|0:0.854, 1:0.837]MMMMXX[|0:0.854, 1:0.837]MMMMX[|1:0.837]MMMMX[|0:0.854, 1:0.837]MMX[|0:-1.047, 1:166.154]MX[|0:0.854, 1:2.946]X[|0:0.949, 1:0.837]X[@0:2.664, -1:-1.707]~
+info_timestamp:915148800.0
+info_author:Jean-Luc Herren
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:3
+info_how_created:Evolved for speed.
+info_performance:
+num:121
+instances:0
+data:
+
+org:
+name:Simple little swimmer
+genotype:~
+RRFFGGBX[@G:0.662, *:-1.333]RFX[@G:0.802]MMMMX[|-1:-1.569][-1:2.367, 0:-0.294]rrdXXcCXrCcf(RXX)~
+info_timestamp:915148800.0
+info_author:Greg Webb
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:
+info_performance:
+num:122
+instances:0
+data:
+
+org:
+name:Swimming Snake
+genotype:X[|1:1, 0:-0.5]X[|1:1, 0:-0.5]X[|1:1, 0:-0.5]X[|-3:-6]
+info_timestamp:883612800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:First trial, needs more evolution!
+info_performance:
+num:123
+instances:0
+data:
+
+org:
+name:Esofyg Is
+genotype:XX[|1:2.074, 0:-1.956]X[|1:-2.461]X[|-2:2.217]
+info_timestamp:915148800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:2
+info_how_created:Swimming snake's relative (after evolution).
+info_performance:
+num:124
+instances:0
+data:
+
+org:
+name:Freestyler
+genotype:~
+LLLXLLLXLLLX[@1:-1, 14:1.652, G:-1][0:0.186, =:0.000, -1:2][!:1.000, =:0.000, -2:2][!:0.700, =:0, -2:3.686][!:0.160, =:0.827, -2:-4.505][!:1.000, =:0.000, -2:-2.699][!:0.1, =:0.000, -2:2]LMX[@!:0.0, 14:-0.790, G:-1][|!:1, =:0, /:5, 13:-299.627, 14:-10][!:0.032, =:0, -1:2][!:1.000, 0:-2.849, -2:2][!:0.028, -2:2][!:0.140, -2:2][!:0.1, =:0, -2:2][!:0.1, =:0.898, -2:2.862, -1:5.972][!:0.1, =:0, -2:2][!:0.1, =:0, -2:2, 1:16.528][!:1.000, =:0.000, -2:2][!:0.062, =:0, -2:3.887, 1:-2.716][!:0.175, =:0.000][!:1.000, =:0.892, -2:1.659][/:5, -2:-5][/:999.000, -2:5]~
+info_timestamp:946684800.0
+info_author:Tom Hartley
+info_author_ispublic:1
+info_email:t.hartley@ucl.ac.uk
+info_email_ispublic:1
+info:
+info_origin:2
+info_how_created:~
+I wanted to evolve something other than a worm. From experiments with pairs of sticks, I noticed that I sometimes saw a pair that swum with large "strokes" like a human swimmer, or frog.
+I started with two long connected sticks, with a bending joint. By trial and error, I added a chain of neurons providing a time delay between "strokes". I limited mutations to neural only during the early stages, and gradually increased the level of morphological mutations. Initially, behavior was very uncoordinated.
+Eventually, a form emerged that used one arm to swim, while using a long stick as a counterbalance. I selected for velocity, distance and lifespan (...). At one point I selected the fittest swimmer, put it into a fresh simulation, and allowed radiation to occur from that point.~
+info_performance:~
+The counterbalance (tail) is rotated at the right moment, so that the arm is lifted out of the water.~
+num:125
+instances:0
+data:
+
+org:
+name:Trishark
+genotype:~
+GXllMMMMX[|1:2.951]llMMMMX[|1:2.721]llMMMMX[|1:2.303]llMMMMX[|1:2.482]llMMMMX[|1:2.684]llMMMMMX[|1:0.887]llMMMMX[|1:1]llMMMMX[|1:1.394]lMMMMX[|3:1][0:1.387, 2:-3.051, 1:-1.827][-1:1.061, 0:2.351, 1:-0.562][-1:0.756, -2:2.003, 0:-3.094]RRMMMMBGX[|3:-2.183, 4:-1.574, 5:2.803, 6:-1.685]RRMMMMX[|2:1.202, 3:-0.749, 4:-1.672, 5:3.004](RffffIIIIX[S1:-1.013], , , , rrlllIX[-1:-2.552, 0:-1.012, 1:4.480, 2:1.608, 3:4.701, 4:0, 5:4.269][-2:-1.448, -1:-3.943, 0:88.291, 1:923.941, 2:-1.701, 3:3.719, 4:0.594][-3:-2.916, -2:2.039, -1:-2.848, 0:-674.984, 1:-1.608, 2:0, 3:2.888][-3:0.830, -2:2.784, -1:3.067, 0:-1.097, 1:1.613, 2:-2.429](ffffIIIIllX, , , , , , LIIIIX[S1:-0.618]), , , , rfffIIIIIX[S1:-429.136])~
+info_timestamp:978307200.0
+info_author:Pete Mandik
+info_author_ispublic:1
+info_email:mandikp@wpunj.edu
+info_email_ispublic:1
+info:
+info_origin:2
+info_how_created:~
+I wanted to prove that a 3-D food finder (a deep water swimming foodfinder) could be made that had only three smell sensors. Trishark's morphology and neural topology were hand coded. Mutations were allowed to change only connection weights. Trishark was seleected for distance in an environment with progressively less food.~
+info_performance:~
+Test him out in world size of 50, with teleport, water depth 10, auto feed 2, ball energy 1000. His ability to orient toward the stimulus source is quite robust.~
+num:126
+instances:0
+data:
+
+org:
+name:Swimmer, f4
+genotype:/*4*/rr<<<GX>N:|[-1:0.0001]>N:*>#6<LllLl<dX><N:|[2:0.5]>N:G>>X>
+info_timestamp:946684800.0
+info_author:Unknown
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Swimmer in the f4 genetic encoding, six modules.
+info_origin:2
+info_how_created:~
+Created manually and evolved a bit. Note the '#6' gene which grows six independent control muscles with sensors.
+
+2023-06-23, Maciej Komosinski:
+
+Updated to resemble the original phenotype - the update was needed after numerous major f4 changes.
+
+This creature has no independent signal generator and relies on the feedback loop from the arrangement of body parts detected by tilt sensors to bend muscles that control the arrangement of body parts. For this reason, this genotype has an additional stick and muscle added with an extremely small bending signal ("*" sending "1" to "|" with weight 0.0001). This is to ensure that there is a tiny initial stimulus to microscopically bend the body, so that all "G" sensors start outputting non-zero signals to bending muscles. Without this additional "*"-controlled "|" muscle, this creature would need another source of initial movement (see the "Performance notes" section) to kickstart swimming.~
+info_performance:~
+A source of initial movement for this creature could be (1) reviving it above water, so that it falls down and the body bends, (2) random noise added to the output of neurons so that muscles bend the body at least a tiny bit. If you ensure that (1) or (2) is present, then you can use a simpler genotype without the additional "*"-controlled muscle: /*4*/rr<X>#6<LllLl<X>C<N:|[2:0.5]>N:G>>X
+
+Note that there exists the third source of initial stimulus, (3) random initialization of neuron state (the "randinit" parameter). However, this genotype does not have any "N" neurons, and "G" and "|" neurons are not affected by random state initialization. The neural network in the old original genotype was made of "G"->"N"->"|" modules instead of current "G"->"|" modules, so in the old original genotype, (3) could make "N" neurons initially output small values which served as a source of the initial stimulus to slightly bend "|" muscles and kickstart further swimming movement.~
+num:127
+instances:0
+data:
+
+org:
+name:Rowboat
+genotype:~
+ffwwDBX[*][Sin, -1:0.028, t:0.5](, wwllllffX(, wwffX), wwwrrffX(wwrrlffX[@-1:1.605](wwLFFDDgbX[|-2:8.418,fo:0.04], , , wwLFFDDgbX[|-3:4.423]), wwwrrffgX(wwllllffX(wwffX, ), , wwffX, , wwllllffX(, wwffX)), wwwffDDGGBBX), wwllllffX(wwffX, ), )~
+info_timestamp:1071100800.0
+info_author:Brad Fletcher
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Boat that rows across the top of the water.
+info_origin:2
+info_how_created:~
+Designed the structure and neural net. Evolved only the weights and properties of the neurons. Was unsure if Ff modifiers applied to water.~
+info_performance:~
+Rows like a kayaker across the surface of the water. Seems to be the top speed for this particular design. I plan on creating more 'boat' frams.
+This creature was awarded.~
+num:278
+instances:0
+data:
+
+org:
+name:Trisnake
+genotype:~
+GMMMMXMMMXllMMMMX[|1:2.951]llMMMMX[|1:2.721]llMMMMX[|1:2.951]llMMMMX[|1:2.721]llMMMMX[|1:2.951]llMMMMX[|1:2.721,in:0.8]llMMMMX[|1:0.887]llMMMMX[|1:0.4,fo:0.04]llMMMMX[|1:0.68]llMMMMX[|1:3.132]llMMMMX[|1:2.303]llMMMMX[|1:2.482]llMMMMDX[|1:2.684]llMMMMX[|1:0.887]llMMMMX[|1:2.972]llMMMMX[|1:1.394]llMMMMX[|3:1][0:1.387, 2:-3.051, 1:-1.827]MMX[|1:0.887]llMMMMX[|1:1]llMMMMX[|1:1.394]llMMMMX[|1:2.721]llMMMMX[|1:1.901]llMMMMX[|1:3.567]llMMMMX[|1:0.026]llMMMMX[|1:1]llMMMMX[|1:1.394]llMMMMX[|1:1]llMMMMXMMMMX[|1:0.228]llMMMMX[|1:1.394]llMMMMX[|3:1][0:1.387, 2:-3.051, 1:-1.827][-1:1.061, 0:2.351, 1:-0.562][-1:0.756, -2:2.003, 0:-3.094]RRMMMMX[|3:-2.183, 4:-1.574, 5:2.803, 6:-1.685,s:0]RRMMMMddDBGX[|2:1.202, 3:0.334, 4:0.018, 5:3.481](RfffX[S1:-1.099,in:0.8], , , , rrllllX[-1:-2.552, 0:-1.012, 1:4.480, 2:1.608, 3:4.701, 4:0, 5:4.269][-2:-1.448, -1:-3.943, 0:88.291, 1:923.941, 2:-1.701, 3:3.719, 4:0.594][-3:-2.916, -2:2.039, -1:-2.848, 0:-10, 1:-1.608, 2:0, 3:2.888][-3:0.830, -2:2.784, -1:3.067, 0:-1.097, 1:1.613, 2:-2.429](llllfffX, , , , , , LlllfffX, , , , , , LX[S1:-0.618]), , , , rfffX[S1:-10,in:0.8])~
+info_timestamp:1078704000.0
+info_author:
+info_author_ispublic:0
+info_email:
+info_email_ispublic:0
+info:Longer, curving up/down Trishark.
+info_origin:4
+info_how_created:~
+I started with the swimming genotypes and evolved for maximum horizontal velocity.~
+info_performance:~
+It swims around but curves up/down when it reaches the bottom/surface. It seems to work best starting at the surface.
+
+This creature was awarded.~
+num:285
+instances:0
+data:
+
+org:
+name:Primitive Jellyfish
+genotype:~
+//0
+p:y=-2
+p:
+p:1, -1
+p:y=-1, 1
+p:-1, -1
+p:y=-1, -1
+j:0, 1
+j:1, 2
+j:1, 3
+j:1, 4
+j:1, 5
+n:j=1, d=|
+n:j=2, d=@:p=1
+n:j=3, d=|
+n:j=4, d=@
+n:d="N:in=0.89236, fo=0.808508, si=2, s=0"
+n:d="Sin:f0=0.061, t=0.117"
+n:d=*
+c:0, 4, -0.25
+c:1, 4, 0.25
+c:2, 4, 0.25
+c:3, 4, -0.25
+c:4, 5, 5.667
+c:4, 6, 2.124
+c:4, 4, 1.746
+~
+info_timestamp:1089590400.0
+info_author:Sean Bartell
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:A simple jellyfish-like creature
+info_origin:2
+info_how_created:~
+Designed by hand, then neural network further evolved (though only one connection was added).~
+info_performance:It acts like a horizontal jellyfish...sort of. Use in water!
+num:311
+instances:0
+data:
+
+org:
+name:Jellyfish #4
+genotype:~
+//0
+p:x=0, y=0, z=0
+p:x=1, y=0, z=-1
+p:x=-1, y=0, z=-1
+p:x=0, y=1, z=-1
+p:x=0, y=-1, z=-1
+
+p:x=0.7, y=0.7, z=-1
+p:x=-0.7, y=0.7, z=-1
+p:x=0.7, y=-0.7, z=-1
+p:x=-0.7, y=-0.7, z=-1
+
+j:0, 1
+j:0,2
+j:0,3
+j:0,4
+j:0,5
+j:0,6
+j:0,7
+j:0,8
+
+j:1,5
+j:5,3
+j:3,6
+j:6,2
+j:2,8
+j:8,4
+j:4,7
+j:7,1
+
+p:x=1, y=0, z=-1
+p:x=-1, y=0, z=-1
+p:x=0, y=1, z=-1
+p:x=0, y=-1, z=-1
+
+p:x=0.7, y=0.7, z=-1
+p:x=-0.7, y=0.7, z=-1
+p:x=0.7, y=-0.7, z=-1
+p:x=-0.7, y=-0.7, z=-1
+
+j:1, 9, dx=0.25, dz=-1
+j:2, 10, dx=-0.25, dz=-1
+j:3, 11, dx=0.25, dz=-1
+j:4, 12, dx=-0.25, dz=-1
+j:5, 13, dx=0.25, dz=-1
+j:6, 14, dx=-0.25, dz=-1
+j:7, 15, dx=0.25, dz=-1
+j:8, 16, dx=-0.25, dz=-1
+
+p:x=1.25, y=0, z=-2
+p:x=-1.25, y=0, z=-2
+p:x=0.25, y=1, z=-2
+p:x=-0.25, y=-1, z=-2
+
+p:x=0.95, y=0.7, z=-2
+p:x=-0.95, y=0.7, z=-2
+p:x=0.95, y=-0.7, z=-2
+p:x=-0.95, y=-0.7, z=-2
+
+j:9, 17, dx=0, dy=0.2, dz=-0.5
+j:10, 18, dx=0, dy=-0.2, dz=-0.5
+j:11, 19, dx=0, dy=0.2, dz=-0.5
+j:12, 20, dx=0, dy=-0.2, dz=-0.5
+j:13, 21, dx=0, dy=0.2, dz=-0.5
+j:14, 22, dx=0, dy=-0.2, dz=-0.5
+j:15, 23, dx=0, dy=0.2, dz=-0.5
+j:16, 24, dx=0, dy=-0.2, dz=-0.5
+
+p:x=1.25, y=0.2, z=-2.5
+p:x=-1.25, y=-0.2, z=-2.5
+p:x=0.25, y=1.2, z=-2.5
+p:x=-0.25, y=-1.2, z=-2.5
+
+p:x=0.95, y=0.9, z=-2.5
+p:x=-0.95, y=0.5, z=-2.5
+p:x=0.95, y=-0.5, z=-2.5
+p:x=-0.95, y=-0.9, z=-2.5
+
+j:17, 25, dx=0.1, dy=0, dz=-0.25
+j:18, 26, dx=-0.1, dy=0, dz=-0.25
+j:19, 27, dx=0.1, dy=0, dz=-0.25
+j:20, 28, dx=-0.1, dy=0, dz=-0.25
+j:21, 29, dx=0.1, dy=0, dz=-0.25
+j:22, 30, dx=-0.1, dy=0, dz=-0.25
+j:23, 31, dx=0.1, dy=0, dz=-0.25
+j:24, 32, dx=-0.1, dy=0, dz=-0.25
+
+j:25, 29
+j:29,27
+j:27,30
+j:30,26
+j:26, 32
+j:32,28
+j:28,31
+j:31,25
+
+~
+info_timestamp:1098230400.0
+info_author:Jerzy Blaszczynski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:A jellyfish, at least I hope it looks like one :)
+info_origin:1
+info_how_created:
+info_performance:~
+An example of a framstick that can swim, though I designed it considering more its look than behaviour.~
+num:314
+instances:0
+data:
+
+org:
+name:Jellyfish #5
+genotype:~
+//0
+p:x=0, y=0, z=0
+p:x=1, y=0, z=-1
+p:x=-1, y=0, z=-1
+p:x=0, y=1, z=-1
+p:x=0, y=-1, z=-1
+
+p:x=0.7, y=0.7, z=-1
+p:x=-0.7, y=0.7, z=-1
+p:x=0.7, y=-0.7, z=-1
+p:x=-0.7, y=-0.7, z=-1
+
+j:0, 1
+j:0,2
+j:0,3
+j:0,4
+j:0,5
+j:0,6
+j:0,7
+j:0,8
+
+j:1,5
+j:5,3
+j:3,6
+j:6,2
+j:2,8
+j:8,4
+j:4,7
+j:7,1
+
+p:x=1, y=0, z=-2
+p:x=-1, y=0, z=-2
+p:x=0, y=1, z=-2
+p:x=0, y=-1, z=-2
+
+
+p:x=0.7, y=0.7, z=-2
+p:x=-0.7, y=0.7, z=-2
+p:x=0.7, y=-0.7, z=-2
+p:x=-0.7, y=-0.7, z=-2
+
+j:1, 9
+j:2, 10
+j:3, 11
+j:4, 12
+j:5, 13
+j:6, 14
+j:7, 15
+j:8, 16
+
+j:9,13
+j:13, 11
+j:11, 14
+j:14, 10
+j:10, 16
+j:16, 12
+j:12, 15
+j:15,9
+
+p:x=0, y=0, z=-3
+
+j:17, 9
+j:17, 10
+j:17, 11
+j:17, 12
+j:17, 13
+j:17, 14
+j:17, 15
+j:17, 16
+
+p:x=0.1, y=0, z=-4
+p:x=-0.1, y=0, z=-4
+p:x=0, y=0.1, z=-4
+p:x=0, y=-0.1, z=-4
+
+p:x=0.07, y=0.07, z=-4
+p:x=-0.07, y=0.07, z=-4
+p:x=0.07, y=-0.07, z=-4
+p:x=-0.07, y=-0.07, z=-4
+
+j:17, 18
+j:17, 19
+j:17, 20
+j:17, 21
+j:17, 22
+j:17, 23
+j:17, 24
+j:17, 25
+
+j:18, 22
+j:22, 20
+j:20,23
+j:23,19
+j:19,25
+j:25,21
+j:21, 24
+j:24,18
+
+p:x=0.5, y=0, z=-5
+p:x=-0.5, y=0, z=-5
+p:x=0, y=0.5, z=-5
+p:x=0, y=-0.5, z=-5
+
+j:18, 26
+j:19,27
+j:20, 28
+j:21,29
+
+p:x=0.5, y=0, z=-5
+p:x=-0.5, y=0, z=-5
+p:x=0, y=0.5, z=-5
+p:x=0, y=-0.5, z=-5
+
+j:26,30, dx=-0.5, dz=-0.25
+j:27,31, dx=0.5, dz=-0.25
+j:28,32, dx=-0.5, dz=-0.25
+j:29,33, dx=0.5, dz=-0.25
+
+p:x=1, y=0, z=-5.25
+p:x=-1, y=0, z=-5.25
+p:x=0.5, y=0.5,z=-5.25
+p:x=-0.5, y=-0.5,z=-5.25
+
+j:30, 34, dx=0.75, dz=-1
+j:31,35, dx=-0.75, dz=-1
+j:32,36, dx=0.75, dz=-1
+j:33,37, dx=-0.75, dz=-1~
+info_timestamp:1098230400.0
+info_author:Jerzy Blaszczynski
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Jellyfish #4 extended
+info_origin:1
+info_how_created:
+info_performance:~
+An example of a framstick that can swim, though I designed it considering rather its look than behavior.~
+num:315
+instances:0
+data:
+
+org:
+name:Rowing yawl
+genotype:~
+LLwwwwwwX[*][Sin, f0:0.0, -1:0.1][-1:1.0][D, -2:1.0][-1:100.0] wwX( RRllllwwwwX(,,RRRRwwwwllllX[@, p:1.0, -3:-0.3] (,,LX[|, p:1.0, -2:0.2 ]) ) ,, RRllllwwwwX(,,rrrrwwwwllllX[@, p:1.0, -5:0.3 ] (,,LX[|, p:1.0, -4:0.2 ]))  )~
+info_timestamp:1100822400.0
+info_author:Beniamin Dziurdza
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Please adjust the water level :)
+info_origin:1
+info_how_created:
+info_performance:~
+Velocity optimization is still possible!
+The D neuron is used to obtain the cycle shift for muscles.~
+num:316
+instances:0
+data:
+
+org:
+name:Four legs rowing
+genotype:~
+(wX[*][Sin, f0:0.02][D,-1:50][D,-1:50][D,-1:50]
+(
+wllllllX[-4:1][-4:1][|, -2:1,p:1]
+wllllllX[-02:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-06:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-10:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-14:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-18:100][*][-2:1,-1:1][|, -1:-1, p:1],
+wXwX(
+
+wllllllX[-25:1][-25:1][|, -2:1,p:1]
+wllllllX[-02:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-06:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-10:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-14:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-18:100][*][-2:1,-1:1][|, -1:-1, p:1]
+
+,X,
+
+wllllllX[-48:1][-48:1][|, -2:-1,p:1]
+wllllllX[-02:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-06:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-10:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-14:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-18:100][*][-2:1,-1:1][|, -1:1, p:1]
+
+),
+wllllllX[-73:1][-73:1][|, -2:-1,p:1]
+wllllllX[-02:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-06:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-10:100][*][-2:1,-1:1][|, -1:1, p:1]
+wllllllX[-14:100][*][-2:1,-1:1][|, -1:-1, p:1]
+wllllllX[-18:100][*][-2:1,-1:1][|, -1:1, p:1]))~
+info_timestamp:1100822400.0
+info_author:Pawel Kedziora
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:
+info_origin:1
+info_how_created:The creature was created manually.
+info_performance:~
+I was going to create a creature which moves using legs. Each leg tries to grab water when it is open. After that, it folds up and conducts backward movement. It consists of 4 legs. 
+It looks interesting but is not fast. After optimization, it was very fast but the movement was no longer symmetrical.~
+num:320
+instances:0
+data:
+
+org:
+name:Memory Anemone
+genotype:~
+((WWWGbdX, , WWWGbdX), , lllllllllRRWWWGbdX[*][*][Ch,-2:1,-1:1][ChMux,-1:1,3:.2]
+[N,1:.00005,0:1,s:.02][N,-1:1,1:.5][Thr, lo:0, hi:1, t:.31, 1:1][N,7:1,-3:-15,-4:1](WWWX, , rrgDXX[|, -2:1,p:.75](rrDXrrgDX[|, 1:1][Delay, -4:1,t:200]llllrrBX(llX[|, -5:-.666], llX[|, -6:.666]), lllllllllwwwwrrX[|, -7:1][S1], rrDXrrgDX[|, 1:1][Delay, -10:1,t:200]llllrrBX(llX[|, -11:-.666], llX[|, -12:.666])), , WWWX))~
+info_timestamp:1132012800.0
+info_author:Stephen Morrow
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:A sea anemone with protective response and memory.
+info_origin:1
+info_how_created:Designed entirely.
+info_performance:~
+The anemone (always simulate underwater) features a protective collapse response that is activated when anemone's smell neuron reaches 0.5.  The response features a memory loop which gains value when the response is activated and slowly returns to baseline when the response is inactive.  The loop inhibits future responses (a trained anemone might require a smell of 0.8 or more) thus modeling the rudimentary memory function of classical conditioning with Framsticks.  
+Let it fall to the bottom and feed it with energy.
+This creature was awarded.~
+num:408
+instances:0
+data:
+
+org:
+name:Sweeper
+genotype:~
+Drrr(rLLLLmwww(,,www(w((Lmmwww(m(, ( , rFwww(m(,((,, , rrFLM(, rmwwwXX[@, 8:3.619, p:1]GGdbX[*][@,p:1]XX[G][S1][@]), , GGbbRFX[S1][|, 1:-3.801, p:0.982, r:1][G] , BdgFX[@][|, 1:-3.047, p:0.94, r:1][G],,), ) ), ,(FBBgX[|, 1:-6.823, p:0.98, r:1][G],))), ) ) ),FwLX[|, 1:-9.323, p:0.979, r:0.899][G]lX)) ) )~
+info_timestamp:1138060800.0
+info_author:Peter Schoffhauzer
+info_author_ispublic:1
+info_email:scoofy@inf.elte.hu
+info_email_ispublic:1
+info:Really fast creature swimming on the surface.
+info_origin:3
+info_how_created:~
+Evolved naturally.
+
+2015, Maciej Komosinski: removed the "m" modifiers so that muscles do not warn about too low power (they were \~0.001 so less than 0.01).
+
+2024-04, Maciej Komosinski: updated for the new behavior of f1 modifiers.~
+info_performance:~
+One of the fastest swimming creatures in Framsticks. Velocity around 0.06. It moves its tentacles above the surface of the water, like swimmers do, thus reaching really good velocity performance.~
+num:423
+instances:0
+data:
+
+org:
+name:Surface Food Finding Snake
+genotype:~
+wX[Delay,t:25,11:1][N,fo:1,in:0,-1:2,26:1]wX[|,p:1,-1:1][Delay,t:14,8:1][N,fo:1,in:0,-1:2,23:1]wX[|,p:1,-1:1][Delay,t:6,5:1][N,fo:1,in:0,-1:2,20:1]wX[|,p:1,-1:1]wIIX[N,fo:1,in:0,2:2,18:1][|,p:1,-1:0.8][Sin,f0:0.12][Thr,-1:1,t:0,lo:-1,hi:1][D,-2:1][Thr,-1:1,t:0,lo:-1,hi:1][Thr,-1:05,-3:05,t:0.6,lo:0,hi:1][Thr,-2:-0.5,-4:0.5,t:0.6,lo:0,hi:1][Thr,-3:-0.5,-5:-0.5,t:0.6,lo:0,hi:1][Thr,-4:0.5,-6:-0.5,t:0.6,lo:0,hi:1][Thr,2:1,t:-0.00001,lo:1,hi:0][Thr,1:1,t:0.00001,lo:0,hi:1][D,1:1][S1][Thr,-3:0.5,-8:0.5,t:0.6,lo:0,hi:1][Thr,-5:0.5,-8:0.5,t:0.6,lo:0,hi:1][Thr,-5:0.5,-8:0.5,t:0.6,lo:0,hi:1][Thr,-7:0.5,-8:0.5,t:0.6,lo:0,hi:1][N,fo:1,in:0,-4:-1,-3:-1,-2:1,-1:1]~
+info_timestamp:1303776000.0
+info_author:Eric Strand
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:Water surface food finder.
+info_origin:1
+info_how_created:~
+I wanted to create a swimmer that could find food on the surface, but was more hydrodynamic than was allowable with multiple sensors.~
+info_performance:~
+It swims on the water's surface in a wave pattern, and uses the motion of its one smell sensor to detect and orient toward food.~
+num:451
+instances:0
+data:
+

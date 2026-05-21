@@ -1,0 +1,617 @@
+# created Sat Apr 20 22:48:01 2024
+# by Framsticks 5.0rc29
+org:
+name:Framsticks beacon top-modified
+genotype:~
+//0
+
+# first tetrahedron
+
+#0
+p:0,0,0,vr=0.7,0,0
+#1
+p:1.5,0,0,vr=0.7,0,0
+#2
+p:0.75,1.29,0,vr=0.7,0,0
+#3
+p:2.25,1.29,0,vr=0.7,0,0
+#4
+p:3,0,0,vr=0.7,0,0
+#5
+p:1.5,2.58,0,vr=0.7,0,0
+#6
+p:0.75,0.43,1.22,vr=0.7,0,0
+#7
+p:2.25,0.43,1.22,vr=0.7,0,0
+#8
+p:1.5,1.72,1.22,vr=0.7,0,0
+#9
+p:1.5,0.86,2.44,vr=0.7,0.5,0.5
+
+j:0,1,vr=1,0.3,0.3
+j:1,2,vr=1,0.3,0.3
+j:0,2,vr=1,0.3,0.3
+j:1,3,vr=1,0.3,0.3
+j:3,4,vr=1,0.3,0.3
+j:1,4,vr=1,0.3,0.3
+j:2,5,vr=1,0.3,0.3
+j:3,5,vr=1,0.3,0.3
+j:2,3,vr=1,0.3,0.3
+j:0,6,vr=1,0.3,0.3
+j:2,6,vr=1,0.3,0.3
+j:1,6,vr=1,0.3,0.3
+j:1,7,vr=1,0.3,0.3
+j:3,7,vr=1,0.3,0.3
+j:4,7,vr=1,0.3,0.3
+j:2,8,vr=1,0.3,0.3
+j:3,8,vr=1,0.3,0.3
+j:5,8,vr=1,0.3,0.3
+j:6,7,vr=1,0.3,0.3
+j:6,8,vr=1,0.3,0.3
+j:7,8,vr=1,0.3,0.3
+j:8,9,vr=1,0.3,0.3
+j:7,9,vr=1,0.3,0.3
+j:6,9,vr=1,0.3,0.3
+
+# second
+
+#10
+p:4.5,0,0,vr=0,0.7,0
+#11
+p:3.75,1.29,0,vr=0,0.7,0
+#12
+p:5.25,1.29,0,vr=0,0.7,0
+#13
+p:6,0,0,vr=0,0.7,0
+#14
+p:4.5,2.58,0,vr=0,0.7,0
+#15
+p:3.75,0.43,1.22,vr=0,0.7,0
+#16
+p:5.25,0.43,1.22,vr=0,0.7,0
+#17
+p:4.5,1.72,1.22,vr=0,0.7,0
+#18
+p:4.5,0.86,2.44,vr=0.5,0.7,0.5
+
+j:4,10,vr=0.3,1,0.3
+j:10,11,vr=0.3,1,0.3
+j:4,11,vr=0.3,1,0.3
+j:10,12,vr=0.3,1,0.3
+j:12,13,vr=0.3,1,0.3
+j:10,13,vr=0.3,1,0.3
+j:11,14,vr=0.3,1,0.3
+j:12,14,vr=0.3,1,0.3
+j:11,12,vr=0.3,1,0.3
+j:4,15,vr=0.3,1,0.3
+j:11,15,vr=0.3,1,0.3
+j:10,15,vr=0.3,1,0.3
+j:10,16,vr=0.3,1,0.3
+j:12,16,vr=0.3,1,0.3
+j:13,16,vr=0.3,1,0.3
+j:11,17,vr=0.3,1,0.3
+j:12,17,vr=0.3,1,0.3
+j:14,17,vr=0.3,1,0.3
+j:15,16,vr=0.3,1,0.3
+j:15,17,vr=0.3,1,0.3
+j:16,17,vr=0.3,1,0.3
+j:17,18,vr=0.3,1,0.3
+j:16,18,vr=0.3,1,0.3
+j:15,18,vr=0.3,1,0.3
+
+# THIRD
+
+#19
+p:3,2.58,0,vr=0,0,0.7
+#20
+p:2.25,3.87,0,vr=0,0,0.7
+#21
+p:3.75,3.87,0,vr=0,0,0.7
+#22
+p:4.5,2.58,0,vr=0,0,0.7
+#23
+p:3,5.16,0,vr=0,0,0.7
+#24
+p:2.25,3.01,1.22,vr=0,0,0.7
+#25
+p:3.75,3.01,1.22,vr=0,0,0.7
+#26
+p:3,4.3,1.22,vr=0,0,0.7
+#27
+p:3,3.44,2.44,vr=0.5,0.5,0.7
+
+j:5,19,vr=0.3,0.3,1
+j:19,20,vr=0.3,0.3,1
+j:5,20,vr=0.3,0.3,1
+j:19,21,vr=0.3,0.3,1
+j:21,22,vr=0.3,0.3,1
+j:19,22,vr=0.3,0.3,1
+j:20,23,vr=0.3,0.3,1
+j:21,23,vr=0.3,0.3,1
+j:20,21,vr=0.3,0.3,1
+j:5,24,vr=0.3,0.3,1
+j:20,24,vr=0.3,0.3,1
+j:19,24,vr=0.3,0.3,1
+j:19,25,vr=0.3,0.3,1
+j:21,25,vr=0.3,0.3,1
+j:22,25,vr=0.3,0.3,1
+j:20,26,vr=0.3,0.3,1
+j:21,26,vr=0.3,0.3,1
+j:23,26,vr=0.3,0.3,1
+j:24,25,vr=0.3,0.3,1
+j:24,26,vr=0.3,0.3,1
+j:25,26,vr=0.3,0.3,1
+j:26,27,vr=0.3,0.3,1
+j:25,27,vr=0.3,0.3,1
+j:24,27,vr=0.3,0.3,1
+
+# topmost one.
+
+#28
+p:3,0.86,2.44
+#29
+p:2.25,2.15,2.44
+#30
+p:3.75,2.15,2.44
+
+#31
+p:2.25,1.29,3.66
+#32
+p:3.75,1.29,3.66
+#33
+p:3,2.58,3.66
+#34
+p:3,1.72,4.88
+
+
+j:9,28,vr=0.7,0.7,0.7
+j:28,29,vr=0.7,0.7,0.7
+j:9,29,vr=0.7,0.7,0.7
+j:28,30,vr=0.7,0.7,0.7
+j:30,18,vr=0.7,0.7,0.7
+j:28,18,vr=0.7,0.7,0.7
+j:29,27,vr=0.7,0.7,0.7
+j:30,27,vr=0.7,0.7,0.7
+j:29,30,vr=0.7,0.7,0.7
+j:9,31,vr=0.75,0.75,0.75
+j:29,31,vr=0.75,0.75,0.75
+j:28,31,vr=0.75,0.75,0.75
+j:28,32,vr=0.75,0.75,0.75
+j:30,32,vr=0.75,0.75,0.75
+j:18,32,vr=0.75,0.75,0.75
+j:29,33,vr=0.75,0.75,0.75
+j:30,33,vr=0.75,0.75,0.75
+j:27,33,vr=0.75,0.75,0.75
+j:31,32,vr=0.7,0.8,0.7
+j:31,33,vr=0.7,0.8,0.7
+j:32,33,vr=0.7,0.8,0.7
+j:33,34,vr=0.65,0.85,0.65
+j:32,34,vr=0.65,0.85,0.65
+j:31,34,vr=0.65,0.85,0.65
+
+# dangling thing.
+
+# 35
+p:3,1.72,5
+# 36
+p:3,1.72,6,Vstyle=flag
+# 37 and 38, just to add some mass
+p:3,1.72,6.9,vr=1,1,1
+p:3,1.72,7,vr=0.2,1,0.2
+
+j:34,35,vr=0.65,0.85,0.65
+j:35,36,vr=0.6,0.9,0.6
+j:36,37,vr=0.55,0.95,0.55
+j:37,38,vr=0.5,1,0.5
+
+n:j=97, d="@"
+n:d="Sin:f0=0.02"
+n:j=97, d="|"
+n:d="Sin:f0=0.011"
+
+c:0,1,0.4
+c:2,3,0.4
+~
+info_timestamp:1713403550.0405316
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually created)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:39
+numjoints:100
+numneurons:4
+numconnections:2
+num:27
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:"null"
+user2:@Serialized:"null"
+user3:@Serialized:"null"
+is_valid:1
+uid:g1
+
+org:
+name:oscillator
+genotype:~
+DggbbX(X, RRX(, XX(, RRX(X, X, X), XMMMdGGGX[|1:10, 2:-10](X[!:1, G:1], X[!:1, G:1])), XMMMdGGGX[|!:1, 1:10, 2:-10](X[!:1, G:1], X[!:1, G:1])), X)~
+info_timestamp:0.0
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:19
+numjoints:18
+numneurons:12
+numconnections:10
+num:28
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g2
+
+org:
+name:Archetypical spider
+genotype:~
+DdgblllXL(rrDDX(, DGBX), rrX(, DX, rrDX(, GX), rrDX(, GX), llllrrDX(, IIllGX), IIllrrDX(, IIllGX), rrDX(, GX), rrDX(, GX), rrDX(, GX), rrDX, DX))~
+info_timestamp:1713403899.768143
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:22
+numjoints:21
+numneurons:0
+numconnections:0
+num:29
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g3
+
+org:
+name:Ball
+genotype:~
+//0
+p: -1.5, -0.5, -0.5
+p: -1.5, -0.5, 0.5
+p: -1.5, 0.5, 0.5
+p: -1.5, 0.5, -0.5
+p: 1.5, -0.5, -0.5
+p: 1.5, -0.5, 0.5
+p: 1.5, 0.5, 0.5
+p: 1.5, 0.5, -0.5
+p: -0.5, -1.5, -0.5
+p: -0.5, -1.5, 0.5
+p: 0.5, -1.5, 0.5
+p: 0.5, -1.5, -0.5
+p: -0.5, 1.5, -0.5
+p: -0.5, 1.5, 0.5
+p: 0.5, 1.5, 0.5
+p: 0.5, 1.5, -0.5
+p: -0.5, -0.5, -1.5
+p: -0.5, 0.5, -1.5
+p: 0.5, 0.5, -1.5
+p: 0.5, -0.5, -1.5
+p: -0.5, -0.5, 1.5
+p: -0.5, 0.5, 1.5
+p: 0.5, 0.5, 1.5
+p: 0.5, -0.5, 1.5
+j: 0, 1,vr=1,0.5,1
+j: 1, 2,vr=1,0.5,1
+j: 2, 3,vr=1,0.5,1
+j: 3, 0,vr=1,0.5,1
+j: 4, 5,vr=1,0.5,1
+j: 5, 6,vr=1,0.5,1
+j: 6, 7,vr=1,0.5,1
+j: 7, 4,vr=1,0.5,1
+j: 8, 9,vr=1,0.5,1
+j: 9, 10,vr=1,0.5,1
+j: 10, 11,vr=1,0.5,1
+j: 11, 8,vr=1,0.5,1
+j: 12, 13,vr=1,0.5,1
+j: 13, 14,vr=1,0.5,1
+j: 14, 15,vr=1,0.5,1
+j: 15, 12,vr=1,0.5,1
+j: 16, 17,vr=1,0.9,1
+j: 17, 18,vr=1,0.9,1
+j: 18, 19,vr=1,0.9,1
+j: 19, 16,vr=1,0.9,1
+j: 20, 21,vr=0.4,0.2,0.4
+j: 21, 22,vr=0.4,0.2,0.4
+j: 22, 23,vr=0.4,0.2,0.4
+j: 23, 20,vr=0.4,0.2,0.4
+j: 0, 8,vr=1,0.5,1
+j: 1, 9,vr=1,0.5,1
+j: 1, 20,vr=0.6,0.2,0.6
+j: 2, 21,vr=0.6,0.2,0.6
+j: 2, 13,vr=1,0.5,1
+j: 3, 12,vr=1,0.5,1
+j: 3, 17,vr=1,0.7,1
+j: 0, 16,vr=1,0.7,1
+j: 4, 11,vr=1,0.5,1
+j: 5, 10,vr=1,0.5,1
+j: 5, 23,vr=0.6,0.2,0.6
+j: 6, 22,vr=0.6,0.2,0.6
+j: 6, 14,vr=1,0.5,1
+j: 7, 15,vr=1,0.5,1
+j: 7, 18,vr=1,0.7,1
+j: 4, 19,vr=1,0.7,1
+j: 13, 21,vr=0.6,0.2,0.6
+j: 14, 22,vr=0.6,0.2,0.6
+j: 20, 9,vr=0.6,0.2,0.6
+j: 23, 10,vr=0.6,0.2,0.6
+j: 8, 16,vr=1,0.7,1
+j: 11, 19,vr=1,0.7,1
+j: 12, 17,vr=1,0.7,1
+j: 15, 18,vr=1,0.7,1~
+info_timestamp:1713404292.8929331
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:24
+numjoints:48
+numneurons:0
+numconnections:0
+num:30
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g4
+
+org:
+name:Table
+genotype:~
+//0
+p:vr=0.6,0.3,0.1
+p:1,vr=0.6,0.3,0.1
+p:1,1,vr=0.6,0.3,0.1
+p:0,1,vr=0.6,0.3,0.1
+j:0,1,vr=0.7,0.4,0.2
+j:1,2,vr=0.7,0.4,0.2
+j:2,3,vr=0.7,0.4,0.2
+j:0,3,vr=0.7,0.4,0.2
+p:z=-1,vr=0.3,0.2,0
+p:1,z=-1,vr=0.3,0.2,0
+p:1,1,-1,vr=0.3,0.2,0
+p:0,1,-1,vr=0.3,0.2,0
+j:0,4,vr=0.5,0.2,0
+j:1,5,vr=0.5,0.2,0
+j:2,6,vr=0.5,0.2,0
+j:3,7,vr=0.5,0.2,0
+~
+info_timestamp:1713404641.4191182
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:8
+numjoints:8
+numneurons:0
+numconnections:0
+num:31
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g5
+
+org:
+name:Two wheels
+genotype:~
+//0
+p:x=0.5,y=0,z=0,vr=0.9,0.9,0.9
+
+p:x=0,y=1,z=0,vr=0.8,0.4,0.4
+p:x=0,y=0.74,z=0.74,vr=0.8,0.4,0.4
+p:x=0,y=0,z=1,vr=0.8,0.4,0.4
+p:x=0,y=-0.74,z=0.74,vr=0.8,0.4,0.4
+p:x=0,y=-1,z=0,vr=0.8,0.4,0.4
+p:x=0,y=-0.74,z=-0.74,vr=0.8,0.4,0.4
+p:x=0,y=0,z=-1,vr=0.8,0.4,0.4
+p:x=0,y=0.74,z=-0.74,vr=0.8,0.4,0.4
+
+j:0,1,vr=0.8,0.4,0.4
+j:1,2,vr=0.9,0.3,0.3
+j:2,0,vr=0.8,0.4,0.4
+
+j:0,3,vr=0.8,0.4,0.4
+j:3,4,vr=0.9,0.3,0.3
+j:4,0,vr=0.8,0.4,0.4
+
+j:0,5,vr=0.8,0.4,0.4
+j:5,6,vr=0.9,0.3,0.3
+j:6,0,vr=0.8,0.4,0.4
+
+j:0,7,vr=0.8,0.4,0.4
+j:7,8,vr=0.9,0.3,0.3
+j:8,0,vr=0.8,0.4,0.4
+
+j:2,3,vr=0.9,0.3,0.3
+j:4,5,vr=0.9,0.3,0.3
+j:6,7,vr=0.9,0.3,0.3
+
+j:8,1,vr=0.9,0.3,0.3
+
+p:1.5,0,0,vr=0.9,0.9,0.9
+
+p:x=2,y=1,z=0,vr=0.6,0.9,0.6
+p:x=2,y=0.74,z=0.74,vr=0.6,0.9,0.6
+p:x=2,y=0,z=1,vr=0.6,0.9,0.6
+p:x=2,y=-0.74,z=0.74,vr=0.6,0.9,0.6
+p:x=2,y=-1,z=0,vr=0.6,0.9,0.6
+p:x=2,y=-0.74,z=-0.74,vr=0.6,0.9,0.6
+p:x=2,y=0,z=-1,vr=0.6,0.9,0.6
+p:x=2,y=0.74,z=-0.74,vr=0.6,0.9,0.6
+
+j:9,10,vr=0.6,0.9,0.6
+j:10,11,vr=0.3,0.8,0.2
+j:11,9,vr=0.6,0.9,0.6
+
+j:9,12,vr=0.6,0.9,0.6
+j:12,13,vr=0.3,0.8,0.2
+j:13,9,vr=0.6,0.9,0.6
+
+j:9,14,vr=0.6,0.9,0.6
+j:14,15,vr=0.3,0.8,0.2
+j:15,9,vr=0.6,0.9,0.6
+
+j:9,16,vr=0.6,0.9,0.6
+j:16,17,vr=0.3,0.8,0.2
+j:17,9,vr=0.6,0.9,0.6
+
+j:11,12,vr=0.3,0.8,0.2
+j:13,14,vr=0.3,0.8,0.2
+j:15,16,vr=0.3,0.8,0.2
+j:17,10,vr=0.3,0.8,0.2
+
+# middle joint
+j:0,9,vr=0.7,0.7,0.7
+
+~
+info_timestamp:1713646074.9553761
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:18
+numjoints:33
+numneurons:0
+numconnections:0
+num:32
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g6
+
+org:
+name:Table-overturned
+genotype:~
+//0
+p:vr=0.5,0.4,0.1
+p:1,vr=0.5,0.4,0.1
+p:1,1,vr=0.5,0.4,0.1
+p:0,1,vr=0.5,0.4,0.1
+j:0,1,vr=0.6,0.5,0.2
+j:1,2,vr=0.6,0.5,0.2
+j:2,3,vr=0.6,0.5,0.2
+j:0,3,vr=0.6,0.5,0.2
+p:z=-1,vr=0.2,0.15,0
+p:0.9,0.05,z=-1,vr=0.2,0.15,0
+# leg length = 1:
+p:0.95,0.9,-0.993,vr=0.2,0.15,0
+p:0.1,1.3,-0.9485,vr=0.2,0.15,0
+j:0,4,vr=0.4,0.3,0
+j:1,5,vr=0.4,0.3,0
+j:2,6,vr=0.4,0.3,0
+j:3,7,vr=0.4,0.3,0
+~
+info_timestamp:1713543826.7099824
+info_author:
+info_author_ispublic:1
+info_email:
+info_email_ispublic:0
+info:(manually modified)
+info_origin:0
+info_how_created:
+info_performance:
+energy0:1.0
+numparts:8
+numjoints:8
+numneurons:0
+numconnections:0
+num:33
+gnum:0
+instances:0
+lifespan:0.0
+velocity:0.0
+distance:0.0
+vertvel:0.0
+vertpos:0.0
+data:@Serialized:{}
+user1:@Serialized:null
+user2:@Serialized:null
+user3:@Serialized:null
+is_valid:1
+uid:g7
+

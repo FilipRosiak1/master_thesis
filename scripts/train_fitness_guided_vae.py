@@ -38,6 +38,7 @@ TREE_MODELS = {
     "tree_vae_masked_lhs",
     "tree_vae_masked_lhs_depth",
     "tree_vae_masked_lhs_cond",
+    "tree_vae_masked_lhs_struct_cond",
 }
 
 
@@ -49,24 +50,37 @@ class FitnessIndexedDataset(Dataset):
         *,
         fitness_mean: float,
         fitness_std: float,
+        length_mean: float,
+        length_std: float,
+        segments_mean: float,
+        segments_std: float,
     ) -> None:
         self.dataset = dataset
         self.indices = indices
         self.fitness_mean = fitness_mean
         self.fitness_std = fitness_std
+        self.length_mean = length_mean
+        self.length_std = length_std
+        self.segments_mean = segments_mean
+        self.segments_std = segments_std
 
     def __len__(self) -> int:
         return len(self.indices)
 
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         source_idx = self.indices[idx]
+        genotype = self.dataset.valid_lines[source_idx]
         raw = float(self.dataset.valid_fitnesses[source_idx])
         normalized = (raw - self.fitness_mean) / self.fitness_std
+        length_norm = (len(genotype) - self.length_mean) / self.length_std
+        segments_norm = (genotype.count("X") - self.segments_mean) / self.segments_std
+        condition = torch.tensor([normalized, length_norm, segments_norm], dtype=torch.float32)
         return (
             self.dataset[source_idx],
             torch.tensor(normalized, dtype=torch.float32),
             torch.tensor(raw, dtype=torch.float32),
             torch.tensor(source_idx, dtype=torch.long),
+            condition,
         )
 
 
@@ -149,12 +163,19 @@ def _make_run_dir(output_root: str, model_name: str, run_name: str | None, run_d
     return path
 
 
-def _decode_batch(model_name: str, model, batch: torch.Tensor, fitness_norm: torch.Tensor | None) -> list[str]:
+def _condition_for_model(model, fitness_norm: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+    condition_dim = int(getattr(model, "condition_dim", 0))
+    if condition_dim <= 1:
+        return fitness_norm
+    return condition[:, :condition_dim]
+
+
+def _decode_batch(model_name: str, model, batch: torch.Tensor, condition: torch.Tensor | None) -> list[str]:
     if model_name not in TREE_MODELS:
         raise ValueError(f"Only tree/grammar-rule models are supported, got {model_name}")
     mu, _ = model.encode(batch)
     if hasattr(model, "condition_dim"):
-        logits = model.decode(mu, None, teacher_forcing_ratio=0.0, fitness_condition=fitness_norm)
+        logits = model.decode(mu, None, teacher_forcing_ratio=0.0, fitness_condition=condition)
     else:
         logits = model.decode(mu, None, teacher_forcing_ratio=0.0)
     tokens = logits.argmax(dim=-1)
@@ -177,11 +198,13 @@ def _evaluate_reconstruction(
     similarity_sum = 0.0
     model.eval()
     with torch.no_grad():
-        for batch, fitness_norm, _, _ in loader:
+        for batch, fitness_norm, _, _, condition in loader:
             batch = batch.to(device)
-            fitness_norm = fitness_norm.to(device) if conditional else None
+            fitness_norm = fitness_norm.to(device)
+            condition = condition.to(device)
+            decode_condition = _condition_for_model(model, fitness_norm, condition) if conditional else None
             originals = _reference_batch(batch)
-            reconstructions = _decode_batch(model_name, model, batch, fitness_norm)
+            reconstructions = _decode_batch(model_name, model, batch, decode_condition)
             for original, reconstructed in zip(originals, reconstructions):
                 if original == reconstructed:
                     exact += 1
@@ -203,7 +226,7 @@ def _evaluate_fitness_head(
     model.eval()
     head.eval()
     with torch.no_grad():
-        for batch, fitness_norm, _, _ in loader:
+        for batch, fitness_norm, _, _, _ in loader:
             batch = batch.to(device)
             fitness_norm = fitness_norm.to(device)
             mu, _ = model.encode(batch)
@@ -258,8 +281,14 @@ def main() -> None:
         indices = indices[: args.max_items]
     train_indices, val_indices = _split_indices(indices, args.val_split, args.seed)
     train_fitness = np.asarray([float(dataset.valid_fitnesses[idx]) for idx in train_indices], dtype=np.float64)
+    train_lengths = np.asarray([len(dataset.valid_lines[idx]) for idx in train_indices], dtype=np.float64)
+    train_segments = np.asarray([dataset.valid_lines[idx].count("X") for idx in train_indices], dtype=np.float64)
     fitness_mean = float(train_fitness.mean())
     fitness_std = float(max(train_fitness.std(), 1e-8))
+    length_mean = float(train_lengths.mean())
+    length_std = float(max(train_lengths.std(), 1e-8))
+    segments_mean = float(train_segments.mean())
+    segments_std = float(max(train_segments.std(), 1e-8))
 
     run_dir = _make_run_dir(args.output_root, model_name, args.run_name, args.run_dir)
     config = {
@@ -282,6 +311,10 @@ def main() -> None:
         "fitness_head_hidden": args.fitness_head_hidden,
         "fitness_mean": fitness_mean,
         "fitness_std": fitness_std,
+        "length_mean": length_mean,
+        "length_std": length_std,
+        "segments_mean": segments_mean,
+        "segments_std": segments_std,
         "train_size": len(train_indices),
         "val_size": len(val_indices),
     }
@@ -290,9 +323,19 @@ def main() -> None:
     device = torch.device(args.device) if args.device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
     _log(run_dir, f"Using device: {device}")
     _log(run_dir, f"Fitness normalization: mean={fitness_mean:.8g} std={fitness_std:.8g}")
+    _log(run_dir, f"Length normalization: mean={length_mean:.8g} std={length_std:.8g}")
+    _log(run_dir, f"Segments normalization: mean={segments_mean:.8g} std={segments_std:.8g}")
 
-    train_dataset = FitnessIndexedDataset(dataset, train_indices, fitness_mean=fitness_mean, fitness_std=fitness_std)
-    val_dataset = FitnessIndexedDataset(dataset, val_indices, fitness_mean=fitness_mean, fitness_std=fitness_std) if val_indices else None
+    dataset_kwargs = {
+        "fitness_mean": fitness_mean,
+        "fitness_std": fitness_std,
+        "length_mean": length_mean,
+        "length_std": length_std,
+        "segments_mean": segments_mean,
+        "segments_std": segments_std,
+    }
+    train_dataset = FitnessIndexedDataset(dataset, train_indices, **dataset_kwargs)
+    val_dataset = FitnessIndexedDataset(dataset, val_indices, **dataset_kwargs) if val_indices else None
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     train_recon_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False) if val_dataset is not None else None
@@ -324,6 +367,10 @@ def main() -> None:
         "fitness_guided_mode": args.mode,
         "fitness_mean": fitness_mean,
         "fitness_std": fitness_std,
+        "length_mean": length_mean,
+        "length_std": length_std,
+        "segments_mean": segments_mean,
+        "segments_std": segments_std,
     }
 
     best_val_exact = -1
@@ -343,12 +390,17 @@ def main() -> None:
         beta = _beta_for_epoch(epoch, schedule_epochs)
         tf_ratio = _tf_ratio_for_epoch(epoch, schedule_epochs)
 
-        for batch, fitness_norm, _, _ in train_loader:
+        for batch, fitness_norm, _, _, condition in train_loader:
             batch = batch.to(device)
             fitness_norm = fitness_norm.to(device)
+            condition = condition.to(device)
             optimizer.zero_grad()
             if args.mode == "conditional":
-                recon_logits, mu, logvar = model(batch, fitness_norm, teacher_forcing_ratio=tf_ratio)
+                recon_logits, mu, logvar = model(
+                    batch,
+                    _condition_for_model(model, fitness_norm, condition),
+                    teacher_forcing_ratio=tf_ratio,
+                )
             else:
                 recon_logits, mu, logvar = model(batch, teacher_forcing_ratio=tf_ratio)
             loss, ce, kld = sequence_vae_loss(recon_logits, batch, mu, logvar, pad_idx=dataset.pad_rule_idx, beta=beta)

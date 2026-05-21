@@ -1,0 +1,207 @@
+show:
+name:Top-level menu
+expdef:standard
+code:~
+@include "AL-shared.inc"
+@include "AL-quests.inc"
+@include "AL-objects.inc"
+
+global g_doc_files;
+global g_plant, g_tipjar;
+global g_animating, g_anim_begin, g_anim_duration, g_rotation, g_rotation_begin;
+
+function onLoad()
+{
+	GLDisplay.simsteps = 0;
+	GLDisplay.user_interaction = 32 + 128;
+	GLDisplay.world_visibility = 1 + 4;
+	GLDisplay.skybox = "field_";
+	ShowManager.dispinfo = 0;
+	GLDisplay.back_action = "";
+	initQuestDefinitions();
+	loadQuests();
+
+	World.wrldsiz = 10;
+
+    var cr3d = Obj3D.newFromCreature("//0s\np:sh=2,sx=0.6,sy=0.6,sz=0.3,z=3.4,vr=0.8,0.8,0.4\np:sh=2,sx=0.1,sy=0.1,sz=0.1,vr=0.8,0.8,0.4\np:sh=2,sx=0.1,sy=0.1,sz=0.1,vr=0.8,0.8,0.4\np:sh=2,sx=0.1,sy=0.1,sz=0.1,vr=0.8,0.8,0.4\np:sh=2,sx=0.1,sy=0.1,sz=0.1,vr=0.8,0.8,0.4\np:sh=1,sx=0.5,sy=0.5,sz=0.5,vr=0.6,0.3,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\np:sh=3,sx=0.05,sy=0.3,sz=0.3,vr=0.3,0.8,0.1\nj:0,1,sh=1,dx=0.45,dy=0.45,dz=-0.4\nj:0,2,sh=1,dx=-0.45,dy=0.45,dz=-0.4\nj:0,3,sh=1,dx=0.45,dy=-0.45,dz=-0.4\nj:0,4,sh=1,dx=-0.45,dy=-0.45,dz=-0.4\nj:0,5,sh=1,dz=0.6\nj:5,6,sh=1,dx=-0.5,dy=0.35,dz=0.1,ry=-1.0,rx=1.3\nj:6,7,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:7,8,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:8,9,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:9,10,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:10,11,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:11,12,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:12,13,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:13,14,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\nj:14,15,sh=1,dx=0.15,dy=0.55,rx=0.63,ry=0.63,rz=0.2\n");
+
+	if (Sharing.can_shop)
+	{
+		GUI.newButton("tipjar", "");
+		GUI->tipjar.style = 1;
+		GUI.setTimeout("beginRotation", 2+Math.rnd01*10, function beginRotation);
+		var mat = Material.new();
+		mat.texture = "tipjar-label";
+		mat.alphatest = 0.3;
+
+		g_tipjar=Obj3D.load("sloik");
+		g_tipjar[0].material = mat;
+		g_tipjar[1].material = createGlassMaterial();
+		g_tipjar[1].transparent = 1;
+	}
+	
+	g_plant=Obj3D.newEmpty();
+	g_plant.add(cr3d);
+	cr3d.transform = Matrix.newTranslation((1, 1, -2));
+	if (g_tipjar)
+	{
+		g_plant.add(g_tipjar);
+		g_tipjar.transform = Matrix.new().translate((1, 1.8, 1.3)).scale(0.25);
+	}
+	GLDisplay.world3d.add(g_plant);
+	g_animating = 0;
+	g_rotation = 0;
+
+	addTipJarObjects();
+
+	TrackingCam.cam_world = 0;
+	TrackingCam.cam_change = 1;
+	TrackingCam.setTarget(8, 5, 2, 1);
+	TrackingCam.tick(0);
+
+	TrackingCam.cam_change = 2;
+	TrackingCam.setTarget(8, 5, 2, 3);
+
+	var but;
+	var y = 0.05;
+	for(var b in [["AL-quests", "star_enabled", "Quests (" + completedQuestCategoriesCount() + "/" + g_quest_categories.size + ")"],
+	                                                                                                                               ["AL-history", "butelka-alpha", "Your creatures"],
+	                                                                                                                               ["AL-seed", "seeds", "Initial creatures"],
+	                                                                                                                               ["AL-theater", "menu_show_AL-theater", "Demos"],
+	                                                                                                                               ["AL-net", "top_online", "Online evolution (upcoming)"]])
+	{
+		but = GUI.newButton(b[0], b[2]);
+		but.image = b[1];
+		but.setAutolayout(0, 0, 0, 0, 0.3, y, 0.6, 0.17);
+		if (b[0]=="AL-net") //temporarily disable
+		{
+			but.enabled=0;
+			but.fgcolor=0xffaaaaaa;
+		}
+		y += 0.18;
+	}
+
+	onResize();
+}
+
+function newHeart(size, pos)
+{
+	var img = Obj3D.newImage("balloonheart",size,size,0,0);
+	img.transformMesh(Matrix.newRotation((-1.57,0,0)));
+	img = Obj3D.newBillboard(img);
+	img.transform = Matrix.newTranslation(pos);
+	return img;
+}
+
+function randomPointInCylinder(r,h)
+{
+	var a=Math.rndUni(0,Math.twopi);
+	r=Math.sqrt(Math.rnd01)*r;
+	return (r*Math.cos(a),r*Math.sin(a),Math.rndUni(0,h));
+}
+
+function addTipJarObject(level)
+{
+	var p = randomPointInCylinder(0.7,2.5);
+	p.add((1,1,2.5));
+	g_plant.add(newHeart(Math.pow(2,level)*0.15, p));
+}
+
+function addTipJarObjects()
+{
+	var LEVEL_MULTIPLIER = 5;
+	var UNIT = 100;
+	var LEVEL_OVERLAP = 1.3;
+	var MAX_AMOUNT = 100 * UNIT;
+
+	var amount = Math.min(MAX_AMOUNT, Sharing.tip_units);
+
+	var level = 0;
+	var threshold = UNIT;
+	while (amount >= threshold * LEVEL_OVERLAP)
+	{
+		threshold *= LEVEL_MULTIPLIER;
+		level++;
+	}
+	if (level > 0) { level--; threshold /= LEVEL_MULTIPLIER; }
+	while (level >= 0)
+	{
+		if (amount >= ((level == 0) ? threshold : threshold * LEVEL_OVERLAP))
+		{
+			addTipJarObject(level);
+			amount -= threshold;
+		}
+		else
+		{
+			level--;
+			threshold /= LEVEL_MULTIPLIER;
+		}
+	}
+
+}
+
+function beginRotation()
+{
+g_animating=1;
+g_anim_begin=Math.time;
+g_anim_duration=1;
+g_rotation_begin=float(g_rotation);
+}
+
+function onShowStep()
+{
+	var anim = Math.time;
+	TrackingCam.setViewDir(90.0 + 3.0 * Math.sin(anim * 0.5), 20.0 + 3.0 * Math.cos(anim * 0.5));
+	TrackingCam.cam_zoom = (2.5 + 0.1 * Math.sin(anim * 0.15)) * 1.5 / World.wrldsiz;
+	if (g_animating)
+		{
+		var t=Math.time-g_anim_begin;
+		if (t>=g_anim_duration)
+			{
+			t=g_anim_duration;
+			g_animating=0;
+			var next_time = GUI->tipjar.visible ? (2.0*Math.rnd01) : (7.0+10.0*Math.rnd01);
+			GUI.setTimeout("beginRotation", next_time, function beginRotation);
+			}
+		t=t*(3.0-t*t)*0.5;
+		g_rotation=(g_rotation_begin+Math.pi*t) % Math.twopi;
+		placePlant();
+		}
+
+		if (g_tipjar)
+		{
+		var pos = GLDisplay.project3D(g_tipjar, (0,0,1));
+		if (pos!=null)
+			{
+			var s=GUI.fontHeight(1);
+			GUI->tipjar.setRect(pos.x-2*s,pos.y-2*s,4*s,4*s);
+			GUI->tipjar.visible=Math.abs(g_rotation-Math.pi)<(Math.pi/2);
+			}
+		else
+			GUI->tipjar.visible=0;
+		}
+}
+
+function placePlant()
+{
+	var aspect = float(GLDisplay.size_x) / GLDisplay.size_y;
+	if (aspect < 1) aspect *= aspect;
+	g_plant.transform = Matrix.new().translate((-aspect+6.0,5,-1)).rotate((0,0,1),g_rotation).translate((-1,-1,0));
+}
+
+function onResize()
+{
+    placePlant();
+    var s=Math.min(GLDisplay.size_x,GLDisplay.size_y)*0.1;
+}
+
+function onGUIEvent(elem, arg)
+{
+	if (String.startsWith(elem.name, "AL-"))
+	{
+		ShowManager.show = elem.name;
+		return;
+	} else if (elem.name=="tipjar")
+		Sharing.initiate(99908);
+}
+~

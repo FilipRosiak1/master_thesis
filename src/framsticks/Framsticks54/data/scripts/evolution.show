@@ -1,0 +1,244 @@
+show:
+name:Evolutionary optimization
+info:~
+Evolutionary optimization with user-selected criteria.
+50 genotypes in the gene pool, tournament selection.
+~
+expdef:standard
+code:~
+
+global g_step;
+global g_crcharts, g_simcharts;
+global g_win1, g_win2;
+global g_critIds, g_critIds2, g_dispNames, g_critNames, g_critFiles;
+global g_next_hidden_check, g_originaldesiredsimspeed;
+global g_visibletime, g_hiddentime;
+
+const BACKGROUNDSPEED = 99999; //set for "background simulation" mode
+
+function onLoad()
+{
+	g_step = 1;
+	TrackingCam.cam_chspeed = 0.5;
+	ShowProperties.criterion = 0;
+	ShowProperties.hiddencalc = 2;
+	ShowProperties.convergence = 0;
+	g_next_hidden_check = 0;
+	g_visibletime = [18, 10, 3];
+	g_hiddentime = [2, 10, 27];
+	GLDisplay.desiredsimspeed = 50;
+	g_originaldesiredsimspeed = GLDisplay.desiredsimspeed; //to be able to restore original value
+
+	g_dispNames = ["Velocity", "Vertical velocity", "Height"];
+	g_critNames = ["Velocity", "Vertical velocity", "Vertical position"];
+	g_critFiles = ["vel", "vertvel", "vertpos"];
+	g_critIds = ["c_velocity", "c_vertvelocity", "c_vertpos"];
+	g_critIds2 = ["velocity", "vertvel", "vertpos"];
+
+	g_crcharts = GLDisplay.newCreatureCharts();
+	g_simcharts = GLDisplay.newSimStatsCharts();
+
+	updateBanner();
+	loadEvolParams();
+	createWindows();
+	ShowProperties_convergence_set();
+	//ShowProperties_restartempty_call();
+	ShowProperties_restartsimple_call();
+}
+
+function loadEvolParams()
+{
+	var filename = "show_evol_" + g_critFiles[ShowProperties.criterion] + ".sim";
+	Simulator.print("Loading simulator parameters from " + filename);
+	Simulator.import("show_evol.sim");
+	Simulator.import(filename);
+}
+
+function createWindows()
+{
+	var IF, i, c = ShowProperties.criterion;
+
+	// window with creature performane chart
+	IF = Interface.makeFrom(Creature.*);
+	i = IF.findId(g_critIds[c]);
+	if (i < 0)
+		Simulator.message("creature property not found!", 1);
+	else
+		g_win1 = g_crcharts.add(i);
+	//Simulator.print("crcharts created:"+win);
+	//Simulator.print("client=" + g_win1.client);
+	g_win1.client.xscale = 20;
+	g_win1.backcolor = 0x80ffdddd;
+	g_win1.style = 1 + 2 + 4 + 16;
+	g_win1.title = "Current creature";
+	g_win1.size_x = GLDisplay.size_x / 4;
+	g_win1.size_y = GLDisplay.size_y / 3;
+	//Simulator.print("disp size " + GLDisplay.size_x + " x " + GLDisplay.size_y);
+
+	// window with simulator statistics chart
+	IF = Interface.makeFrom(stats.*);
+	var t = "Genotypes: " + g_critNames[c];
+	Simulator.print(t);
+	i = IF.findIdInGroup("st_avg_" + g_critIds2[c], t);
+	//i=IF.findIdInGroup("st_avg_velocity","Genotypes: Velocity");
+	Simulator.print("st_avg_" + g_critIds[c]);
+	if (i < 0)
+		Simulator.message("simulator stats entry not found!", 1);
+	else
+		g_win2 = g_simcharts.add(i);
+	g_win2.style = 1 + 2 + 4 + 16;
+	g_win2.backcolor = 0x80ddddff;
+	g_win2.title = "Gene pool average";
+	g_win2.size_x = GLDisplay.size_x / 4;
+	g_win2.size_y = GLDisplay.size_y / 3;
+}
+
+function updateBanner()
+{
+	var t = "";
+	if (GLDisplay.desiredsimspeed == BACKGROUNDSPEED)
+		t += "[Background simulation]\n\n";
+	t += "Current criterion: " + g_dispNames[ShowProperties.criterion];
+	if (CreatureSelection.count > 0)
+	{
+		var c = CreatureSelection.get(0);
+		t += "\nCurrent creature: " + c.name + "\n" + c.info + "\n";
+		t += "\nGenotype: " + c.genotype + "\n";
+		g_crcharts.creature = c;
+	}
+	GLDisplay.banner = t;
+}
+
+function onResize()
+{
+	g_win1.size_x = GLDisplay.size_x / 4;
+	g_win1.size_y = GLDisplay.size_y / 3;
+	g_win2.size_x = GLDisplay.size_x / 4;
+	g_win2.size_y = GLDisplay.size_y / 3;
+	g_win2.pos_x = GLDisplay.size_x - g_win2.size_x;
+	g_win2.pos_y = GLDisplay.size_y - g_win2.size_y - 18;
+	g_win1.pos_y = GLDisplay.size_y - g_win1.size_y - 18;
+	g_win1.pos_x = 0;
+}
+
+function onShowStep()
+{
+	TrackingCam.cam_dir += 0.01;
+	g_step++;
+	if (g_step > 100)
+	{
+		g_step = 1;
+		if (CreatureSelection.count == 0)
+			if (GLDisplay.simsteps < 100)
+			{
+				var g = Populations[0];
+				if (g.size > 0)
+				{
+					CreatureSelection.clear();
+					CreatureSelection.add(g[0]);
+				}
+			}
+	}
+	if (Math.time > g_next_hidden_check)
+		if (GLDisplay.desiredsimspeed == BACKGROUNDSPEED) // was "hidden"
+		{
+			GLDisplay.desiredsimspeed = g_originaldesiredsimspeed;
+			if (ShowProperties.hiddencalc > 0)
+				g_next_hidden_check = Math.time + g_visibletime[ShowProperties.hiddencalc - 1];
+			updateBanner();
+		}
+		else
+		{
+			if (ShowProperties.hiddencalc > 0) //becomes "hidden"
+			{
+				g_next_hidden_check = Math.time + g_hiddentime[ShowProperties.hiddencalc - 1];
+				GLDisplay.desiredsimspeed = BACKGROUNDSPEED;
+				updateBanner();
+			}
+		}
+}
+
+function onSelectionChange()
+{
+	updateBanner();
+}
+
+function deleteWindows()
+{
+	g_crcharts.removeAll();
+	g_simcharts.removeAll();
+}
+
+function ShowProperties_criterion_set()
+{
+	Simulator.print("changing criterion to " + g_dispNames[ShowProperties.criterion]);
+	loadEvolParams();
+	ExpProperties.cleardata();
+	deleteWindows();
+	createWindows();
+	onResize();
+	updateBanner();
+}
+
+function ShowProperties_convergence_set()
+{
+	if (ShowProperties.convergence == 0)
+		ExpProperties.delrule = 0; //random deletion
+	else
+		ExpProperties.delrule = 1; //inv-fitness
+	if (ExpProperties.delrule == 0)
+		Simulator.print("Genotype deletion: random");
+	if (ExpProperties.delrule == 1)
+		Simulator.print("Genotype deletion: inversely proportional to fitness");
+}
+
+function ShowProperties_restartempty_call()
+{
+	Simulator.print("Restarting with predefined simple genotypes");
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	GenePools[0].add("X").name = "Initial";
+	deleteWindows();
+	createWindows();
+	onResize();
+}
+
+function ShowProperties_restartsimple_call()
+{
+	Simulator.print("Restarting with single X genotype");
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	Simulator.import("show_evol_simple.gen");
+	deleteWindows();
+	createWindows();
+	onResize();
+}
+
+~
+
+property:
+id:criterion
+name:Optimization criterion
+type:d 0 2 ~Velocity~Vertical velocity~Height
+
+property:
+id:hiddencalc
+name:Background simulation time
+type:d 0 3 ~Never~10%~50%~90%
+
+property:
+id:convergence
+name:Fast convergence (remove unfit)
+type:d 0 1
+
+property:
+id:restartempty
+name:Restart evolution (empty gene pool)
+type:p
+
+property:
+id:restartsimple
+name:Restart evolution (simple genotypes)
+type:p

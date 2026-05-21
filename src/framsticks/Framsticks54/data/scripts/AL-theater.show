@@ -1,0 +1,90 @@
+show:
+name:Framsticks Theater
+expdef:standard
+info:~
+Click "Current show" and select a show!
+~
+code:~
+@include "AL-objects.inc"
+
+function beforeLoad()
+{
+	GLDisplay.back_action = "backToTheater";
+}
+
+function onBack()
+{
+	GLDisplay.menu_visible = 0;
+	ShowManager.show = "AL-top";
+}
+
+function trickySetMenuState()
+{
+	GLDisplay.menu_state = "show";
+}
+
+function onLoad()
+{
+	GLDisplay.user_interaction = 1 + 2 + 8 + 16 + 32 + 64;
+	GLDisplay.world_visibility = 1 + 4 + 8;
+	GLDisplay.menu_visible = 1;
+	ShowManager.includeshows = "*";
+	ShowManager.excludeshows = "AL-*,welcome";
+	GUI.setTimeout("menu_state",0.001,function trickySetMenuState);//workaround:GLDisplay.menu_state does not work when called from onLoad() immediately on switching shows (because the menu model is not yet updated at that moment), do it 0.001s later instead of fixing the real cause
+	ShowManager.dispinfo = 2;
+	GLDisplay.skybox = "";
+	GLDisplay.bgcolor = 0;
+	GLDisplay.dustcolor = 0xbbaa88;
+	GLDisplay.back_action = "onBack";
+
+	addTheaterObject()[0].transform = Matrix.new();
+
+	World.wrldsiz = 20;
+	TrackingCam.cam_world = 1;
+	TrackingCam.setViewDir(90, 20);
+	TrackingCam.cam_zoom = 0.6;
+
+	ExpProperties.MaxCreated = 1;
+	ExpProperties.feed = 0;
+	CreatureSelection.clear();
+
+	var pop = Populations[0];
+	var pool = GenePools[0];
+
+	pop.clear();
+	pop.death = 0;
+	pop.energy = 0;
+	pop.initial_nn_active = 1;
+	pool.clear();
+	Simulator.import("theaterwelcome.gen", 2);
+	//var cr=Population.createFromString("rrlllllX(,,LLXX,,XX(XX,XlX,),)");
+	var cr = pop.add(pool[0]);
+	cr.locationSetBboxLow((World.wrldsiz - cr.bboxSize.x) / 2, (World.wrldsiz - cr.bboxSize.y) / 2, -2);
+
+	var i;
+
+	for (i = 1; i < 7; i++)
+	{
+		var c = pop.add(pool[i]);
+		c.locationSetBboxLow((World.wrldsiz - cr.bboxSize.x) * 0.5 + World.wrldsiz * 0.3 * Math.cos(i),
+		                     (World.wrldsiz - cr.bboxSize.y) * 0.5 + World.wrldsiz * 0.3 * Math.sin(i),
+		                     -2);
+	}
+
+	pool.clear();
+	Populations[1].death = 0;
+
+	GLDisplay.desiredsimspeed = 100;
+}
+
+function onShowStep()
+{
+	if (CreatureSelection.count == 0)
+		{
+		var anim = Math.time;
+		TrackingCam.setViewDir(90.0 + 10.0 * Math.sin(anim * 0.5), 20.0 + 10.0 * Math.cos(anim * 0.5));
+		TrackingCam.cam_zoom = 0.8 * (2.5 + Math.sin(anim * 0.15)) / 2.5;
+		}
+}
+
+~

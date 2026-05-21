@@ -1,0 +1,233 @@
+show:
+name:A touch of life
+info:
+expdef:standard
+code:~
+
+//by MacKo, 2004
+
+//TODO: removing too slow creatures (just like too big ones are removed)
+
+global g_nointeraction; //simulation steps when a creature does not pass life back
+global g_status;
+global g_lasttime; //for auto popsize
+
+function onLoad()
+{
+	Simulator.import("show_noevol.sim");
+
+	var pop = Populations[0];
+	pop.initial_nn_active = 2; //anyway is controlled directly for each creature
+	pop.death = 0;
+	pop.energy = 0;
+	pop.selfmask = pop.othermask = 0; //ignore collisions
+
+	World.wrldbnd = 2;
+	World.wrldsiz = 30;
+
+	TrackingCam.cam_chspeed = 0.5;
+	TrackingCam.cam_zoom = 1.2;
+
+	ShowProperties.popsize = 0;
+	ShowProperties_popsize_set();
+	ShowProperties.rule = 1;
+
+	Simulator.import("walking.gen");
+	removeTooBig();
+	g_status = "";
+	g_nointeraction = 1000;
+	g_lasttime = Math.time;
+	GLDisplay.desiredsimspeed = 200;
+}
+
+function inside(cr, x, y)
+{
+	if (cr.bboxLow.x < x && (cr.bboxLow.x + cr.bboxSize.x) > x &&
+	        cr.bboxLow.y < y && (cr.bboxLow.y + cr.bboxSize.y) > y)
+		return 1;
+	else
+		return 0;
+}
+
+function freeze(c)
+{
+	c.data.remove("ticks_left");
+	c.data.remove("life_from");
+	c.data.remove("nointeraction");
+}
+
+// data->ticks_left - life ticks left
+// data->life_from - uid of the creathre who gave me life? (won't give life back to him)
+// data->nointeraction - how much time left to follow the data->life_from rule
+
+function collisions() //would be REALLY better to use the standard handler in expdef, but I preferred not to create a special expdef for this show only
+{
+	var i, j, c1, c2, alive = 0;
+	var pop = Populations[0];
+	for (i = 0; i < pop.size; i++)
+	{
+		c1 = pop[i];
+		if (c1.data.hasKey("ticks_left"))
+		{
+			if (c1.data->ticks_left > 0)
+				c1.data->ticks_left = c1.data->ticks_left - 1;
+			if (c1.data.hasKey("nointeraction") && c1.data->nointeraction > 0)
+				c1.data->nointeraction = c1.data->nointeraction - 1;
+			if (c1.data->ticks_left == 0)
+			{
+				freeze(c1);
+				g_status = c1.name + " frozen";
+			}
+		}
+		c1.nn_active = c1.data.hasKey("ticks_left");
+		if (ShowProperties.rule != 0)
+			for (j = i + 1; j < pop.size; j++)
+			{
+				c2 = pop[j];
+				if (inside(c1, c2.bboxLow.x, c2.bboxLow.y) == 1 || inside(c1, c2.bboxLow.x + c2.bboxSize.x, c2.bboxLow.y) == 1 ||
+				        inside(c1, c2.bboxLow.x, c2.bboxLow.y + c2.bboxSize.y) == 1 || inside(c1, c2.bboxLow.x + c2.bboxSize.x, c2.bboxLow.y + c2.bboxSize.y) == 1)
+				{
+					if (ShowProperties.rule == 1)
+					{
+						//            Simulator.print("#" + i + " " + c1.data->life_from + " " + c2.data->life_from);
+						if (c1.data.hasKey("ticks_left") && !c2.data.hasKey("ticks_left"))
+						{
+							if (!(c1.data.hasKey("life_from") && (c1.data->life_from == c2.uid) && (c1.data->nointeraction > 0)))
+							{
+								freeze(c1);
+								c2.data->ticks_left = 1000000;
+								c2.data->life_from = c1.uid;
+								c2.data->nointeraction = g_nointeraction;
+								g_status = c1.name + " passes life to " + c2.name;
+							}
+						}
+						else
+						if (c2.data.hasKey("ticks_left") && !c1.data.hasKey("ticks_left"))
+						{
+							if (!(c2.data.hasKey("life_from") && (c2.data->life_from == c1.uid) && (c2.data->nointeraction > 0)))
+							{
+								freeze(c2);
+								c1.data->ticks_left = 1000000;
+								c1.data->life_from = c2.uid;
+								c1.data->nointeraction = g_nointeraction;
+								g_status = c2.name + " passes life to " + c1.name;
+							}
+						}
+					}
+					if (ShowProperties.rule == 2)
+					{
+						if (!c1.data.hasKey("ticks_left"))
+						{
+							c1.data->ticks_left = 500;
+							g_status = c1.name + " revived by " + c2.name;
+						}
+						else
+						if (!c2.data.hasKey("ticks_left"))
+						{
+							c2.data->ticks_left = 500;
+							g_status = c2.name + " revived by " + c1.name;
+						}
+					}
+				}
+			}
+		if (c1.data.hasKey("ticks_left"))
+			alive++;
+	}
+	if (alive == 0 && ShowProperties.rule != 0) //at least one should be alive
+	{
+		var cc = pop[int(Math.rnd01 * pop.size)];
+		if (ShowProperties.rule == 1)
+			cc.data->ticks_left = 1000000;
+		if (ShowProperties.rule == 2)
+			cc.data->ticks_left = 500;
+		g_status = cc.name + " auto-revived...";
+	}
+}
+
+function onSimStep()
+{
+	collisions();
+}
+
+function onShowStep()
+{
+	var i, d = ["Double-click to freeze or revive creatures.", "Life is passed with a touch.", "Life is propagated with a touch, for some time."];
+	GLDisplay.banner = d[ShowProperties.rule] + "\n" + g_status;
+	if (ShowProperties.popsize == 0)
+		autoPopsize();
+}
+
+function autoPopsize()
+{
+	if (Math.time - g_lasttime > 5.0)
+	{
+		g_lasttime = Math.time;
+		if ((GLDisplay.fps < (0.85 * GLDisplay.maxfps)) && ExpProperties.MaxCreated > 3)
+			ExpProperties.MaxCreated--;
+		if ((GLDisplay.fps > (0.95 * GLDisplay.maxfps)) && ExpProperties.MaxCreated < 10)
+			ExpProperties.MaxCreated++;
+	}
+}
+
+function removeTooBig()
+{
+	var i, m;
+	var pool = GenePools[0];
+	for (i = pool.size - 1; i >= 0; i--)
+	{
+		var g = pool[i];
+		m = Model.newFromGeno(g.geno);
+		if (m.bboxSize.x > World.wrldsiz / 5 || m.bboxSize.y > World.wrldsiz / 5)
+		{
+			Simulator.print("Removed " + g.name + ", too big.");
+			g.delete();
+		}
+	}
+}
+
+function onSelectionChange()
+{
+	if (CreatureSelection.count > 0)
+	{
+		var c = CreatureSelection.get(0), d = "";
+		if (ShowProperties.rule != 0)
+			d = "You wished ";
+		if (c.data.hasKey("ticks_left"))
+		{
+			freeze(c);
+			g_status = d + c.name + " frozen";
+		}
+		else
+		{
+			c.data->ticks_left = 500;
+			g_status = d + c.name + " revived";
+		}
+		CreatureSelection.clear();
+	}
+}
+
+function ShowProperties_popsize_set()
+{
+	ExpProperties.MaxCreated = [5, 2, 3, 4, 9, 16][ShowProperties.popsize];
+}
+
+function ShowProperties_rule_set()
+{
+	var pop = Populations[0];
+	var i;
+	for (i = 0; i < pop.size; i++)
+		freeze(pop.get(i));
+}
+
+~
+
+property:
+id:popsize
+name:Number of creatures
+type:d 0 5 ~Auto~2~3~4~9~16
+help:"Auto" adjusts the number of performers to the speed of your computer.
+
+property:
+id:rule
+name:Life is
+type:d 0 2 ~in your double-click~passed with a touch~propagated with a touch, for some time

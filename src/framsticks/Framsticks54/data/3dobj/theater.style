@@ -1,0 +1,181 @@
+style:
+name:Theater
+info:Used in the Framsticks Theater intro
+code:~
+
+@include "stdneurons.inc"
+
+const BALL_AND_STICK_RADIUS = 0.15; //same as Part::BALL_AND_STICK_RADIUS
+const BALL_AND_STICK_JOINT_THICKNESS = 0.8; // multiplied by BALL_AND_STICK_RADIUS. Joint radius = 0.15 * 0.8 = 0.12
+
+function bgr_from_r_g_b(r,g,b)
+{
+  var bgr = int(r*255) + (int(g*255)<<8) + (int(b*255)<<16);
+  return bgr ? bgr : 0x10000;
+}
+
+function default_model_build()
+{
+  VisualModel.jointshadow = 1;
+}
+
+function food_model_build()
+{
+  VisualModel.partshadow = 1;
+}
+
+function default_part_build()
+{
+  Element.usePart();
+  var bgr = bgr_from_r_g_b(p.vr, p.vg, p.vb);
+  loadAndAddAsTransformNode("greenball.ac",bgr);
+}
+
+function default_flag_build()
+{
+  GeomBuilder.addTransform(GeomBuilder.rootNode);
+  Element.node = GeomBuilder.currentNode;
+  if (World.wrldwat > -5.0)
+    Loader.load("thankyou.ac");
+  else
+    Loader.load("please.ac");
+  if (Loader.loaded)
+    GeomBuilder.add(Loader.loaded);
+}
+
+function addLoaded(replace_color)
+{
+  if (replace_color)
+  {
+    Material.new();
+    Material.setSmooth();
+    Material.disable(GL.TEXTURE_2D);
+    Material.disable(GL.BLEND);
+    Material.disable(GL.COLOR_MATERIAL);
+    Material.enable(GL.LIGHTING);
+    Material.specular = 0;
+    Material.diffuse = replace_color;
+    Material.ambient = replace_color;
+    Material.emission = 0;
+    var clone = GeomBuilder.cloneReplacingMaterial(Loader.loaded,Material.object);
+    GeomBuilder.add(clone);
+  }
+  else
+    GeomBuilder.add(Loader.loaded);
+}
+
+function loadAndAddAsTransformNode(filename, replace_color)
+{
+  Loader.load(filename);
+  if (Loader.loaded)
+  {
+    GeomBuilder.addTransform(GeomBuilder.rootNode);
+    Element.node = GeomBuilder.currentNode;
+    addLoaded(replace_color);
+  }
+}
+
+function food_part_build()
+{
+  loadAndAddAsTransformNode("balloon.ac",0);
+}
+
+function default_joint_build()
+{
+  Element.useJoint();
+  Element.useJointPart1();
+  var as=p.as;
+  Element.useJointPart2();
+  as=(as+p.as)/2;
+  var bgr = bgr_from_r_g_b(j.vr,j.vg,j.vb);
+  loadAndAddAsTransformNode("greenstick" + int(1.0 + 4.999*as) + ".ac", bgr);
+}
+
+function default_part_update, default_flag_update()
+{
+  Element.useMechPart();
+  GeomBuilder.matrixReset();
+  GeomBuilder.matrixMove1(MechPart.pos);
+  GeomBuilder.matrixOrient1(MechPart.orient);
+  GeomBuilder.setMatrix(Element.node);
+}
+
+function food_part_update()
+{
+  Element.useMechPart();
+  GeomBuilder.matrixReset();
+  GeomBuilder.matrixMove1(MechPart.pos);
+  GeomBuilder.matrixMove(0,0,-BALL_AND_STICK_RADIUS);
+  GeomBuilder.matrixOrient1(MechPart.orient);
+  Element.useCreature();
+  var e;
+  if (Creature.energy0>0)
+   {
+   e = Creature.energy / Creature.energy0;
+   if (e > 1.0)
+    e = 1.0;
+   else if (e < 0.05)
+    e = 0.05;
+   GeomBuilder.matrixScale(e, e, e);
+   }
+  else e=1.0;
+  GeomBuilder.setMatrix(Element.node);
+  VisualModel.partshadow = e;
+}
+
+function default_joint_update()
+{
+  Element.useMechJointPart1();
+  Element.useMechJoint();
+  GeomBuilder.matrixReset();
+  GeomBuilder.matrixMove1(MechPart.pos);
+  GeomBuilder.matrixOrient1(MechJoint.calcorient);
+  GeomBuilder.matrixScale(MechJoint.length, BALL_AND_STICK_JOINT_THICKNESS, BALL_AND_STICK_JOINT_THICKNESS);
+  GeomBuilder.setMatrix(Element.node);
+}
+
+
+function modelviewer_build_empty()
+{
+  Scene.backcolor = 0;
+  Scene.worldtexture = "";
+}
+
+function modelviewer_build()
+{
+  Scene.backcolor = 0;
+  Scene.worldtexture = "";
+}
+
+function world_build()
+{
+  Scene.backcolor = 0;
+  Scene.dustcolor = 0xbbaa88;
+  Scene.worldtexture = "";
+  Loader.load("theater2.ac");
+  var scale = World.wrldsiz / 20.0;
+  GeomBuilder.addTransform(GeomBuilder.rootNode);
+  GeomBuilder.matrixReset();
+  GeomBuilder.matrixScale(scale, scale, scale);
+  GeomBuilder.matrixMove(0, 0, -BALL_AND_STICK_RADIUS);
+  GeomBuilder.setMatrix(GeomBuilder.currentNode);
+  GeomBuilder.add(Loader.loaded);
+
+  if (World.wrldwat > -5.0)
+  {
+    var i, s;
+    for (i = 0;i < 14;i++)
+    {
+      s = 0.4 + 0.2 * Math.rnd01;
+      Loader.load("balloon.ac");
+      GeomBuilder.addTransform(GeomBuilder.rootNode);
+      GeomBuilder.matrixReset();
+      GeomBuilder.matrixScale(s, s, s);
+      GeomBuilder.matrixMove(Math.rnd01*World.wrldsiz, Math.rnd01*World.wrldsiz, 4.0 + Math.rnd01*6.0);
+      GeomBuilder.setMatrix(GeomBuilder.currentNode);
+      GeomBuilder.add(Loader.loaded);
+    }
+  }
+}
+
+~

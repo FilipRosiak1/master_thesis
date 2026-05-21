@@ -1,0 +1,286 @@
+expdef:
+name:Evolutionary optimization (steady-state), in background
+info:~
+Runs the standard experiment in background at full speed while showing the current best creature living at normal speed.
+The main thread simulation does not influence the evolution but shares the same settings. All genotypes and settings are transferred to the background simulation when starting, and genotypes are transferred back to the main simulator when stopping. The best genotype and selected statistics information (meant for evolution chart in AL-evol.show) are transferred after each death.
+~
+code:~
+
+global g_last_revive, g_newbest;
+
+function onExpDefLoad()
+{
+	// define genotype and creature groups
+	GenePools[0].name = "Genotypes";
+	ExpProperties.cr_v = 1;
+	update_fitformula();
+
+	var p = Populations[0];
+	p.name = "Creatures";
+	p.initial_nn_active = 2;
+	p.initial_perf_measuring = 2;
+	p.selfmask = 0x10001;
+	p.othermask = 0x20001;
+
+	p = Populations.addGroup("Food");
+	p.initial_nn_active = 0;
+	p.initial_perf_measuring = 0;
+	p.selfmask = 0x20002;
+	p.othermask = 0x10002;
+
+	ExpProperties.monitor_variable = "fit";
+}
+
+function onExpInit()
+{
+	Populations[0].clear();
+	Populations[1].clear();
+	GenePools[0].clear();
+	Genotype.newFromString(ExpProperties.initialgen).moveTo(GenePools[0]);
+	ExpState.totaltestedcr = 0;
+	ExpState.totaltests = 0;
+	ExpState.migrations = 0;
+}
+
+function onStep()
+{
+	if (GenePools[0].size == 0)
+	{
+		Simulator.stop();    //should be in onStart() but stopping inside onStart() might be dangerous
+		Simulator.message("No genotypes, aborting", 2);
+		return;
+	}
+
+//Simulator.print("step...");
+	var next_revive;
+	if (g_newbest)
+		next_revive = g_last_revive + ExpProperties.revive_period_min;
+	else
+		next_revive = g_last_revive + ExpProperties.revive_period_max;
+
+	if (Math.time >= next_revive)
+		Populations[0].clear();
+
+	if (Populations[0].size < 1)
+	{
+		Populations[0].add(GenePools[0][0]);
+		g_newbest = 0;
+		g_last_revive = Math.time;
+	}
+
+	if (Populations[0].size > 0)
+		if (Populations[0][0].perf_measuring == 2) //while the creature is waiting for stabilization...
+			g_last_revive = Math.time; //...do not count this time as the "show time" of the creature
+}
+
+@include "standard_placement.inc"
+
+function onBorn(cr)
+{
+	const TRIALS = 50; //try to find free place 50 times
+	var retry = TRIALS;
+
+	var placed_ok = 0;
+	while (retry--)
+	{
+		var trycentral = (ExpProperties.placement == 1) && (retry == TRIALS - 1); //place central only in the first trial
+		placeCreatureRandomly(cr, trycentral, ExpProperties.rotation);
+		if (!cr.boundingBoxCollisions(0))
+		{
+			placed_ok = 1;
+			break;
+		}
+	}
+	if (!placed_ok)
+		Simulator.message("onBorn() could not avoid collisions.", 1);
+
+	if (cr.population.index == 0) // creature
+	{
+		var n = cr.numjoints;
+		if (n == 0)
+			n = cr.numparts; //creatures with only one Part will live just as long as one-stick creatures
+		cr.idleen = ExpProperties.e_meta * n;
+		cr.energy0 = cr.energy0 * ExpProperties.Energy0 * n;
+		cr.energy = cr.energy0;
+	}
+	else // food
+	{
+		cr.name = "Food";
+		cr.idleen = 0;
+		cr.energy0 = ExpProperties.feede0;
+		cr.energy = cr.energy0;
+	}
+}
+
+function onStart()
+{
+	Simulator.slaves.stopAll();
+	Simulator.slaves.cancelAllEvents();
+	Simulator.slaves.size = 1;
+
+	var s = Simulator.slaves[0];
+	s.genepools[0].clear();
+	s.populations[0].clear();
+	s.expdef = "standard";
+
+	ExpState.avg_value = GenePools[0].getStatsAvg(ExpProperties.monitor_variable);
+	ExpState.max_value = GenePools[0].getStatsMax(ExpProperties.monitor_variable);
+
+	var exported = Simulator.export(null, 2 + 4 + 16 + 32, 0, -1); // -1 = export all groups
+//Simulator.print("exported="+exported);
+	s.import("string://" + exported, 2 + 4 + 8 + 16);
+
+//the following line overrides the slave experiment "onDied" function to call the original onDied (super_onDied) and then send the extended checkpoint data we want to use in onSlaveCheckpoint()
+	s.usercode = '''
+		function onDied(cr)
+		{
+			var g = super_onDied(cr); //call the original
+			Simulator.checkpointData(
+				[GenePools[0].best().geno,
+				cr.geno,
+				g.["%s"],
+				GenePools[0].getStatsAvg("%s"),
+				GenePools[0].getStatsMax("%s"),
+				ExpState.totaltestedcr,
+				ExpState.totaltests]);
+		}
+	''' % ExpProperties.monitor_variable % ExpProperties.monitor_variable % ExpProperties.monitor_variable;
+
+	Simulator.slaves.startAll();
+	g_last_revive = Math.time;
+	g_newbest = 0;
+	Simulator.print("standard-background started");
+}
+
+function onSlaveCheckpoint()
+{
+//Simulator.print("slave #"+CheckpointEvent.index+" checkpoint:"+CheckpointEvent.data);
+//check if we got our extended information this time (standard.expdef's checkpointData still sends its basic data before our checkpointData call and we receive both)
+	if (typeof(CheckpointEvent.data) == "Vector")
+		if (typeof(CheckpointEvent.data[0]) == "Geno")
+		{
+			//By using checkpointData the 2 simulators never wait for each other when transferring information from slave to master, which is the most common case. Accessing slave objects in a "normal" way (for example when changing settings) must be synchronized by stopping the slave, which means the master first waits for the slave to stop, then the slave waits for the master to finish accesing its objects before it can be started again.
+			var g = CheckpointEvent.data[0];
+			if (GenePools[0][0].genotype != g.genotype)
+			{
+				GenePools[0].clear();
+				GenePools[0].add(g);
+				g_newbest = 1;
+			}
+			ExpState.currentgeno = CheckpointEvent.data[1];
+			ExpState.currentvalue = CheckpointEvent.data[2];
+			ExpState.avg_value = CheckpointEvent.data[3];
+			ExpState.max_value = CheckpointEvent.data[4];
+			ExpState.totaltestedcr = CheckpointEvent.data[5];
+			ExpState.totaltests = CheckpointEvent.data[6];
+			ExpState.migrations++;
+		}
+}
+
+function onStop()
+{
+	Simulator.print("standard-background stopping");
+	Simulator.slaves.stopAll();
+	Simulator.slaves.cancelAllEvents();
+
+	var s = Simulator.slaves[0];
+	var exported = s.export(null, 2, 0, -1); // 0 = export genepool 0
+	GenePools[0].clear();
+	Simulator.import("string://" + exported, 2);
+	ExpState.totaltestedcr = s.expstate.totaltestedcr;
+	ExpState.totaltests = s.expstate.totaltests;
+	ExpState.avg_value = GenePools[0].getStatsAvg(ExpProperties.monitor_variable);
+	ExpState.max_value = GenePools[0].getStatsMax(ExpProperties.monitor_variable);
+	ExpState.migrations++;
+}
+
+function ExpProperties_cleardata_call()
+{
+	for(var g in GenePools[0])
+		g.instances = 0;
+	Simulator.print("Performance data reset.");
+}
+
+
+@include "standard_fitformula.inc"
+@include "standard_loadsave.inc"
+
+~
+
+#include "standard_props.inc"
+#include "standard_props_extras.inc"
+
+property:
+id:cleardata
+name:Clear performance info
+type:p
+help:~
+Sets the number of instances of each genotype to zero (as if it has never been evaluated).
+Genotype performance values stay intact, yet they are meaningless if a genotype has no instances.~
+
+property:
+id:revive_period_min
+name:Revive period (min)
+help:Amount of time between replacing the living creature when a new best creature has evolved
+type:f 1 30 6.0
+
+property:
+id:revive_period_max
+name:Revive period (max)
+help:Amount of time between replacing the living creature even if no new best creature has evolved
+type:f 1 30 15.0
+
+property:
+id:monitor_variable
+name:Monitor variable
+help:Name of the genotype field to be monitored
+type:s
+
+state:
+id:migrations
+name:Migrations
+help:Number of migrations
+type:d
+flags:16
+
+state:
+id:totaltestedcr
+name:Evaluated creatures
+help:Total number of creatures evaluated in the experiment
+type:d
+flags:16
+
+state:
+id:totaltests
+name:Number of evaluations
+help:~
+Total number of evaluations in the experiment.
+This is equivalent to "Evaluated creatures" unless multiple evaluation is activated.~
+type:d
+flags:16
+
+state:
+id:avg_value
+name:Average value
+help:Average value of the currently monitored statistics variable
+type:f
+flags:16
+
+state:
+id:max_value
+name:Max value
+help:Maximum value of the currently monitored statistics variable
+type:f
+flags:16
+
+state:
+id:currentgeno
+name:Currently evaluated geno
+type:x
+flags:34
+
+state:
+id:currentvalue
+name:Currently evaluated value
+type:x
+flags:34
