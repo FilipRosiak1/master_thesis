@@ -62,6 +62,23 @@ class FramsticksFitness:
         if str(framspy_path) not in sys.path:
             sys.path.insert(0, str(framspy_path))
 
+        framsticks_lib_py = framspy_path / "FramsticksLib.py"
+        if not framsticks_lib_py.exists():
+            raise FileNotFoundError(
+                "FramsticksLib.py was not found. Expected: "
+                f"{framsticks_lib_py}. Make sure src/framsticks/framspy exists on this machine."
+            )
+        if not self.frams_path.exists():
+            raise FileNotFoundError(
+                "Framsticks runtime directory was not found. Expected: "
+                f"{self.frams_path}. Make sure src/framsticks/Framsticks54 exists on this machine."
+            )
+        if not self.sim.exists():
+            raise FileNotFoundError(
+                "Framsticks simulation settings file was not found. Expected: "
+                f"{self.sim}."
+            )
+
         from FramsticksLib import FramsticksLib
 
         FramsticksLib.DETERMINISTIC = self.deterministic

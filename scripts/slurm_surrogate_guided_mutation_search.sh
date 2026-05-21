@@ -15,9 +15,26 @@ conda activate f1vae
 cd "$HOME/master_thesis"
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
+SURROGATE="models/f1_surrogate/structural_ensemble_full/surrogate.pkl"
+
+if [[ ! -f "$SURROGATE" ]]; then
+  echo "Missing surrogate: $SURROGATE" >&2
+  echo "Run scripts/slurm_train_structural_surrogate.sh first, or submit this job with afterok dependency." >&2
+  exit 1
+fi
+
+if [[ ! -f "src/framsticks/framspy/FramsticksLib.py" ]]; then
+  echo "Missing src/framsticks/framspy/FramsticksLib.py on cluster." >&2
+  exit 1
+fi
+
+if [[ ! -d "src/framsticks/Framsticks54" ]]; then
+  echo "Missing src/framsticks/Framsticks54 runtime on cluster." >&2
+  exit 1
+fi
 
 python scripts/surrogate_guided_mutation_search.py \
-  --surrogate models/f1_surrogate/structural_ensemble_full/surrogate.pkl \
+  --surrogate "$SURROGATE" \
   --data-path datasets/f1/f1_dataset.txt \
   --framsticks-path src/framsticks/Framsticks54 \
   --framsticks-sim src/framsticks/framspy/eval-allcriteria.sim \

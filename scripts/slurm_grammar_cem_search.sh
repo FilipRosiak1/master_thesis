@@ -15,6 +15,16 @@ cd "$HOME/master_thesis"
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
 
+if [[ ! -f "src/framsticks/framspy/FramsticksLib.py" ]]; then
+  echo "Missing src/framsticks/framspy/FramsticksLib.py on cluster." >&2
+  exit 1
+fi
+
+if [[ ! -d "src/framsticks/Framsticks54" ]]; then
+  echo "Missing src/framsticks/Framsticks54 runtime on cluster." >&2
+  exit 1
+fi
+
 python scripts/grammar_cem_search.py \
   --data-path datasets/f1/f1_dataset.txt \
   --framsticks-path src/framsticks/Framsticks54 \
