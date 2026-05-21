@@ -141,3 +141,66 @@ class LHSDepthConditionedMaskedTreeGrammarVAE(MaskedTreeGrammarVAE):
             pad_rule_idx=pad_rule_idx,
             lhs_vocab_size=len(self.lhs_map),
         )
+
+
+class FitnessConditionedLHSMaskedTreeGrammarVAE(LHSConditionedMaskedTreeGrammarVAE):
+    def __init__(
+        self,
+        num_classes: int,
+        emb_dim: int,
+        hidden_dim: int,
+        latent_dim: int,
+        max_length: int,
+        pad_rule_idx: int,
+    ) -> None:
+        super().__init__(num_classes, emb_dim, hidden_dim, latent_dim, max_length, pad_rule_idx)
+        self.condition_dim = 1
+        self.decoder = LHSConditionedMaskedTreeAwareDecoder(
+            num_classes=num_classes,
+            emb_dim=emb_dim,
+            hidden_dim=hidden_dim,
+            latent_dim=latent_dim + self.condition_dim,
+            max_length=max_length,
+            pad_rule_idx=pad_rule_idx,
+            lhs_vocab_size=len(self.lhs_map),
+        )
+
+    def _condition_tensor(self, z: torch.Tensor, fitness_condition: torch.Tensor | float | None) -> torch.Tensor:
+        if fitness_condition is None:
+            return torch.zeros(z.size(0), self.condition_dim, dtype=z.dtype, device=z.device)
+        if not isinstance(fitness_condition, torch.Tensor):
+            fitness_condition = torch.tensor(fitness_condition, dtype=z.dtype, device=z.device)
+        fitness_condition = fitness_condition.to(device=z.device, dtype=z.dtype)
+        if fitness_condition.dim() == 0:
+            fitness_condition = fitness_condition.repeat(z.size(0)).unsqueeze(1)
+        elif fitness_condition.dim() == 1:
+            fitness_condition = fitness_condition.unsqueeze(1)
+        if fitness_condition.size(0) == 1 and z.size(0) != 1:
+            fitness_condition = fitness_condition.repeat(z.size(0), 1)
+        if fitness_condition.shape != (z.size(0), self.condition_dim):
+            raise ValueError(
+                f"Expected fitness_condition shape {(z.size(0), self.condition_dim)}, got {tuple(fitness_condition.shape)}"
+            )
+        return fitness_condition
+
+    def decode(
+        self,
+        z: torch.Tensor,
+        target_seq: torch.Tensor | None = None,
+        teacher_forcing_ratio: float = 0.5,
+        max_steps: int | None = None,
+        fitness_condition: torch.Tensor | float | None = None,
+    ) -> torch.Tensor:
+        condition = self._condition_tensor(z, fitness_condition)
+        return self.decoder(torch.cat([z, condition], dim=-1), target_seq, teacher_forcing_ratio, max_steps)
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        fitness_condition: torch.Tensor | float | None = None,
+        teacher_forcing_ratio: float = 0.5,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        reconstruction = self.decode(z, x, teacher_forcing_ratio, fitness_condition=fitness_condition)
+        return reconstruction, mu, logvar
