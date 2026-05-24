@@ -15,7 +15,7 @@ mkdir -p "$EXPORT_DIR"
 add_path() {
   local path="$1"
   if [[ -e "$path" ]]; then
-    printf '%s
+    printf '%s\n' "${path#$REPO_ROOT/}" >> "$MANIFEST"
   fi
 }
 
