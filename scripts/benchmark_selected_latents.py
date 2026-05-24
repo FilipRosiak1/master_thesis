@@ -29,7 +29,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Benchmark selected latent optimizers with capped starting seeds")
     parser.add_argument("--checkpoints-root", default="exports/f1_selected_10_ckpts_20260520_184738")
     parser.add_argument("--labels", default=",".join(ALL_LABELS), help="Comma-separated checkpoint folder labels")
-    parser.add_argument("--algorithms", default="cem,cmaes", help="Comma-separated subset of: cem,cmaes")
+    parser.add_argument("--algorithms", default="cem,cmaes", help="Comma-separated subset of: cem,cmaes,evolution")
     parser.add_argument("--data-path", default="datasets/f1/f1_dataset.txt")
     parser.add_argument("--framsticks-path", default="src/framsticks/Framsticks54")
     parser.add_argument("--framsticks-lib", default=None)
@@ -48,6 +48,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--initial-std", type=float, default=0.35)
     parser.add_argument("--smoothing", type=float, default=0.35)
     parser.add_argument("--min-std", type=float, default=0.02)
+    parser.add_argument("--mutation-decay", type=float, default=0.98)
+    parser.add_argument("--crossover-rate", type=float, default=0.25)
+    parser.add_argument("--slp-interval", type=int, default=0)
     parser.add_argument("--mutation-pool-size", type=int, default=200)
     parser.add_argument("--mutation-attempts", type=int, default=2000)
     parser.add_argument("--cma-sigma", type=float, default=None)
@@ -204,7 +207,7 @@ def main() -> None:
     args = _build_parser().parse_args()
     algorithms = _split_csv(args.algorithms)
     labels = _split_csv(args.labels)
-    invalid = sorted(set(algorithms) - {"cem", "cmaes"})
+    invalid = sorted(set(algorithms) - {"cem", "cmaes", "evolution"})
     if invalid:
         raise ValueError(f"Unsupported algorithms: {', '.join(invalid)}")
     if not algorithms:
@@ -233,6 +236,9 @@ def main() -> None:
         "condition_fitness": args.condition_fitness,
         "condition_length": args.condition_length,
         "condition_segments": args.condition_segments,
+        "mutation_decay": args.mutation_decay,
+        "crossover_rate": args.crossover_rate,
+        "slp_interval": args.slp_interval,
         "runs": {},
     }
     all_history_rows: list[dict[str, Any]] = []
@@ -272,6 +278,12 @@ def main() -> None:
             str(args.smoothing),
             "--min-std",
             str(args.min_std),
+            "--mutation-decay",
+            str(args.mutation_decay),
+            "--crossover-rate",
+            str(args.crossover_rate),
+            "--slp-interval",
+            str(args.slp_interval),
             "--mutation-pool-size",
             str(args.mutation_pool_size),
             "--mutation-attempts",

@@ -7,6 +7,7 @@ import math
 import pickle
 import random
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -36,6 +37,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--framsticks-path", default="src/framsticks/Framsticks54")
     parser.add_argument("--framsticks-lib", default=None)
     parser.add_argument("--framsticks-sim", default="src/framsticks/framspy/eval-allcriteria.sim")
+    parser.add_argument("--seed-source", choices=("dataset_top", "simplest"), default="dataset_top")
     parser.add_argument("--seed-min-fitness", type=float, default=None)
     parser.add_argument("--seed-max-fitness", type=float, default=1.2)
     parser.add_argument("--seed-candidates", type=int, default=5)
@@ -44,6 +46,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--true-evals-per-generation", type=int, default=32)
     parser.add_argument("--parents", type=int, default=8)
     parser.add_argument("--selection-modes", default="surrogate,random")
+    parser.add_argument("--time-budget-seconds", type=float, default=None, help="Optional wall-clock budget for the whole search")
+    parser.add_argument("--split-time-budget-across-runs", action="store_true", help="Split the budget across seed/mode runs")
     parser.add_argument("--uncertainty-weight", type=float, default=0.25)
     parser.add_argument("--length-penalty-weight", type=float, default=0.05)
     parser.add_argument("--length-penalty-radius", type=float, default=2.0)
@@ -105,6 +109,22 @@ def _seed_entries(rows: list[tuple[str, float]], count: int, min_fitness: float 
     return [
         {"seed_rank": rank, "seed_dataset_idx": idx, "seed_genotype": genotype, "seed_fitness": fitness}
         for rank, (fitness, genotype, idx) in enumerate(filtered[:count], start=1)
+    ]
+
+
+def _simplest_seed_entry(frams_lib, evaluator: FramsticksFitness, min_fitness: float | None, max_fitness: float | None) -> list[dict[str, Any]]:
+    genotype = _normalize(frams_lib.getSimplest("1"))
+    fitness = evaluator.evaluate_one(genotype)
+    seed_fitness = INVALID_FITNESS if fitness is None else float(fitness)
+    if not _fitness_in_range(seed_fitness, min_fitness, max_fitness):
+        raise RuntimeError(f"Simplest seed fitness {seed_fitness} is outside requested range")
+    return [
+        {
+            "seed_rank": 1,
+            "seed_dataset_idx": "",
+            "seed_genotype": genotype,
+            "seed_fitness": seed_fitness,
+        }
     ]
 
 
@@ -255,9 +275,6 @@ def main() -> None:
     surrogate = _load_surrogate(_resolve(args.surrogate))
     data_path = maybe_resolve_path(args.data_path, root_dir=str(ROOT))
     dataset_rows = _read_dataset(data_path)
-    seeds = _seed_entries(dataset_rows, args.seed_candidates, args.seed_min_fitness, args.seed_max_fitness)
-    if not seeds:
-        raise RuntimeError("No dataset seeds matched the requested fitness range")
     known = {genotype for genotype, _ in dataset_rows}
     selection_modes = _split_csv(args.selection_modes)
     invalid_modes = sorted(set(selection_modes) - {"surrogate", "random"})
@@ -271,23 +288,43 @@ def main() -> None:
     )
     evaluator.evaluate_one("X")
     frams_lib = evaluator._ensure_loaded()
+    if args.seed_source == "simplest":
+        seeds = _simplest_seed_entry(frams_lib, evaluator, args.seed_min_fitness, args.seed_max_fitness)
+    else:
+        seeds = _seed_entries(dataset_rows, args.seed_candidates, args.seed_min_fitness, args.seed_max_fitness)
+    if not seeds:
+        raise RuntimeError("No seeds matched the requested fitness range")
 
     rows: list[dict[str, Any]] = []
     history_rows: list[dict[str, Any]] = []
     details: dict[str, Any] = {"args": vars(args), "seeds": seeds, "runs": []}
+    deadline = time.monotonic() + args.time_budget_seconds if args.time_budget_seconds is not None else None
+    per_run_budget = None
+    if args.split_time_budget_across_runs and args.time_budget_seconds is not None:
+        per_run_budget = args.time_budget_seconds / max(1, len(seeds) * len(selection_modes))
 
     for seed in seeds:
+        if deadline is not None and time.monotonic() >= deadline:
+            break
         seed_rank = int(seed["seed_rank"])
         seed_genotype = str(seed["seed_genotype"])
         seed_fitness = float(seed["seed_fitness"])
         print(f"Seed {seed_rank}: {seed_fitness:.6g} {seed_genotype}", flush=True)
         for selection_mode in selection_modes:
+            if deadline is not None and time.monotonic() >= deadline:
+                break
+            run_deadline = deadline
+            if per_run_budget is not None:
+                run_deadline = min(deadline, time.monotonic() + per_run_budget) if deadline is not None else time.monotonic() + per_run_budget
             true_cache: dict[str, float] = {seed_genotype: seed_fitness}
             parents = [seed_genotype]
             best_genotype = seed_genotype
             best_true = seed_fitness
             mode_rows: list[dict[str, Any]] = []
             for generation in range(1, args.generations + 1):
+                if run_deadline is not None and time.monotonic() >= run_deadline:
+                    print(f"  {selection_mode}: time budget reached before generation {generation}", flush=True)
+                    break
                 candidates = _mutate_pool(
                     frams_lib,
                     parents,

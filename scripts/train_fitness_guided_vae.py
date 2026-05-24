@@ -123,6 +123,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fitness-head-hidden", type=int, default=128)
     parser.add_argument("--device", default=None)
     parser.add_argument("--max-items", type=int, default=None, help="Optional smoke-test cap before split")
+    parser.add_argument("--dataset-min-fitness", type=float, default=None, help="Keep only examples with fitness >= this value before split")
+    parser.add_argument("--dataset-max-fitness", type=float, default=None, help="Keep only examples with fitness <= this value before split")
+    parser.add_argument("--oversample-min-fitness", type=float, default=None, help="Duplicate training examples with fitness >= this value")
+    parser.add_argument("--oversample-max-fitness", type=float, default=None, help="Duplicate training examples with fitness <= this value")
+    parser.add_argument("--oversample-factor", type=int, default=1, help="Total multiplicity for matched training examples")
     return parser
 
 
@@ -136,6 +141,47 @@ def _finite_indices(dataset: GrammarRuleDataset) -> list[int]:
         if not math.isnan(fitness) and not math.isinf(fitness):
             indices.append(idx)
     return indices
+
+
+def _fitness_in_range(value: float, min_fitness: float | None, max_fitness: float | None) -> bool:
+    if math.isnan(value) or math.isinf(value):
+        return False
+    if min_fitness is not None and value < min_fitness:
+        return False
+    if max_fitness is not None and value > max_fitness:
+        return False
+    return True
+
+
+def _filter_indices_by_fitness(
+    dataset: GrammarRuleDataset,
+    indices: list[int],
+    *,
+    min_fitness: float | None,
+    max_fitness: float | None,
+) -> list[int]:
+    if min_fitness is None and max_fitness is None:
+        return list(indices)
+    filtered = [idx for idx in indices if _fitness_in_range(float(dataset.valid_fitnesses[idx]), min_fitness, max_fitness)]
+    if not filtered:
+        raise RuntimeError("No dataset examples matched the requested fitness filter")
+    return filtered
+
+
+def _oversample_indices_by_fitness(
+    dataset: GrammarRuleDataset,
+    indices: list[int],
+    *,
+    min_fitness: float | None,
+    max_fitness: float | None,
+    factor: int,
+) -> list[int]:
+    if factor < 1:
+        raise ValueError("--oversample-factor must be >= 1")
+    if factor == 1 or (min_fitness is None and max_fitness is None):
+        return list(indices)
+    matched = [idx for idx in indices if _fitness_in_range(float(dataset.valid_fitnesses[idx]), min_fitness, max_fitness)]
+    return list(indices) + matched * (factor - 1)
 
 
 def _split_indices(indices: list[int], val_split: float, seed: int | None) -> tuple[list[int], list[int]]:
@@ -276,10 +322,24 @@ def main() -> None:
     dataset = dataset_cls(data_path, max_length)
     if not isinstance(dataset, GrammarRuleDataset):
         raise TypeError(f"Only GrammarRuleDataset models are supported, got {type(dataset).__name__}")
-    indices = _finite_indices(dataset)
+    source_indices = _finite_indices(dataset)
+    indices = list(source_indices)
     if args.max_items is not None:
         indices = indices[: args.max_items]
+    indices = _filter_indices_by_fitness(
+        dataset,
+        indices,
+        min_fitness=args.dataset_min_fitness,
+        max_fitness=args.dataset_max_fitness,
+    )
     train_indices, val_indices = _split_indices(indices, args.val_split, args.seed)
+    train_indices_effective = _oversample_indices_by_fitness(
+        dataset,
+        train_indices,
+        min_fitness=args.oversample_min_fitness,
+        max_fitness=args.oversample_max_fitness,
+        factor=args.oversample_factor,
+    )
     train_fitness = np.asarray([float(dataset.valid_fitnesses[idx]) for idx in train_indices], dtype=np.float64)
     train_lengths = np.asarray([len(dataset.valid_lines[idx]) for idx in train_indices], dtype=np.float64)
     train_segments = np.asarray([dataset.valid_lines[idx].count("X") for idx in train_indices], dtype=np.float64)
@@ -309,13 +369,21 @@ def main() -> None:
         "schedule_epochs": schedule_epochs,
         "fitness_weight": args.fitness_weight,
         "fitness_head_hidden": args.fitness_head_hidden,
+        "dataset_min_fitness": args.dataset_min_fitness,
+        "dataset_max_fitness": args.dataset_max_fitness,
+        "oversample_min_fitness": args.oversample_min_fitness,
+        "oversample_max_fitness": args.oversample_max_fitness,
+        "oversample_factor": args.oversample_factor,
         "fitness_mean": fitness_mean,
         "fitness_std": fitness_std,
         "length_mean": length_mean,
         "length_std": length_std,
         "segments_mean": segments_mean,
         "segments_std": segments_std,
+        "source_size": len(source_indices),
+        "filtered_size": len(indices),
         "train_size": len(train_indices),
+        "train_size_effective": len(train_indices_effective),
         "val_size": len(val_indices),
     }
     (run_dir / "run_config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
@@ -325,6 +393,11 @@ def main() -> None:
     _log(run_dir, f"Fitness normalization: mean={fitness_mean:.8g} std={fitness_std:.8g}")
     _log(run_dir, f"Length normalization: mean={length_mean:.8g} std={length_std:.8g}")
     _log(run_dir, f"Segments normalization: mean={segments_mean:.8g} std={segments_std:.8g}")
+    _log(
+        run_dir,
+        f"Dataset sizes: source={len(source_indices)} filtered={len(indices)} "
+        f"train={len(train_indices)} train_effective={len(train_indices_effective)} val={len(val_indices)}",
+    )
 
     dataset_kwargs = {
         "fitness_mean": fitness_mean,
@@ -334,10 +407,11 @@ def main() -> None:
         "segments_mean": segments_mean,
         "segments_std": segments_std,
     }
-    train_dataset = FitnessIndexedDataset(dataset, train_indices, **dataset_kwargs)
+    train_dataset = FitnessIndexedDataset(dataset, train_indices_effective, **dataset_kwargs)
+    train_recon_dataset = FitnessIndexedDataset(dataset, train_indices, **dataset_kwargs)
     val_dataset = FitnessIndexedDataset(dataset, val_indices, **dataset_kwargs) if val_indices else None
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    train_recon_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
+    train_recon_loader = DataLoader(train_recon_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False) if val_dataset is not None else None
 
     model = build_model(

@@ -54,7 +54,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed-source", choices=("dataset_top", "simplest", "framsticks_mutations"), default="dataset_top")
     parser.add_argument("--seed-min-fitness", type=float, default=None)
     parser.add_argument("--seed-max-fitness", type=float, default=None)
-    parser.add_argument("--algorithm", choices=("cem", "cmaes"), default="cem")
+    parser.add_argument("--algorithm", choices=("cem", "cmaes", "evolution"), default="cem")
     parser.add_argument("--iterations", type=int, default=8)
     parser.add_argument("--time-budget-seconds", type=float, default=None, help="Optional time budget per label")
     parser.add_argument("--split-time-budget-across-seeds", action="store_true")
@@ -63,6 +63,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--initial-std", type=float, default=0.35)
     parser.add_argument("--smoothing", type=float, default=0.35)
     parser.add_argument("--min-std", type=float, default=0.02)
+    parser.add_argument("--mutation-decay", type=float, default=0.98, help="Per-generation std decay for evolutionary search")
+    parser.add_argument("--crossover-rate", type=float, default=0.25, help="Uniform crossover probability for evolutionary search")
+    parser.add_argument("--slp-interval", type=int, default=0, help="Decode-encode project latent population every N evolution generations; 0 disables")
     parser.add_argument("--mutation-pool-size", type=int, default=200)
     parser.add_argument("--mutation-attempts", type=int, default=2000)
     parser.add_argument("--cma-sigma", type=float, default=None)
@@ -193,7 +196,7 @@ def _condition_tensor(value: Any, batch_size: int, device: torch.device) -> torc
     return tensor
 
 
-def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, condition_value: float | None) -> str:
+def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, condition_value: Any) -> str:
     z_tensor = torch.tensor(z, dtype=torch.float32, device=device).unsqueeze(0)
     with torch.no_grad():
         if model_name in TREE_MODELS:
@@ -207,7 +210,7 @@ def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, 
         return decode_grammar_indices(logits.argmax(dim=-1))
 
 
-def _decode_many(model_name: str, model, z_values: np.ndarray, device: torch.device, condition_value: float | None) -> list[str]:
+def _decode_many(model_name: str, model, z_values: np.ndarray, device: torch.device, condition_value: Any) -> list[str]:
     z_tensor = torch.tensor(z_values, dtype=torch.float32, device=device)
     with torch.no_grad():
         if model_name in TREE_MODELS:
@@ -409,6 +412,31 @@ def _normalize_genotype(genotype: str) -> str:
     return "".join(genotype.split())
 
 
+def _project_population(
+    *,
+    model_name: str,
+    model,
+    population: np.ndarray,
+    max_length: int,
+    device: torch.device,
+    condition_value: Any,
+) -> tuple[np.ndarray, int]:
+    genotypes = _decode_many(model_name, model, population, device, condition_value)
+    projected = population.copy()
+    projected_count = 0
+    for idx, genotype in enumerate(genotypes):
+        normalized = _normalize_genotype(genotype)
+        if not _is_valid_f1(normalized):
+            continue
+        tensor = _tensor_for_genotype(normalized, max_length)
+        if tensor is None:
+            continue
+        batch = tensor.to(device)
+        projected[idx] = _encode_mu(model_name, model, batch).squeeze(0).detach().cpu().numpy()
+        projected_count += 1
+    return projected, projected_count
+
+
 def _seeded_cem(
     *,
     model_name: str,
@@ -425,7 +453,7 @@ def _seeded_cem(
     min_std: float,
     score_cache: dict[str, float],
     deadline: float | None,
-    condition_value: float | None,
+    condition_value: Any,
 ) -> dict[str, Any]:
     mean = seed_z.astype(np.float64).copy()
     std = np.full_like(mean, initial_std, dtype=np.float64)
@@ -477,7 +505,7 @@ def _seeded_cmaes(
     sigma: float,
     score_cache: dict[str, float],
     deadline: float | None,
-    condition_value: float | None,
+    condition_value: Any,
 ) -> dict[str, Any]:
     n = seed_z.size
     lamb = population_size
@@ -543,6 +571,89 @@ def _seeded_cmaes(
         "best_genotype": best_genotype,
         "best_z": best_z.tolist(),
         "history": history,
+    }
+
+
+def _seeded_evolution(
+    *,
+    model_name: str,
+    model,
+    seed_z: np.ndarray,
+    evaluator: FramsticksFitness,
+    device: torch.device,
+    rng: np.random.Generator,
+    iterations: int,
+    population_size: int,
+    elite_fraction: float,
+    initial_std: float,
+    min_std: float,
+    mutation_decay: float,
+    crossover_rate: float,
+    slp_interval: int,
+    max_length: int,
+    score_cache: dict[str, float],
+    deadline: float | None,
+    condition_value: Any,
+) -> dict[str, Any]:
+    n = seed_z.size
+    elite_count = max(2, int(population_size * elite_fraction))
+    elite_count = min(elite_count, population_size)
+    mutation_std = initial_std
+    population = rng.normal(seed_z, mutation_std, size=(population_size, n))
+    population[0] = seed_z.astype(np.float64).copy()
+
+    best_score = -np.inf
+    best_genotype = ""
+    best_z = population[0].copy()
+    history: list[float] = []
+    projection_count = 0
+
+    for gen in range(iterations):
+        if deadline is not None and history and time.monotonic() >= deadline:
+            break
+
+        if slp_interval > 0 and (gen + 1) % slp_interval == 0:
+            population, projected = _project_population(
+                model_name=model_name,
+                model=model,
+                population=population,
+                max_length=max_length,
+                device=device,
+                condition_value=condition_value,
+            )
+            projection_count += projected
+
+        genotypes = _decode_many(model_name, model, population, device, condition_value)
+        scores = np.asarray(_score_genotypes(genotypes, evaluator, score_cache), dtype=np.float64)
+        order = np.argsort(scores)[::-1]
+        if float(scores[order[0]]) > best_score:
+            best_score = float(scores[order[0]])
+            best_genotype = genotypes[int(order[0])]
+            best_z = population[int(order[0])].copy()
+        history.append(best_score)
+
+        elites = population[order[:elite_count]]
+        next_population = np.empty_like(population)
+        next_population[0] = elites[0]
+        for idx in range(1, population_size):
+            if elite_count > 1 and rng.random() < crossover_rate:
+                left = elites[int(rng.integers(elite_count))]
+                right = elites[int(rng.integers(elite_count))]
+                mask = rng.random(n) < 0.5
+                child = np.where(mask, left, right)
+            else:
+                child = elites[int(rng.integers(elite_count))].copy()
+            next_population[idx] = child + rng.normal(0.0, mutation_std, size=n)
+        population = next_population
+        mutation_std = max(min_std, mutation_std * mutation_decay)
+
+    return {
+        "best_score": best_score,
+        "best_genotype": best_genotype,
+        "best_z": best_z.tolist(),
+        "history": history,
+        "projection_count": projection_count,
+        "final_mutation_std": mutation_std,
     }
 
 
@@ -652,7 +763,7 @@ def main() -> None:
                         deadline=seed_deadline,
                         condition_value=condition_value,
                     )
-                else:
+                elif args.algorithm == "cem":
                     result = _seeded_cem(
                         model_name=model_name,
                         model=model,
@@ -666,6 +777,27 @@ def main() -> None:
                         initial_std=args.initial_std,
                         smoothing=args.smoothing,
                         min_std=args.min_std,
+                        score_cache=score_cache,
+                        deadline=seed_deadline,
+                        condition_value=condition_value,
+                    )
+                else:
+                    result = _seeded_evolution(
+                        model_name=model_name,
+                        model=model,
+                        seed_z=seed_z,
+                        evaluator=evaluator,
+                        device=device,
+                        rng=rng,
+                        iterations=args.iterations,
+                        population_size=args.population_size,
+                        elite_fraction=args.elite_fraction,
+                        initial_std=args.initial_std,
+                        min_std=args.min_std,
+                        mutation_decay=args.mutation_decay,
+                        crossover_rate=args.crossover_rate,
+                        slp_interval=args.slp_interval,
+                        max_length=cfg["max_length"],
                         score_cache=score_cache,
                         deadline=seed_deadline,
                         condition_value=condition_value,
@@ -699,11 +831,16 @@ def main() -> None:
                     "actual_iterations": len(result["history"]),
                     "population_size": args.population_size,
                     "initial_std": args.initial_std,
+                    "mutation_decay": args.mutation_decay,
+                    "crossover_rate": args.crossover_rate,
                     "seed_min_fitness": args.seed_min_fitness,
                     "seed_max_fitness": args.seed_max_fitness,
                     "time_budget_seconds": args.time_budget_seconds,
                     "split_time_budget_across_seeds": args.split_time_budget_across_seeds,
                     "per_seed_budget_seconds": per_seed_budget,
+                    "slp_interval": args.slp_interval,
+                    "projection_count": result.get("projection_count", 0),
+                    "final_mutation_std": result.get("final_mutation_std", ""),
                     "condition_fitness": args.condition_fitness,
                     "condition_length": args.condition_length,
                     "condition_segments": args.condition_segments,
