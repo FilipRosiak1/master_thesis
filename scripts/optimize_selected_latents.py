@@ -196,31 +196,26 @@ def _condition_tensor(value: Any, batch_size: int, device: torch.device) -> torc
     return tensor
 
 
+def _decode_logits(model_name: str, model, z_tensor: torch.Tensor, device: torch.device, condition_value: Any) -> torch.Tensor:
+    if model_name in TREE_MODELS:
+        condition = _condition_tensor(condition_value, z_tensor.size(0), device)
+        if condition is None or not hasattr(model, "condition_dim"):
+            return model.decode(z_tensor, None, teacher_forcing_ratio=0.0)
+        return model.decode(z_tensor, None, teacher_forcing_ratio=0.0, fitness_condition=condition)
+    return model.decoder(z_tensor, None, teacher_forcing_ratio=0.0)
+
+
 def _decode_from_z(model_name: str, model, z: np.ndarray, device: torch.device, condition_value: Any) -> str:
     z_tensor = torch.tensor(z, dtype=torch.float32, device=device).unsqueeze(0)
     with torch.no_grad():
-        if model_name in TREE_MODELS:
-            condition = _condition_tensor(condition_value, z_tensor.size(0), device)
-            if condition is None or not hasattr(model, "condition_dim"):
-                logits = model.decode(z_tensor, None, teacher_forcing_ratio=0.0).squeeze(0)
-            else:
-                logits = model.decode(z_tensor, None, teacher_forcing_ratio=0.0, fitness_condition=condition).squeeze(0)
-        else:
-            logits = model.decoder(z_tensor, None, teacher_forcing_ratio=0.0).squeeze(0)
+        logits = _decode_logits(model_name, model, z_tensor, device, condition_value).squeeze(0)
         return decode_grammar_indices(logits.argmax(dim=-1))
 
 
 def _decode_many(model_name: str, model, z_values: np.ndarray, device: torch.device, condition_value: Any) -> list[str]:
     z_tensor = torch.tensor(z_values, dtype=torch.float32, device=device)
     with torch.no_grad():
-        if model_name in TREE_MODELS:
-            condition = _condition_tensor(condition_value, z_tensor.size(0), device)
-            if condition is None or not hasattr(model, "condition_dim"):
-                logits = model.decode(z_tensor, None, teacher_forcing_ratio=0.0)
-            else:
-                logits = model.decode(z_tensor, None, teacher_forcing_ratio=0.0, fitness_condition=condition)
-        else:
-            logits = model.decoder(z_tensor, None, teacher_forcing_ratio=0.0)
+        logits = _decode_logits(model_name, model, z_tensor, device, condition_value)
     tokens = logits.argmax(dim=-1)
     genotypes: list[str] = []
     for row in range(tokens.size(0)):
@@ -412,6 +407,15 @@ def _normalize_genotype(genotype: str) -> str:
     return "".join(genotype.split())
 
 
+def _pad_rule_idx_for_model(model) -> int:
+    if hasattr(model, "pad_rule_idx"):
+        return int(model.pad_rule_idx)
+    decoder = getattr(model, "decoder", None)
+    if decoder is not None and hasattr(decoder, "pad_rule_idx"):
+        return int(decoder.pad_rule_idx)
+    raise AttributeError("Model does not expose pad_rule_idx")
+
+
 def _project_population(
     *,
     model_name: str,
@@ -421,19 +425,30 @@ def _project_population(
     device: torch.device,
     condition_value: Any,
 ) -> tuple[np.ndarray, int]:
-    genotypes = _decode_many(model_name, model, population, device, condition_value)
+    z_tensor = torch.tensor(population, dtype=torch.float32, device=device)
     projected = population.copy()
     projected_count = 0
-    for idx, genotype in enumerate(genotypes):
-        normalized = _normalize_genotype(genotype)
-        if not _is_valid_f1(normalized):
+    with torch.no_grad():
+        logits = _decode_logits(model_name, model, z_tensor, device, condition_value)
+        tokens = logits.argmax(dim=-1)
+        batch = torch.full(
+            (tokens.size(0), max_length),
+            _pad_rule_idx_for_model(model),
+            dtype=torch.long,
+            device=device,
+        )
+        steps = min(tokens.size(1), max_length)
+        batch[:, :steps] = tokens[:, :steps]
+        mu = _encode_mu(model_name, model, batch).detach().cpu().numpy()
+
+    for idx in range(tokens.size(0)):
+        try:
+            genotype = decode_grammar_indices(tokens[idx])
+        except Exception:
             continue
-        tensor = _tensor_for_genotype(normalized, max_length)
-        if tensor is None:
-            continue
-        batch = tensor.to(device)
-        projected[idx] = _encode_mu(model_name, model, batch).squeeze(0).detach().cpu().numpy()
-        projected_count += 1
+        if _is_valid_f1(_normalize_genotype(genotype)):
+            projected[idx] = mu[idx]
+            projected_count += 1
     return projected, projected_count
 
 
