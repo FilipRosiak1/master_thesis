@@ -142,6 +142,7 @@ add_recent_runs_under "$REPO_ROOT/models/f1_surrogate"
 add_path "$REPO_ROOT/scripts/train_fitness_guided_vae.py"
 add_path "$REPO_ROOT/scripts/optimize_selected_latents.py"
 add_path "$REPO_ROOT/scripts/benchmark_selected_latents.py"
+add_path "$REPO_ROOT/scripts/compare_latent_operators_ea.py"
 add_path "$REPO_ROOT/scripts/surrogate_guided_mutation_search.py"
 add_path "$REPO_ROOT/scripts/grammar_cem_search.py"
 add_path "$REPO_ROOT/scripts/export_latest_results.sh"
@@ -151,6 +152,10 @@ add_path "$REPO_ROOT/scripts/slurm_train_struct_conditional_lhs_elite1p2_seed44_
 add_path "$REPO_ROOT/scripts/slurm_latent_evolution_selected_generators_cap1p2_a100.sh"
 add_path "$REPO_ROOT/scripts/slurm_latent_evolution_selected_generators_slp_cap1p2_a100.sh"
 add_path "$REPO_ROOT/scripts/slurm_latent_evolution_new_neural_slp_cap1p2_a100.sh"
+add_path "$REPO_ROOT/scripts/slurm_compare_latent_operators_ea_generators_cap1p2_a100.sh"
+add_path "$REPO_ROOT/scripts/slurm_latent_operator_ea_transformer_deep_cap1p2_a100.sh"
+add_path "$REPO_ROOT/scripts/slurm_latent_operator_ea_tree_deep_cap1p2_a100.sh"
+add_path "$REPO_ROOT/scripts/slurm_latent_evolution_generators_deep_no_slp_cap1p2_a100.sh"
 
 write_command_snapshot
 write_git_snapshot
