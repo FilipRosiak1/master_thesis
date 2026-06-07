@@ -9,11 +9,6 @@
 
 set -euo pipefail
 
-source "$HOME/miniconda3/bin/activate"
-conda activate f1vae
-
-cd "$HOME/master_thesis"
-
 RUN_DIR="${1:?Usage: slurm_final_benchmark_gpu_worker.sh RUN_DIR [JOB_PLAN] [JOB_INDEX]}"
 JOB_PLAN="${2:-$RUN_DIR/job_plan.gpu.csv}"
 JOB_INDEX="${3:-${SLURM_ARRAY_TASK_ID:-}}"
@@ -22,6 +17,12 @@ if [ -z "$JOB_INDEX" ]; then
   echo "Missing JOB_INDEX argument" >&2
   exit 2
 fi
+
+set --
+source "$HOME/miniconda3/bin/activate"
+conda activate f1vae
+
+cd "$HOME/master_thesis"
 
 python scripts/run_final_benchmark_job.py \
   --job-plan "$JOB_PLAN" \
