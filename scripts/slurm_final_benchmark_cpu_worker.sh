@@ -30,7 +30,7 @@ python scripts/run_final_benchmark_job.py \
   --require-job-type baseline \
   --data-path datasets/f1/f1_dataset.txt \
   --framsticks-path src/framsticks/Framsticks54 \
-  --framsticks-sim src/framsticks/framspy/eval-allcriteria.sim \
+  --framsticks-sim "src/framsticks/framspy/eval-allcriteria.sim;src/framsticks/framspy/deterministic.sim;src/framsticks/framspy/sample-period-2.sim;src/framsticks/framspy/only-body.sim" \
   --generations 300 \
   --population-size 100 \
   --offspring-size 100 \

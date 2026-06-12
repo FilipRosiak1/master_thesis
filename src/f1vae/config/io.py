@@ -18,6 +18,12 @@ def load_yaml(path: str | None) -> dict:
 def maybe_resolve_path(path: str | None, root_dir: str | None = None) -> str | None:
     if path is None:
         return None
+    if ";" in path:
+        return ";".join(
+            maybe_resolve_path(item.strip(), root_dir=root_dir) or ""
+            for item in path.split(";")
+            if item.strip()
+        )
     as_path = Path(path)
     if as_path.is_absolute():
         return str(as_path)

@@ -18,6 +18,14 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 SCRIPTS = ROOT / "scripts"
+DEFAULT_BODY_SIM_CHAIN = ";".join(
+    [
+        "src/framsticks/framspy/eval-allcriteria.sim",
+        "src/framsticks/framspy/deterministic.sim",
+        "src/framsticks/framspy/sample-period-2.sim",
+        "src/framsticks/framspy/only-body.sim",
+    ]
+)
 for path in (SRC, SCRIPTS):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
@@ -55,7 +63,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--data-path", default="datasets/f1/f1_dataset.txt")
     parser.add_argument("--framsticks-path", default="src/framsticks/Framsticks54")
     parser.add_argument("--framsticks-lib", default=None)
-    parser.add_argument("--framsticks-sim", default="src/framsticks/framspy/eval-allcriteria.sim")
+    parser.add_argument("--framsticks-sim", default=DEFAULT_BODY_SIM_CHAIN)
     parser.add_argument("--device", default=None)
     parser.add_argument("--generations", type=int, default=300)
     parser.add_argument("--iterations", type=int, default=300)

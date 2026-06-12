@@ -32,7 +32,7 @@ python scripts/run_final_benchmark_job.py \
   --checkpoints-root exports/f1_selected_10_ckpts_20260520_184738 \
   --data-path datasets/f1/f1_dataset.txt \
   --framsticks-path src/framsticks/Framsticks54 \
-  --framsticks-sim src/framsticks/framspy/eval-allcriteria.sim \
+  --framsticks-sim "src/framsticks/framspy/eval-allcriteria.sim;src/framsticks/framspy/deterministic.sim;src/framsticks/framspy/sample-period-2.sim;src/framsticks/framspy/only-body.sim" \
   --device cuda \
   --generations 300 \
   --iterations 300 \

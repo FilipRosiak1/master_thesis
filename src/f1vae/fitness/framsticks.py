@@ -37,6 +37,24 @@ def _default_sim_path() -> Path:
     return _repo_root() / "src" / "framsticks" / "framspy" / "eval-allcriteria.sim"
 
 
+def _resolve_sim_settings(sim: str | Path) -> str:
+    root = _repo_root()
+    resolved: list[str] = []
+    for item in str(sim).split(";"):
+        item = item.strip()
+        if not item:
+            continue
+        path = Path(item)
+        if not path.is_absolute():
+            path = (root / path).resolve()
+        if not path.exists():
+            raise FileNotFoundError(f"Framsticks simulation settings file was not found. Expected: {path}.")
+        resolved.append(str(path))
+    if not resolved:
+        raise ValueError("At least one Framsticks simulation settings file is required")
+    return ";".join(resolved)
+
+
 class FramsticksFitness:
     def __init__(
         self,
@@ -49,7 +67,7 @@ class FramsticksFitness:
     ) -> None:
         self.frams_path = Path(frams_path) if frams_path is not None else _default_framsticks_path()
         self.lib = lib
-        self.sim = Path(sim) if sim is not None else _default_sim_path()
+        self.sim = str(sim) if sim is not None else str(_default_sim_path())
         self.criterion = criterion
         self.deterministic = deterministic
         self._frams_lib = None
@@ -73,16 +91,12 @@ class FramsticksFitness:
                 "Framsticks runtime directory was not found. Expected: "
                 f"{self.frams_path}. Make sure src/framsticks/Framsticks54 exists on this machine."
             )
-        if not self.sim.exists():
-            raise FileNotFoundError(
-                "Framsticks simulation settings file was not found. Expected: "
-                f"{self.sim}."
-            )
+        sim_settings = _resolve_sim_settings(self.sim)
 
         from FramsticksLib import FramsticksLib
 
         FramsticksLib.DETERMINISTIC = self.deterministic
-        self._frams_lib = FramsticksLib(str(self.frams_path), self.lib, str(self.sim))
+        self._frams_lib = FramsticksLib(str(self.frams_path), self.lib, sim_settings)
         mask_floating_point_exceptions()
         return self._frams_lib
 
