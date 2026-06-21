@@ -6,13 +6,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% Szkielet dla pracy licencjackiej pisanej w języku polskim.
+% Thesis written in English.
 
-\documentclass[polish,master,a4paper,oneside]{ppfcmthesis}
+\documentclass[english,master,a4paper,oneside]{ppfcmthesis}
 
 
 \usepackage[utf8]{inputenc}
-\usepackage[OT4]{fontenc}
+\usepackage[T1]{fontenc}
 
 %--------------------------------------
 % Strona tytułowa
@@ -25,7 +25,7 @@
 }
 \authortitle{}                                % Do not change.
 
-\title{Optymalizacja struktur o zmiennej długości w przestrzeni latentnej autoenkoderów przy użyciu algorytmu RV-GOMEA}
+\title{Comparative Study of Compatible Substitutions Optimization and Latent Space Optimization in Evolutionary Design}
 
 % Your supervisor comes here.
 \ppsupervisor{dr hab. inż. Maciej Komosiński} 
@@ -49,10 +49,11 @@
 \vfill\cleardoublepage%
 
 %--------------------------------------
-% Spis treści
+% Abstracts and table of contents
 %--------------------------------------
 
 \pagenumbering{Roman}\pagestyle{ppfcmthesis}%
+\input{chapters/00-abstracts.tex}
 \tableofcontents* 
 \cleardoublepage % Zaczynamy od nieparzystej strony
 
@@ -62,10 +63,12 @@
 
 %Najwygodniej jeśli każdy rozdział znajduje się w oddzielnym pliku
 \mainmatter%
-\input{chapters/01-wstep.tex}
-\input{chapters/02-teoria.tex}
-\input{chapters/03-praca-wlasna.tex}
-\input{chapters/04-zakonczenie.tex}
+\input{chapters/01-introduction.tex}
+\input{chapters/02-literature-background.tex}
+\input{chapters/03-methods-implementation.tex}
+\input{chapters/04-experimental-design.tex}
+\input{chapters/05-experimental-results.tex}
+\input{chapters/06-discussion-conclusions.tex}
 
 %--------------------------------------
 % Literatura

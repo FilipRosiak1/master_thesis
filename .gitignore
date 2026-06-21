@@ -53,3 +53,9 @@ datasets/f1/raw_data/
 seminar/
 
 # Framsticks connector
+
+# Agents
+thesis-writer.md
+THESIS_STATE.md
+thesis-reviewer.md
+THESIS_REVIEW_STATE.md

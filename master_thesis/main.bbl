@@ -1,0 +1,79 @@
+\begin{thebibliography}{10}
+
+\bibitem{BentleyLimGaierTran2022}
+Peter~J. Bentley, Soo~Ling Lim, Adam Gaier, and Linh Tran.
+\newblock Evolving through the looking glass: Learning improved search spaces
+  with variational autoencoders.
+\newblock In {\em Parallel Problem Solving from Nature -- PPSN XVII}, volume
+  13398 of {\em Lecture Notes in Computer Science}, pages 371--384. Springer,
+  2022.
+
+\bibitem{GomezBombarelli2018}
+Rafael G{\'o}mez-Bombarelli, Jennifer~N. Wei, David Duvenaud, Jos{\'e}~Miguel
+  Hern{\'a}ndez-Lobato, Benjam{\'i}n S{\'a}nchez-Lengeling, Dennis Sheberla,
+  Jorge Aguilera-Iparraguirre, Timothy~D. Hirzel, Ryan~P. Adams, and Al{\'a}n
+  Aspuru-Guzik.
+\newblock Automatic chemical design using a data-driven continuous
+  representation of molecules.
+\newblock {\em ACS Central Science}, 4(2):268--276, 2018.
+
+\bibitem{Hansen2016}
+Nikolaus Hansen.
+\newblock The {CMA} evolution strategy: A tutorial, 2016.
+
+\bibitem{HintonSalakhutdinov2006}
+Geoffrey~E. Hinton and Ruslan~R. Salakhutdinov.
+\newblock Reducing the dimensionality of data with neural networks.
+\newblock {\em Science}, 313(5786):504--507, 2006.
+
+\bibitem{KaszubaKomosinskiMensfelt2021}
+Piotr Kaszuba, Maciej Komosi{\'n}ski, and Agnieszka Mensfelt.
+\newblock Automated development of latent representations for optimization of
+  sequences using autoencoders.
+\newblock In {\em 2021 IEEE Congress on Evolutionary Computation (CEC)}, pages
+  1360--1367, 2021.
+
+\bibitem{KingmaWelling2014}
+Diederik~P. Kingma and Max Welling.
+\newblock Auto-encoding variational bayes.
+\newblock In {\em Proceedings of the International Conference on Learning
+  Representations}, 2014.
+
+\bibitem{KusnerPaigeHernandezLobato2017}
+Matt~J. Kusner, Brooks Paige, and Jos{\'e}~Miguel Hern{\'a}ndez-Lobato.
+\newblock Grammar variational autoencoder.
+\newblock In {\em Proceedings of the 34th International Conference on Machine
+  Learning}, volume~70 of {\em Proceedings of Machine Learning Research}, pages
+  1945--1954, 2017.
+
+\bibitem{LiskowskiKrawiecTokluSwan2020}
+Pawe{\l} Liskowski, Krzysztof Krawiec, Nihat~Engin Toklu, and Jerry Swan.
+\newblock Program synthesis as latent continuous optimization: Evolutionary
+  search in neural embeddings.
+\newblock In {\em Proceedings of the 2020 Genetic and Evolutionary Computation
+  Conference}, pages 359--367, 2020.
+
+\bibitem{RezendeMohamedWierstra2014}
+Danilo~Jimenez Rezende, Shakir Mohamed, and Daan Wierstra.
+\newblock Stochastic backpropagation and approximate inference in deep
+  generative models.
+\newblock In {\em Proceedings of the 31st International Conference on Machine
+  Learning}, volume~32 of {\em Proceedings of Machine Learning Research}, pages
+  1278--1286, 2014.
+
+\bibitem{Rubinstein1999}
+Reuven~Y. Rubinstein.
+\newblock The cross-entropy method for combinatorial and continuous
+  optimization.
+\newblock {\em Methodology and Computing in Applied Probability},
+  1(2):127--190, 1999.
+
+\bibitem{Rumelhart1986}
+David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
+\newblock Learning internal representations by error propagation.
+\newblock In David~E. Rumelhart, James~L. McClelland, and the PDP
+  Research~Group, editors, {\em Parallel Distributed Processing: Explorations
+  in the Microstructure of Cognition, Volume 1: Foundations}, pages 318--362.
+  MIT Press, Cambridge, MA, USA, 1986.
+
+\end{thebibliography}

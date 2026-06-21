@@ -1,0 +1,21 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This thesis investigates optimization methods for variable-length, non-positional genotypes in evolutionary design. Framsticks F1 genotypes are used as the main case study because their tree-like structure makes local genotype modifications strongly context-dependent. In such representations, the effect of a fragment depends on its surrounding structure, which makes standard mutation and crossover operators prone to disrupting useful substructures.
+
+The work compares two complementary approaches to this problem. The first one, Compatible Substitutions Optimization (CoSO), operates directly in the discrete genotype representation and attempts to guide substitutions by estimating their contextual compatibility. The second one, Latent Space Optimization (LSO), maps genotypes into a continuous latent representation learned by autoencoders and performs search in that space. The autoencoder-based part includes grammar-aware models such as TreeVAE and TransformerVAE, as well as variants using grammatical context, depth information, and fitness conditioning. The optimized candidates are decoded back into F1 genotypes and evaluated with the Framsticks fitness criterion \texttt{vertpos}.
+
+The experimental evaluation is designed to compare CoSO, latent-space optimization methods, and standard Framsticks evolutionary operators under a common protocol. The comparison considers the quality of the best solutions found, improvement over the initial genotypes, stability across starting points, and the influence of the initial fitness range. The results are intended to show when explicit context-aware substitutions and learned continuous representations are useful, what their limitations are, and how the choice of representation affects the optimization process.
+
+\cleardoublepage
+
+\chapter*{Streszczenie}
+\addcontentsline{toc}{chapter}{Streszczenie}
+
+Niniejsza praca dotyczy metod optymalizacji genotypów o zmiennej długości i niepozycyjnym charakterze reprezentacji w projektowaniu ewolucyjnym. Jako główny przypadek badawczy wykorzystano genotypy Framsticks F1, których drzewiasta struktura sprawia, że lokalne modyfikacje genotypu są silnie zależne od kontekstu. W takich reprezentacjach znaczenie fragmentu zależy od otaczającej go struktury, przez co standardowe operatory mutacji i krzyżowania mogą niszczyć użyteczne podstruktury.
+
+W pracy porównywane są dwa uzupełniające się podejścia do tego problemu. Pierwsze z nich, Compatible Substitutions Optimization (CoSO), działa bezpośrednio w dyskretnej reprezentacji genotypu i wykorzystuje ocenę zgodności kontekstowej proponowanych podmian. Drugie, Latent Space Optimization (LSO), odwzorowuje genotypy do ciągłej przestrzeni ukrytej wyuczonej przez autoenkodery i prowadzi optymalizację w tej przestrzeni. Część autoenkoderowa obejmuje modele świadome gramatyki, takie jak TreeVAE i TransformerVAE, a także warianty wykorzystujące kontekst gramatyczny, informację o głębokości oraz warunkowanie wartością fitness. Kandydaci wygenerowani w przestrzeni ukrytej są dekodowani z powrotem do genotypów F1 i oceniani przy użyciu kryterium \texttt{vertpos} w środowisku Framsticks.
+
+Ewaluacja eksperymentalna została zaprojektowana tak, aby porównać CoSO, metody optymalizacji w przestrzeni ukrytej oraz standardowe operatory ewolucyjne Framsticks we wspólnym protokole. Porównanie obejmuje jakość najlepszych znalezionych rozwiązań, poprawę względem genotypów startowych, stabilność między różnymi punktami startowymi oraz wpływ początkowego zakresu fitness. Celem analizy jest określenie, kiedy jawne podmiany zgodne z kontekstem oraz wyuczone reprezentacje ciągłe są użyteczne, jakie są ich ograniczenia oraz w jaki sposób wybór reprezentacji wpływa na proces optymalizacji.
+
+\cleardoublepage
