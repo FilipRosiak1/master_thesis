@@ -28,27 +28,27 @@
 \contentsline {section}{\numberline {4.1}Research questions}{16}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Compared methods}{16}{section.4.2}%
 \contentsline {section}{\numberline {4.3}Benchmark setup}{16}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Evaluation metrics}{16}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Experimental protocol}{16}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Reproducibility and computational setup}{16}{section.4.6}%
-\contentsline {chapter}{\chapternumberline {5}Experimental Results}{17}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Autoencoder reconstruction and validity results}{17}{section.5.1}%
-\contentsline {section}{\numberline {5.2}CoSO optimization results}{17}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Latent-space optimization results}{17}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Comparison with the Framsticks evolutionary baseline}{17}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Comparison between CoSO and Latent Space Optimization}{17}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Analysis by initial fitness ranges}{17}{section.5.6}%
-\contentsline {section}{\numberline {5.7}Summary of results}{17}{section.5.7}%
-\contentsline {chapter}{\chapternumberline {6}Discussion and Conclusions}{18}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of experimental results}{18}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Strengths and limitations of Compatible Substitutions Optimization}{18}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Strengths and limitations of Latent Space Optimization}{18}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Comparative discussion}{18}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Threats to validity}{18}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Conclusions}{18}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Future work}{18}{section.6.7}%
-\contentsline {chapter}{Bibliography}{19}{chapter*.7}%
-\contentsline {appendix}{\chapternumberline {A}Supplementary Materials}{20}{chapter.A}%
-\contentsline {section}{\numberline {A.1}Additional experimental results}{20}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Configuration details}{20}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Examples of optimized genotypes}{20}{section.A.3}%
+\contentsline {section}{\numberline {4.4}Evaluation metrics}{17}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Experimental protocol}{19}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Reproducibility and computational setup}{19}{section.4.6}%
+\contentsline {chapter}{\chapternumberline {5}Experimental Results}{20}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Autoencoder reconstruction and validity results}{20}{section.5.1}%
+\contentsline {section}{\numberline {5.2}CoSO optimization results}{20}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Latent-space optimization results}{20}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Comparison with the Framsticks evolutionary baseline}{20}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Comparison between CoSO and Latent Space Optimization}{20}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Analysis by initial fitness ranges}{20}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Summary of results}{20}{section.5.7}%
+\contentsline {chapter}{\chapternumberline {6}Discussion and Conclusions}{21}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of experimental results}{21}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Strengths and limitations of Compatible Substitutions Optimization}{21}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Strengths and limitations of Latent Space Optimization}{21}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Comparative discussion}{21}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Threats to validity}{21}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Conclusions}{21}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Future work}{21}{section.6.7}%
+\contentsline {chapter}{Bibliography}{22}{chapter*.7}%
+\contentsline {appendix}{\chapternumberline {A}Supplementary Materials}{23}{chapter.A}%
+\contentsline {section}{\numberline {A.1}Additional experimental results}{23}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Configuration details}{23}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Examples of optimized genotypes}{23}{section.A.3}%

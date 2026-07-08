@@ -10,11 +10,61 @@
 
 \section{Benchmark setup}
 
-% TODO: write this section.
+The common benchmark is centred on Framsticks F1 genotypes and on the \texttt{vertpos} fitness criterion introduced in Section~3.1. The dataset is used to provide existing genotypes with known starting fitness values, but it is not used as a lookup table for the fitness of newly generated candidates. During optimization, each candidate produced by a baseline evolutionary run or by decoding a latent vector is converted to an F1 genotype and evaluated through Framsticks with the same \texttt{vertpos} criterion. Candidates that cannot be represented or evaluated successfully are treated as invalid for the corresponding search procedure.
+
+Starting genotypes for the final paired benchmark are selected from six initial-fitness buckets. The bucket ranges are \([0.30,0.50)\), \([0.50,0.75)\), \([0.75,1.00)\), \([1.00,1.20)\), \([1.20,1.50)\), and \([1.50,\infty)\). Twenty-five starting genotypes are sampled from each bucket, giving 150 starting points in total. The same seed manifest is used for all latent-space configurations and for the Framsticks EA baseline. This design makes the comparison paired: for a given starting genotype, latent-space results can be compared with the baseline result obtained from the same initial organism, rather than with an independently sampled baseline run.
+
+The final Latent Space Optimization benchmark combines five selected autoencoder checkpoints with three latent-space optimizers. The checkpoint labels used in the benchmark are:
+\begin{itemize}
+    \item \texttt{09\_tree\_vae\_epoch80},
+    \item \texttt{10\_transformer\_vae\_epoch90},
+    \item \texttt{02\_lhs\_latent256\_seed42\_best},
+    \item \texttt{06\_lhs\_depth\_seed42\_best},
+    \item \texttt{fitness\_aware\_lhs\_seed42}.
+\end{itemize}
+For each checkpoint, three latent methods are evaluated: the latent-space evolutionary algorithm, reported as \texttt{latent\_ea}; the Cross-Entropy Method, reported as \texttt{cem}; and CMA-ES, reported as \texttt{cmaes}. The resulting latent part of the benchmark therefore consists of all combinations of five checkpoints, three methods, six buckets, and twenty-five seeds per bucket.
+
+The baseline part of the benchmark uses the standard Framsticks EA from the same starting genotypes. There is one baseline run for each of the 150 starting genotypes. The nominal search budget is kept consistent at the design level: evolutionary runs use 300 generations with population size 100, while distribution-based latent methods use 300 iterations with the same population size. Actual numbers of unique evaluated genotypes may differ between runs because invalid candidates, duplicates, and cached evaluations are handled by the optimization procedure. The number of unique evaluated genotypes is recorded for all runs, while invalid and duplicate counts are interpreted only for methods and jobs that record them; these measurements are used for later metric analysis rather than being treated as separate benchmark conditions.
+
+The computational execution separates neural latent-space jobs and baseline evolutionary jobs only for practical reasons: latent decoding uses trained autoencoder checkpoints and is configured for accelerator-based execution, whereas the Framsticks EA baseline does not require neural inference. This distinction does not change the objective function, the starting genotypes, or the use of true Framsticks \texttt{vertpos} evaluation. It is therefore a reproducibility detail rather than an experimental factor.
+
+% TODO: add CoSO-specific benchmark setup after the CoSO experimental protocol and run evidence are available.
 
 \section{Evaluation metrics}
 
-% TODO: write this section.
+The evaluation uses separate but connected metric groups for representation learning, optimization quality, and search behaviour. This separation is important because a genotype autoencoder can reconstruct examples well without necessarily producing a latent space that is easy to optimize. Conversely, an optimization method can occasionally discover a high-fitness genotype even if its generator has limited average reconstruction accuracy. The reported metrics therefore distinguish model diagnostics from final objective performance.
+
+For autoencoder training and checkpoint selection, the main reconstruction metric is validation exact reconstruction accuracy. A reconstruction is counted as exact when the decoded output string is identical to the corresponding reference genotype string after the representation-specific decoding step. The accuracy is the number of exact reconstructions divided by the number of validation examples. Because exact equality is a strict criterion for variable-length structured genotypes, average string similarity is also recorded. This metric averages a normalized string-similarity score over reconstructed examples and indicates partial preservation of genotype text. It should be interpreted only as a reconstruction diagnostic: a high similarity value does not imply high \texttt{vertpos}, and a low exact-reconstruction value does not by itself determine the outcome of latent-space search.
+
+Selected checkpoints are additionally characterized by unconditional generation diagnostics. Random latent samples are decoded and classified according to whether the resulting strings are syntactically valid F1 genotypes. The validity rate is the fraction of generated samples that pass this syntactic check. Uniqueness is measured by counting distinct generated strings, and duplicate rate is the complementary fraction of repeated generated samples. For valid generated genotypes, novelty relative to the available dataset and, when evaluated, the count and summary statistics of generated \texttt{vertpos} values are auxiliary indicators of generator behaviour. These quantities help describe whether a checkpoint can produce diverse admissible genotypes, but they are not substitutes for the final seeded optimization benchmark. For fitness-guided variants, fitness-prediction error and correlation are considered only when such diagnostics are recorded or when a fitness-prediction head is used; in those cases, they are auxiliary training diagnostics rather than final optimization metrics.
+
+The primary optimization-quality metric is the best true \texttt{vertpos} score obtained in a run. For method or configuration~$m$ and starting genotype~$s$, this value is denoted by
+\[
+F^{\mathrm{best}}_{m,s}.
+\]
+It corresponds to the best genotype returned by the run after candidate decoding, validity checks, method-specific duplicate or cache handling, and Framsticks evaluation. Improvement over the starting genotype is measured as
+\[
+\Delta_{\mathrm{seed}}(m,s) = F^{\mathrm{best}}_{m,s} - F^{\mathrm{seed}}_{s},
+\]
+where $F^{\mathrm{seed}}_{s}$ is the stored \texttt{vertpos} value of the starting genotype. A complementary conservative value is also useful in interpretation:
+\[
+F^{\mathrm{best-or-source}}_{m,s} = \max\left(F^{\mathrm{best}}_{m,s}, F^{\mathrm{seed}}_{s}\right).
+\]
+This value answers the question of how much would be gained if the original seed genotype were retained whenever a search run failed to improve on it.
+
+Comparisons with the Framsticks EA baseline are paired by starting genotype. For each non-baseline method or configuration and seed, the paired difference is
+\[
+\Delta_{\mathrm{EA}}(m,s) = F^{\mathrm{best}}_{m,s} - F^{\mathrm{best}}_{\mathrm{Framsticks\ EA},s}.
+\]
+A positive difference is counted as a win against the baseline, a negative difference as a loss, and an exact zero as a tie. Aggregates over seeds include the mean, median, maximum, and variability of best scores, improvements over the starting genotype, and paired differences against the baseline. The win rate is the fraction of paired seeds for which the compared method obtains a strictly larger best score than the Framsticks EA run from the same starting genotype. If best-per-seed or portfolio-style summaries are shown later, they are interpreted only as upper-bound analyses over already completed configurations, not as independent optimization methods.
+
+Search behaviour and stability are described by quantities recorded during each run. The number of unique evaluated genotypes is used as an effective measure of how many distinct genotype strings were assigned fitness values during search. This quantity is broadly available in the final benchmark outputs and helps compare how much unique search material each method produced under the same nominal budget. Invalid-candidate and duplicate-candidate counts are more method-dependent. They are interpreted only for methods and runs whose output explicitly records them; missing fields are not treated as zero counts. When available, invalid counts indicate decoded or modified candidates that could not be used as evaluated F1 genotypes, while duplicate counts indicate repeated normalized genotypes that did not add new search information.
+
+The benchmark also records best-so-far histories over generations or iterations. These histories support trajectory-based analyses, such as median best \texttt{vertpos} as a function of requested evaluations, median improvement over the starting genotype, and win rate against the paired baseline at comparable budget points. History-level plots are therefore used to assess convergence behaviour and stability, whereas final best-score summaries are used to compare end-of-run outcomes.
+
+All optimization metrics are also analysed conditionally on the initial-fitness buckets defined in Section~4.3. Bucket-conditioned summaries report the same best-score, improvement, paired-difference, and win-rate quantities within each starting-fitness range. This analysis distinguishes cases in which a method improves weak or medium starting genotypes from cases in which the starting genotype is already strong and therefore harder to surpass.
+
+% TODO: add CoSO-specific diagnostic counters here if the final CoSO run protocol records additional substitution-level metrics.
 
 \section{Experimental protocol}
 
