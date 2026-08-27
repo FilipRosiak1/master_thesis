@@ -263,6 +263,10 @@ Typeset using \LaTeX\.
 %
 % Macros 
 %
+\newcommand{\fzero}{\ensuremath{\mathbf{f0}}}
+\newcommand{\fone}{\ensuremath{\mathbf{f1}}}
+\newcommand{\fnine}{\ensuremath{\mathbf{f9}}}
+\newcommand{\vertpos}{\ensuremath{\mathit{vertpos}}}
 
 % English
 \newcommand{\termdef}[1]{\emph{#1}}

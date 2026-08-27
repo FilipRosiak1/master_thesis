@@ -2,19 +2,245 @@
 
 \section{Autoencoder reconstruction and validity results}
 
-% TODO: write this section.
+The training logs show substantial differences between the initial sequence models and the later tree- and context-aware variants. Validation reconstruction was measured using deterministic decoding from the latent mean on a run-specific 20\% validation split. Each split contained 2,178 examples because the runs used the same dataset size and split fraction, but identical validation membership cannot be assumed. Some run configurations did not specify a split seed, whereas others used a fixed seed. The character VAE and the unmasked grammar VAE obtained no exact validation reconstructions in their recorded runs, although their best average string similarities were 41.23\% and 36.65\%, respectively. The masked grammar VAE reached 0.09\% exact accuracy and 47.60\% similarity. The selected TreeVAE checkpoint at epoch 80 reached 10.33\% exact accuracy and 69.56\% similarity, whereas the selected TransformerVAE checkpoint at epoch 90 reached 2.20\% and 55.28\%. The later masked TreeVAE and LHS-conditioned variants recorded best logged exact accuracies between 16.57\% and 31.59\% among the ten checkpoints retained for detailed diagnosis. These cross-run values describe the recorded validation outcomes, subject to the possible difference in split membership.
+
+Table~\ref{tab:autoencoder-diagnostics} reports two different reconstruction evaluations and therefore keeps their denominators separate. ``Validation'' denotes the best checkpoint-associated value recorded during training on the held-out split. ``Local'' denotes a later deterministic reconstruction pass over the first 512 encodable dataset records after loading the exported checkpoint. The latter records were not a held-out test set, and this pass produced substantially higher accuracies for several checkpoints. Consequently, local exact accuracy, which reached approximately 90--97\% for checkpoints 01--08, is a checkpoint-loading and decoding diagnostic rather than an estimate of out-of-sample reconstruction. Both evaluations use exact string equality; the similarity columns are averages of normalized sequence-matching ratios.
+
+\begin{table}[ht]
+\centering
+\caption{Reconstruction and unconditional generation diagnostics for the ten selected checkpoints. All numeric diagnostic entries are percentages. Validation uses a run-specific split of 2,178 held-out examples, local reconstruction uses 512 dataset records, and generation uses 100 standard-normal latent samples per checkpoint.}
+\label{tab:autoencoder-diagnostics}
+{\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{llrrrrrr}
+\hline
+ID & Checkpoint type & Val. exact & Val. sim. & Local exact & Local sim. & Valid & Unique \\
+\hline
+01 & LHS standard       & 31.59 & 89.00 & 96.48 & 99.53 & 34.00 & 57.00 \\
+02 & LHS, latent 256    & 30.81 & 89.57 & 96.88 & 99.45 & 29.00 & 65.00 \\
+03 & Masked standard    & 30.39 & 88.68 & 96.88 & 99.56 & 32.00 & 69.00 \\
+04 & LHS standard, seed 42 & 28.33 & 87.56 & 95.12 & 99.28 & 40.00 & 55.00 \\
+05 & Masked, slow schedule & 28.28 & 87.41 & 97.07 & 99.68 & 34.00 & 65.00 \\
+06 & LHS with depth     & 27.78 & 88.23 & 95.90 & 99.37 & 38.00 & 65.00 \\
+07 & LHS, slow schedule & 25.16 & 85.88 & 95.51 & 99.46 & 46.00 & 81.00 \\
+08 & Masked, reconstruction ceiling & 16.57 & 80.94 & 90.43 & 98.98 & 46.00 & 95.00 \\
+09 & TreeVAE, epoch 80  & 10.33 & 69.56 & 78.13 & 96.52 & 72.00 & 83.00 \\
+10 & TransformerVAE, epoch 90 & 2.20 & 55.28 & 19.14 & 82.28 & 98.00 & 100.00 \\
+\hline
+\end{tabular}}
+\end{table}
+
+The unconditional generation columns characterize a different task. Validity is the fraction of 100 decoded samples accepted by the configured F1 syntax check, while uniqueness is the fraction of distinct strings among all 100 outputs. Checkpoints 01--08 combined high local reconstruction with only 29--46\% generated validity. In contrast, TreeVAE-80 produced 72\% valid and 83\% unique outputs, and TransformerVAE-90 produced 98\% valid and 100\% unique outputs despite their weaker reconstruction results. Novelty among outputs classified as valid ranged from 55.00\% to 100.00\%; it was 97.22\% for TreeVAE-80 and 100.00\% for TransformerVAE-90. These quantities use different denominators: uniqueness concerns all generated strings, whereas novelty concerns valid generated occurrences.
+
+Fresh Framsticks evaluation further showed that syntactic acceptance was not equivalent to useful phenotype generation. For the TreeVAE-80 and TransformerVAE-90 random samples, the mean evaluated \vertpos{} values were 0.186 and 0.158, with maxima of 0.852 and 0.739. Most random outputs from several high-reconstruction LHS or masked checkpoints either could not be assigned a numeric value or remained near the minimal observed value. These 100-sample diagnostics were used to describe generator behaviour, not to rank optimization methods.
+
+The fifth checkpoint later included in the final optimization benchmark was a fitness-aware LHS model and was not part of the ten-checkpoint table. Its exported best-reconstruction checkpoint recorded 398 exact validation reconstructions out of 2,178 (18.27\%) and 83.81\% average similarity at epoch 440. At the same validation point, its auxiliary normalized-fitness head recorded an MSE of 0.0834 and a correlation of 0.9576. These are auxiliary representation-learning diagnostics; the optimization results below continue to use true Framsticks \vertpos{} rather than the prediction head.
 
 \section{CoSO optimization results}
+\label{sec:CoSO optimization results}
 
-% TODO: insert CoSO results once the required source materials are added.
+The CoSO experiments produced two complementary result sets. The first one was a compatibility-threshold screening stage with sixteen threshold pairs and 25 independent runs per pair. The second one was the bucket-aligned 30,000-evaluation experiment, in which the directional threshold was fixed at \(0.5\) and spatial thresholds \(0\), \(1\), \(2\), and \(3\) were evaluated separately in each of the six initial-fitness buckets.
+
+Table~\ref{tab:coso-threshold-screening} reports the mean final best \vertpos{} values and their run-to-run variability from the threshold-screening stage. The highest mean values were obtained for spatial threshold \(0\), with small differences between directional thresholds. However, this stage used the broader genotype dataset as the sampling pool, so final best scores were strongly affected by the best genotypes introduced during the multi-start search. The mean improvement over the best introduced genotype remained small in this screening stage. Therefore, the threshold-screening results are interpreted mainly as sensitivity evidence for archive retrieval, not as the final CoSO optimization result.
+
+
+\begin{table}[ht]
+\centering
+\caption{Mean final best \vertpos{} in the CoSO threshold-screening stage. Each cell summarizes 25 independent runs with a nominal limit of 30,000 within-constraint evaluations.}
+\label{tab:coso-threshold-screening}
+{\small
+% \resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrr}
+\hline
+Spatial threshold & Direction 0 & Direction 0.5 & Direction 1.0 & Direction 1.5 \\
+\hline
+0 & $2.103 \pm 0.083$ & $2.108 \pm 0.116$ & $2.102 \pm 0.117$ & $2.112 \pm 0.102$ \\
+1 & $2.078 \pm 0.119$ & $2.038 \pm 0.099$ & $2.049 \pm 0.137$ & $2.034 \pm 0.076$ \\
+2 & $2.033 \pm 0.143$ & $2.055 \pm 0.095$ & $2.036 \pm 0.087$ & $2.068 \pm 0.128$ \\
+3 & $2.031 \pm 0.135$ & $2.026 \pm 0.127$ & $1.958 \pm 0.089$ & $2.027 \pm 0.111$ \\
+\hline
+\end{tabular}}
+% }
+\end{table}
+
+Figure~\ref{fig:coso-threshold-trajectories} complements Table~\ref{tab:coso-threshold-screening} by showing how the mean best-so-far value develops during the threshold-screening runs. The endpoint ranking is similar across some threshold pairs, but the trajectories show that most improvement occurs early and that differences between configurations are relatively small after the initial phase.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/coso_config_comparison_best_fit-big_legend.png}
+\caption{Mean CoSO best-so-far trajectories in the compatibility-threshold screening stage. Each line averages 25 independent runs for one spatial--directional threshold pair. The trajectories describe archive-based multi-start search progress, not paired convergence from fixed source genotypes.}
+\label{fig:coso-threshold-trajectories}
+\end{figure}
+
+% The bucket-aligned stage provides the main CoSO optimization evidence. Table~\ref{tab:coso-spatial-summary} aggregates the 150 runs available for each spatial threshold across all six buckets. The strict spatial threshold \(0\) produced the weakest results: its mean final best value was 1.191, close to the mean best introduced value of 1.156, and its mean run-level substitution improvement was only 0.035. Spatial thresholds \(1\), \(2\), and \(3\) produced substantially larger improvements. The best mean final value was obtained with spatial threshold \(2\), at 1.529, although spatial threshold \(3\) was nearly identical by mean and produced the largest single observed CoSO result, 2.384.
+
+The bucket-aligned stage provides the main CoSO optimization evidence. Table~\ref{tab:coso-spatial-summary} aggregates the 150 runs available for each spatial threshold across all six buckets. Spatial thresholds \(0\) and \(1\) produced the strongest results. Their mean final best values were 
+% 1.527 and 1.529, 
+1.621 and 1.611, 
+respectively, and their mean run-level substitution improvements were 
+% 0.372 and 0.374. 
+0.465 and 0.455. 
+Spatial threshold \(0\) also produced the largest single observed CoSO result, 
+% 2.384. 
+2.270. 
+In contrast, spatial threshold \(3\) produced the weakest aggregate outcome, with mean final best value 1.191 and mean run-level substitution improvement 
+% 0.035.
+0.038.
+
+
+\begin{table}[ht]
+\centering
+\caption{Bucket-aligned CoSO results by spatial threshold. Directional threshold is fixed at \(0.5\). Each row summarizes 150 runs, with 25 runs in each of six buckets. \(\Delta_{\mathrm{subst}}^{\mathrm{CoSO}}\) is the final best value minus the best unmodified genotype introduced in the same run.}
+\label{tab:coso-spatial-summary}
+{\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\hline
+Spatial threshold & Mean best & Median best & SD & Maximum & Mean introduced best & Mean \(\Delta_{\mathrm{subst}}^{\mathrm{CoSO}}\) \\
+\hline
+% 0 & 1.191 & 1.127 & 0.462 & 2.011 & 1.156 & 0.035 \\
+% 1 & 1.472 & 1.486 & 0.375 & 2.277 & 1.156 & 0.316 \\
+% 2 & 1.529 & 1.511 & 0.348 & 2.267 & 1.156 & 0.374 \\
+% 3 & 1.527 & 1.485 & 0.344 & 2.384 & 1.156 & 0.372 \\
+
+% 0 & 1.527 & 1.485 & 0.344 & 2.384 & 1.156 & 0.372 \\
+% 1 & 1.529 & 1.511 & 0.348 & 2.267 & 1.156 & 0.374 \\
+% 2 & 1.472 & 1.486 & 0.375 & 2.277 & 1.156 & 0.316 \\
+% 3 & 1.191 & 1.127 & 0.462 & 2.011 & 1.156 & 0.035 \\
+% 120
+0 & 1.621 & 1.581 & 0.305 & 2.270 & 1.156 & 0.465 \\
+1 & 1.611 & 1.622 & 0.315 & 2.378 & 1.156 & 0.455 \\
+2 & 1.536 & 1.528 & 0.376 & 2.296 & 1.156 & 0.381 \\
+3 & 1.193 & 1.127 & 0.458 & 2.011 & 1.156 & 0.038 \\
+\hline
+\end{tabular}}}
+\end{table}
+
+% The bucket-conditioned improvements in Table~\ref{tab:coso-bucket-improvement} show that CoSO improved weakest and medium-quality genotype pools most clearly. For spatial thresholds \(2\) and \(3\), the mean run-level substitution improvement exceeded 0.64 in B1 and remained around 0.40 in B4. In contrast, the strongest bucket B6 showed much smaller gains, between 0.051 and 0.086 for spatial thresholds \(1\)--\(3\). This pattern means that CoSO was most useful when the starting pool still left substantial room for improvement. The decline in improvement for B6 should not be read as poor final quality: B6 starts from already strong genotypes, so high final scores can coincide with smaller margins over the best introduced genotype.
+
+The bucket-conditioned improvements in Table~\ref{tab:coso-bucket-improvement} show that CoSO improved weakest and medium-quality genotype pools most clearly, especially for spatial thresholds \(0\) and \(1\). For these two thresholds, the mean run-level substitution improvement exceeded 0.77 in B1, remained above 0.62 in B2, and stayed around 0.42--0.45 in B4. Spatial threshold \(2\) produced a weaker but still consistent improvement pattern across all buckets, with values from 0.579 in B1 to 0.171 in B6. In contrast, spatial threshold \(3\) was largely ineffective under this metric, with only 0.148 improvement in B1 and near-zero or zero improvement in the remaining buckets. The strongest bucket B6 showed much smaller gains for the best-performing spatial thresholds, between 0.107 and 0.171. This pattern means that CoSO was most useful when the starting pool still left substantial room for improvement. The decline in improvement for B6 should not be read as poor final quality: B6 starts from already strong genotypes, so high final scores can coincide with smaller margins over the best introduced genotype.
+
+
+\begin{table}[ht]
+\centering
+\caption{Mean run-level CoSO substitution improvement by bucket. Values report \(F^{\mathrm{best}}_{\mathrm{CoSO},r} - F^{\mathrm{introduced}}_{r}\), not improvement over a single paired source genotype.}
+\label{tab:coso-bucket-improvement}
+{\small
+\begin{tabular}{lrrrrrr}
+\hline
+Spatial threshold & B1 & B2 & B3 & B4 & B5 & B6 \\
+\hline
+% 0 & 0.126 & 0.044 & 0.028 & 0.014 & 0.000 & 0.000 \\
+% 1 & 0.503 & 0.447 & 0.314 & 0.348 & 0.203 & 0.081 \\
+% 2 & 0.642 & 0.480 & 0.326 & 0.407 & 0.301 & 0.086 \\
+% 3 & 0.683 & 0.455 & 0.309 & 0.402 & 0.331 & 0.051 \\
+
+% 3 & 0.683 & 0.455 & 0.309 & 0.402 & 0.331 & 0.051 \\
+% 2 & 0.642 & 0.480 & 0.326 & 0.407 & 0.301 & 0.086 \\
+% 1 & 0.503 & 0.447 & 0.314 & 0.348 & 0.203 & 0.081 \\
+% 0 & 0.126 & 0.044 & 0.028 & 0.014 & 0.000 & 0.000 \\
+% 120
+0 & 0.828 & 0.629 & 0.427 & 0.425 & 0.370 & 0.113 \\
+1 & 0.779 & 0.626 & 0.407 & 0.447 & 0.365 & 0.107 \\
+2 & 0.579 & 0.504 & 0.401 & 0.356 & 0.274 & 0.171 \\
+3 & 0.148 & 0.037 & 0.027 & 0.015 & 0.000 & 0.000 \\
+\hline
+\end{tabular}}
+\end{table}
+
+% The archive diagnostics support the same interpretation. The strict spatial threshold \(0\) led to many local convergence events and a large final archive, but this did not translate into meaningful improvement beyond the best introduced genotype. More permissive spatial thresholds reduced the number of local convergence events and produced much higher final quality, indicating that broader spatial compatibility made archived fragments more useful as substitutions. The results therefore favour nonzero spatial tolerance, with thresholds \(2\) and \(3\) giving the strongest bucket-aligned CoSO outcomes under the 30,000-evaluation protocol.
+
+The archive diagnostics support the same interpretation. The least effective spatial threshold produced many local convergence events and a large archive, but this did not translate into meaningful improvement beyond the best introduced genotype. More restrictive spatial thresholds produced higher final quality and larger substitution gains, indicating that tighter spatial compatibility made archived fragments more useful as replacements. The results therefore favour spatial thresholds \(0\) and \(1\) under the 30,000-evaluation bucket-aligned protocol.
+
+
+These results are interpreted as within-CoSO evidence. CoSO runs are archive-based multi-start searches over genotype pools, so their best-so-far histories and final scores are not paired per-source outcomes in the same sense as LSO runs. The CoSO results can be compared with LSO only at the aggregate bucket or configuration level under the common nominal budget, not as one-to-one convergence curves from identical starting genotypes.
+
+
+% TODO: insert CoSO results once the required source materials are added. -DONE
 
 \section{Latent-space optimization results}
 
-% TODO: write this section.
+The final Latent Space Optimization benchmark produced 2,250 completed runs: 150 starting genotypes for each of five checkpoints and three optimizers. Every configuration therefore contains the same 25 starting genotypes from each of the six initial-fitness buckets. The raw best-score field is not directly comparable across the three optimizers: latent EA can return the original genotype with its stored manifest fitness, whereas CEM and CMA-ES return freshly evaluated decoded search outputs without that fallback. Table~\ref{tab:lso-final-configurations} therefore applies the uniform retained-source decision policy from Section~4.4. For every row, the retained score is the larger of the raw result and the stored source fitness. Each cell reports the mean, sample standard deviation, and maximum over the 150 retained decision scores of one fixed configuration; it is not a generated-candidate-only measure and does not select an optimizer separately for each source genotype.
+
+\begin{table}[ht]
+\centering
+\caption{Final LSO results under the uniform source-retention policy. Cells show mean $\pm$ sample standard deviation [maximum] of retained \vertpos{}, defined as the larger of the raw optimizer output and the stored source fitness, with $n=150$ runs per cell.}
+\label{tab:lso-final-configurations}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\hline
+Checkpoint & Latent-space EA & CEM & CMA-ES \\
+\hline
+TreeVAE-80
+  & $1.772 \pm 0.228$ [2.331]
+  & $1.179 \pm 0.354$ [2.142]
+  & $1.638 \pm 0.231$ [2.353] \\
+TransformerVAE-90
+  & $1.774 \pm 0.199$ [2.129]
+  & $1.213 \pm 0.304$ [2.129]
+  & $1.506 \pm 0.226$ [2.129] \\
+LHS, latent 256
+  & $1.477 \pm 0.203$ [2.129]
+  & $1.441 \pm 0.150$ [2.129]
+  & $1.416 \pm 0.156$ [2.129] \\
+LHS with depth
+  & $1.439 \pm 0.210$ [2.129]
+  & $1.430 \pm 0.166$ [2.129]
+  & $1.448 \pm 0.141$ [2.129] \\
+Fitness-aware LHS
+  & $1.612 \pm 0.242$ [2.201]
+  & $1.481 \pm 0.190$ [2.153]
+  & $1.619 \pm 0.296$ [2.264] \\
+\hline
+\end{tabular}}
+\end{table}
+
+The two largest retained-score means were obtained by latent EA with TransformerVAE-90 and TreeVAE-80, at 1.774 and 1.772; their medians were 1.843 and 1.755, and their mean retained improvements were 0.764 and 0.763. Latent EA also had the largest mean for the latent-256 LHS checkpoint. The ranking changed for the other two representations: CMA-ES had the largest retained mean for LHS with depth, at 1.448 compared with 1.439 for latent EA, and for fitness-aware LHS, at 1.619 compared with 1.612. The search algorithm alone therefore did not determine the retained decision outcome; the decoded representation remained an important experimental factor.
+
+CEM had the lowest optimizer-wide retained mean and was particularly weak with TreeVAE-80 and TransformerVAE-90, where its retained means were 1.179 and 1.213. It was more competitive with the LHS-based checkpoints, reaching retained means between 1.430 and 1.481, and it exceeded CMA-ES for the latent-256 LHS model. CMA-ES reached the largest single LSO score, 2.353 with TreeVAE-80, but this high maximum did not translate into the largest mean for that checkpoint. Its retained checkpoint means varied from 1.416 to 1.638, and the fitness-aware combination had the largest within-configuration standard deviation in Table~\ref{tab:lso-final-configurations}, 0.296. Thus, isolated high results from CMA-ES should not be interpreted as uniform performance.
+
+Source retention occurred in 83 of 750 latent-EA rows. In each of these rows, the raw result already identified the original genotype and its stored label as best; 62 of the 83 cases were in B6. Under the uniform decision policy, the source was retained in 132 of 750 CEM rows and 85 of 750 CMA-ES rows. For CEM, 131 cases required a strict post-hoc replacement of a worse freshly evaluated raw output and one case was an exact no-improvement tie; all 85 CMA-ES cases required replacement. The B6 counts were 82 for CEM and 65 for CMA-ES. These counts quantify the decision policy and the protocol asymmetry, not the number of failures to generate candidates.
+
+The retained-score ranking also reinforces the distinction between reconstruction and optimization quality. The latent-256 LHS and LHS-depth checkpoints had logged validation exact accuracies of 30.81\% and 27.78\%, yet their best retained means across optimizers were 1.477 and 1.448. TransformerVAE-90 had only 2.20\% validation exact reconstruction but achieved the largest retained mean when paired with latent EA. TreeVAE-80 showed a similar pattern, combining moderate reconstruction with strong latent-EA and CMA-ES outcomes. Reconstruction quality was therefore informative about one property of a checkpoint, but it was not a sufficient selection criterion for latent search.
+
+The results in Table~\ref{tab:lso-final-configurations} are therefore interpreted as within-LSO outcomes. The completed LSO details files record evaluation with \texttt{eval-allcriteria.sim} only. Although the standard Framsticks EA baseline used the same 150 starting genotypes, its completed details files record a four-file chain consisting of \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. Identical starting genotypes permit seed-level alignment, but they do not make the resulting candidate scores same-condition observations. Ordinary paired differences and win rates between these completed runs are consequently not reported as method-comparison results.
 
 \section{Comparison with the Framsticks evolutionary baseline}
 
-% TODO: write this section.
+The completed outputs do not constitute a controlled LSO--Framsticks EA comparison. The LSO condition scores generated candidates using only \texttt{eval-allcriteria.sim}. In contrast, the standard Framsticks EA baseline uses \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The second baseline uses the corresponding four-file chain beginning with \texttt{eval-allcriteria-mini.sim}. Consequently, Table~\ref{tab:baseline-standalone-results} reports the two baseline conditions as standalone descriptive results rather than as comparators for Table~\ref{tab:lso-final-configurations}.
+
+\begin{table}[H]
+\centering
+\caption{Standalone Framsticks EA results under the two completed baseline simulation configurations. Values summarize 150 runs per condition; SD is the sample standard deviation, and mean improvement is relative to the stored source-genotype fitness.}
+\label{tab:baseline-standalone-results}
+{\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrrr}
+\hline
+Baseline condition & Mean & Median & SD & Maximum & Mean improvement \\
+\hline
+Standard four-file chain & 1.690 & 1.669 & 0.343 & 2.368 & 0.680 \\
+Mini four-file chain     & 1.693 & 1.656 & 0.364 & 2.653 & 0.683 \\
+\hline
+\end{tabular}}
+\end{table}
+
+% --coso
+The relation between CoSO and the Framsticks EA baseline is different from the relation between LSO and the baseline. CoSO evaluates candidates with the same four-file chain as the mini baseline, beginning with \texttt{eval-allcriteria-mini.sim}. Therefore, the mini baseline is the closest available reference condition for CoSO. However, the experimental unit is still different: the mini baseline contains one evolutionary run for each manifest genotype, whereas a CoSO run is an archive-based multi-start search over a bucket-level genotype pool. Consequently, ordinary paired per-source differences and win rates are not reported for CoSO either.
+
+At the aggregate level, the strongest bucket-aligned CoSO configuration reached a mean final best \vertpos{} of 1.529 under the 30,000-evaluation protocol, with the largest observed CoSO value equal to 2.384. The mini Framsticks EA baseline reached a standalone mean of 1.693 and maximum of 2.653. These values indicate that the completed mini-baseline run remained stronger as a standalone optimizer under its recorded protocol. CoSO should therefore be interpreted primarily through its substitution-specific evidence, bucket-conditioned improvements, and archive behaviour, rather than as outperforming the Framsticks EA baseline in the available experiments.
+% --/coso
+\vspace{\baselineskip}  % ????
+
+Both baseline datasets contain 150 final rows, one for each manifest genotype, and every history contains 300 generations. Each run recorded 30,100 unique entries in its score cache, including the stored source entry and initialization. Under the standard condition, the mean best \vertpos{} was 1.690 and the largest observed value was 2.368. Under the mini condition, the corresponding standalone values were 1.693 and 2.653. These values characterize separate simulator configurations; the larger mini-condition maximum is not evidence that one baseline variant is superior under a common objective.
+
+The three manifests are byte-identical, so every LSO row can be aligned with a standard- and mini-baseline row by bucket, seed rank, dataset index, and source genotype. This alignment verifies that the experiments began from the same 150 genotype records. It does not remove the score-producing simulation-chain difference. In particular, calculating a per-seed LSO-minus-baseline difference or a win rate would combine outcomes whose generated candidates were evaluated under different conditions. Such quantities are therefore not reported as method-comparison evidence.
+
+What can be concluded is limited but explicit. The two Framsticks EA executions provide separately labelled standalone distributions under their respective conditions, including the largest single score observed in each baseline dataset, while Section~5.3 identifies the strongest fixed configurations only within the completed LSO condition. The available artifacts do not establish superiority, inferiority, or equivalence between LSO and Framsticks EA. A controlled conclusion requires rerunning either side with an identical complete simulation chain, unchanged starting manifest, and otherwise matched protocol.
+
+% TODO: replace the limitation-only comparison with controlled statistics after a same-simulation-chain LSO or Framsticks EA rerun is available. --added coso info
 
 \section{Comparison between CoSO and Latent Space Optimization}
 
@@ -22,8 +248,72 @@
 
 \section{Analysis by initial fitness ranges}
 
-% TODO: write this section.
+% This analysis is restricted to the completed LSO condition and explicitly evaluates the uniform source-retention decision policy. Every cell contains the same 25 source genotypes from one predefined bucket and one fixed checkpoint--optimizer configuration. Figure~\ref{fig:lso-bucket-improvement} reports mean retained improvement, $F^{\mathrm{retained}}-F^{\mathrm{source}}$, for all fifteen configurations. It does not measure generated-candidate-only optimizer performance, select the best configuration separately for each source genotype, or contain Framsticks EA values.
+
+% -- +coso
+This section summarizes how the observed optimization behaviour changes across the initial-fitness buckets. For LSO, the analysis uses the retained-source policy because runs are paired with individual starting genotypes. Every LSO cell contains the same 25 source genotypes from one predefined bucket and one fixed checkpoint--optimizer configuration. Figure~\ref{fig:lso-bucket-improvement} reports mean retained improvement, $F^{\mathrm{retained}}-F^{\mathrm{source}}$, for all fifteen configurations. It does not measure generated-candidate-only optimizer performance, select the best configuration separately for each source genotype, or contain Framsticks EA values. For CoSO, the corresponding bucket analysis uses run-level pool summaries from Section~\ref{sec:CoSO optimization results}, because a CoSO run is an archive-based multi-start search rather than a single-source optimization run. The two analyses therefore share the same bucket definitions, but not the same experimental unit.
+% --
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{figures/lso_bucket_mean_improvement.eps}
+\caption{Bucket-conditioned mean retained improvement for each fixed LSO checkpoint--optimizer configuration. Each cell contains 25 runs from the completed one-file LSO condition (\texttt{eval-allcriteria.sim}) and reports $\max(F^{\mathrm{raw}},F^{\mathrm{source}})-F^{\mathrm{source}}$. Zero means that the source is retained. Values are decision-policy outcomes, not generated-candidate-only performance; no per-seed selection or baseline comparison is used.}
+\label{fig:lso-bucket-improvement}
+\end{figure}
+
+All fifteen fixed configurations have a smaller mean retained improvement in B6 than in B1, although the intermediate buckets do not form a strictly monotonic sequence in every case. This endpoint decline is not equivalent to a decline in the retained final score. The mean stored source fitness increases from 0.411 in B1 to 1.688 in B6, so a high-fitness bucket can have a larger retained score but a smaller margin over its starting labels. Table~\ref{tab:lso-leading-buckets} illustrates this distinction for the two configurations that had the largest overall retained means in Section~5.3; they are fixed across every bucket.
+
+\begin{table}[ht]
+\centering
+\caption{Bucket-conditioned means for the two globally leading fixed LSO configurations under the source-retention policy. Each bucket contains 25 runs. ``Retained'' is mean retained \vertpos{}; $\Delta$ is mean retained improvement from the stored source fitness.}
+\label{tab:lso-leading-buckets}
+{\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{lrrrrr}
+\hline
+Bucket & Source mean & TreeVAE-80 retained & Tree $\Delta$ & TransformerVAE-90 retained & Transformer $\Delta$ \\
+\hline
+B1 & 0.411 & 1.836 & 1.426 & 1.805 & 1.394 \\
+B2 & 0.640 & 1.743 & 1.103 & 1.694 & 1.054 \\
+B3 & 0.897 & 1.733 & 0.835 & 1.766 & 0.869 \\
+B4 & 1.109 & 1.671 & 0.562 & 1.783 & 0.673 \\
+B5 & 1.313 & 1.736 & 0.422 & 1.702 & 0.388 \\
+B6 & 1.688 & 1.915 & 0.227 & 1.894 & 0.206 \\
+\hline
+\end{tabular}}
+\end{table}
+
+The TreeVAE checkpoint at epoch 80 with latent EA had mean retained improvements of 1.426 in B1 and 0.227 in B6. For the TransformerVAE checkpoint at epoch 90, the corresponding values decreased from 1.394 to 0.206. Their mean retained scores nevertheless remained high in B6, at 1.915 and 1.894, because the source genotypes in that bucket were already strong. The trend therefore supports a diminishing retained-improvement interpretation rather than a claim that latent search produces its lowest absolute outcomes from elite starting points.
+
+The same endpoint pattern is visible outside the two leading configurations, but its magnitude depends on both checkpoint and optimizer. The retained policy eliminates negative improvement by construction, so the earlier negative raw differences for CEM and CMA-ES are not interpreted as comparative outcomes. Instead, stronger buckets are characterized by more frequent source retention. Across all five checkpoints, latent EA retained the embedded source in 62 of 125 B6 rows. The policy retained the source in 82 of 125 CEM rows and 65 of 125 CMA-ES rows in B6, compared with no retained sources for any optimizer in B1 or B2. The B6 heatmap cells consequently combine successful generated improvements with zero-improvement source-retention decisions. This concentration shows that strong source genotypes more often remain preferable under the stated policy; it does not recover the unavailable generated-candidate-only latent-EA scores.
+
+These results concern only the retained-source decision policy across starting-fitness ranges inside the \texttt{eval-allcriteria.sim}-only LSO condition. They cannot be converted into bucket-conditioned LSO win rates against either Framsticks EA baseline, because the baseline candidate scores were produced with different simulation chains. The stored source labels define the retention rule and provide a common within-LSO reference; they are not a substitute for a same-condition method comparison.
+
+% --coso
+The CoSO bucket-aligned results show a related but not identical dependence on initial fitness. The largest run-level substitution improvements were observed in the weakest buckets, especially for spatial thresholds \(0\) and \(1\), where B1 improvements reached 0.828 and 0.779, respectively. Improvements decreased in the strongest bucket, where the same thresholds reached only 0.113 and 0.107. Spatial threshold \(2\) followed the same general trend but with smaller gains in the weaker buckets, while spatial threshold \(3\) produced little or no improvement beyond the best introduced genotype in most buckets. This mirrors the LSO retained-improvement pattern at a qualitative level: weak starting material leaves more room for measurable improvement, whereas strong starting material can yield high final scores but smaller margins over the reference genotype or pool.
+
+This similarity is qualitative rather than paired. Again, LSO bucket results summarize fixed source-genotype runs under the retained-source policy, whereas CoSO bucket results summarize archive-based runs over bucket-level pools. Therefore, the bucket trends can be compared as aggregate sensitivity patterns, but not as per-source method differences.
+% ---/coso
 
 \section{Summary of results}
 
-% TODO: write this section.
+The autoencoder experiments show that reconstruction, unconditional generation, and optimization measure different properties. Several LHS and masked checkpoints reached substantially higher validation reconstruction than TreeVAE-80 and TransformerVAE-90, while the latter produced markedly higher unconditional validity and uniqueness. The subsequent search results confirm that validation reconstruction alone is not a sufficient checkpoint-selection criterion for Latent Space Optimization.
+
+The final LSO condition contains 2,250 runs covering fifteen fixed checkpoint--optimizer configurations and 150 common starting genotypes. Comparative summaries use the uniform retained score rather than the method-dependent raw best score. TransformerVAE-90 and TreeVAE-80 with latent EA had the two largest retained means, 1.774 and 1.772. Latent EA did not lead every checkpoint: CMA-ES had the largest retained mean for LHS with depth and fitness-aware LHS. CEM had the lowest optimizer-wide retained mean, whereas CMA-ES produced high isolated maxima, including the largest LSO score of 2.353, but with lower means or greater dispersion than the two strongest latent-EA configurations. These findings identify effective fixed combinations within the investigated LSO design space; they do not identify a universally best autoencoder or optimizer.
+
+% --coso
+The CoSO experiments showed that the archive-based substitution mechanism was sensitive to the spatial compatibility threshold. In the threshold-screening stage, several configurations reached similar final best values, but these full-dataset runs were strongly affected by the best genotypes introduced during multi-start search. The bucket-aligned results were therefore more informative about substitution behaviour. In that setting, spatial thresholds \(0\) and \(1\) produced the strongest improvements, especially in the weakest and medium-quality buckets, whereas spatial threshold \(3\) produced little or no improvement beyond the best introduced genotype in most buckets.
+% --
+
+Across the six buckets, every fixed configuration had lower mean retained improvement in the strongest source bucket than in the weakest. The intermediate buckets need not be monotonic. Source retention was concentrated in the upper buckets: latent EA already embedded the fallback in its raw output, while CEM and CMA-ES received it through the derived policy. The result supports the interpretation that the policy more often selects generated improvements for weak and medium source genotypes, whereas already strong sources are retained more frequently. It is not evidence about generated-candidate-only latent-EA performance.
+
+% --coso
+The same qualitative dependence on initial fitness was visible for CoSO, but with a different experimental unit. CoSO improvements were largest for weak starting pools and smaller for the strongest bucket, where the available genotypes already had high stored fitness values. This supports the general conclusion that both representation-aware approaches show larger measurable gains when the initial material leaves more room for improvement, although LSO and CoSO bucket results remain aggregate trends rather than paired per-source comparisons.
+% --
+
+The standard and mini Framsticks EA baselines remain standalone conditions. They use the same 150 starting-genotype manifest as LSO, but their generated candidates were scored with four-file simulation chains, while completed LSO runs used only \texttt{eval-allcriteria.sim}. 
+% The thesis therefore reports no ordinary paired differences, win rates, or superiority claims between these outputs. A same-chain rerun remains necessary before the central LSO--baseline comparison can be completed as a controlled experiment.
+The thesis therefore reports no ordinary paired differences, win rates, or superiority claims between LSO and the baseline outputs. CoSO is closer to the mini-baseline simulation chain, but its archive-based multi-start run structure still prevents ordinary paired per-source comparison. A same-chain and same-unit rerun remains necessary before the central method-comparison question can be completed as a controlled experiment.
+
+
+% TODO: integrate CoSO findings into this chapter summary after the CoSO method, protocol, and result sections are supported by final evidence. -DONE ale końcówka do sprawdzenia
