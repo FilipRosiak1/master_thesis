@@ -17,7 +17,65 @@ During optimization experiments, dataset fitness values and fresh fitness evalua
 
 The grammar-based part of the implementation represents a Framsticks \fone{} genotype as a structured expression rather than only as an unconstrained sequence of characters. The raw genotype is still a variable-length string, but for grammar-aware processing it is first normalized by removing internal whitespace and then tokenized into individual \fone{} symbols. The resulting token sequence is accepted only if it can be parsed by the \fone{} context-free grammar used in the implementation. This parsing step separates syntactically admissible training examples from strings that cannot be represented as grammar derivations within the configured maximum production-sequence length.
 
-The grammar starts from the nonterminal \texttt{S} and expands it into a sequence of elements. Each element consists of zero or more modifiers followed by a core expression. The core may be the terminal \texttt{X}, which denotes the basic \fone{} structural symbol used in this simplified grammar, or a parenthesized branch expression. Branches are represented with parentheses and comma-separated branch tails, and several grammar rules allow empty expansions. Empty expansions are important because they make optional components expressible: a modifier sequence may end, a branch list may be absent, and a branch tail may terminate. The modifier nonterminal expands to the set of supported \fone{} modifier symbols, including both uppercase and lowercase variants such as \texttt{R}/\texttt{r}, \texttt{Q}/\texttt{q}, \texttt{C}/\texttt{c}, \texttt{L}/\texttt{l}, \texttt{W}/\texttt{w}, \texttt{M}/\texttt{m}, \texttt{I}/\texttt{i}, \texttt{F}/\texttt{f}, \texttt{A}/\texttt{a}, \texttt{S}/\texttt{s}, and \texttt{E}/\texttt{e}. At this methodological level, the grammar therefore captures the subset of \fone{} syntax needed by the grammar-aware models: linear sequences, optional modifier prefixes, nested parenthesized branches, branch separators, and terminal construction symbols.
+% The grammar starts from the nonterminal \texttt{S} and expands it into a sequence of elements. Each element consists of zero or more modifiers followed by a core expression. The core may be the terminal \texttt{X}, which denotes the basic \fone{} structural symbol used in this simplified grammar, or a parenthesized branch expression. Branches are represented with parentheses and comma-separated branch tails, and several grammar rules allow empty expansions. Empty expansions are important because they make optional components expressible: a modifier sequence may end, a branch list may be absent, and a branch tail may terminate. The modifier nonterminal expands to the set of supported \fone{} modifier symbols, including both uppercase and lowercase variants such as \texttt{R}/\texttt{r}, \texttt{Q}/\texttt{q}, \texttt{C}/\texttt{c}, \texttt{L}/\texttt{l}, \texttt{W}/\texttt{w}, \texttt{M}/\texttt{m}, \texttt{I}/\texttt{i}, \texttt{F}/\texttt{f}, \texttt{A}/\texttt{a}, \texttt{S}/\texttt{s}, and \texttt{E}/\texttt{e}. At this methodological level, the grammar therefore captures the subset of \fone{} syntax needed by the grammar-aware models: linear sequences, optional modifier prefixes, nested parenthesized branches, branch separators, and terminal construction symbols.
+The grammar starts from the nonterminal \(\langle S\rangle\) and describes a genotype as a structured sequence of construction elements. Each element contains an optional modifier prefix, the basic structural symbol \texttt{X}, and optionally a parenthesized list of child branches. The supported modifier terminals include uppercase and lowercase variants of the main \fone{} modifier symbols. The grammar used in the implementation can be summarized as follows.
+The simplified grammar used by the grammar-aware representation can be written as a context-free grammar
+\[
+G = (N, \Sigma, P, \langle S\rangle),
+\]
+where \(\langle S\rangle\) is the start symbol, \(\Sigma\) contains the terminal \fone{} symbols, and \(P\) contains the following productions:
+\[
+\begin{array}{rcl}
+\langle S\rangle
+&\rightarrow&
+\langle Elem\rangle \langle Seq\rangle \\
+
+\langle Seq\rangle
+&\rightarrow&
+\langle Elem\rangle \langle Seq\rangle
+\mid \epsilon \\
+
+\langle Elem\rangle
+&\rightarrow&
+\langle Mods\rangle \texttt{X} \langle Children\rangle \\
+
+\langle Mods\rangle
+&\rightarrow&
+\langle Mod\rangle \langle Mods\rangle
+\mid \epsilon \\
+
+\langle Children\rangle
+&\rightarrow&
+\texttt{(}\langle BranchList\rangle\texttt{)}
+\mid \epsilon \\
+
+\langle BranchList\rangle
+&\rightarrow&
+\langle S\rangle \langle BranchTail\rangle
+\mid \epsilon \\
+
+\langle BranchTail\rangle
+&\rightarrow&
+\texttt{,}\langle S\rangle \langle BranchTail\rangle
+\mid \epsilon \\
+
+\langle Mod\rangle
+&\rightarrow&
+\texttt{R}\mid\texttt{r}\mid
+\texttt{Q}\mid\texttt{q}\mid
+\texttt{C}\mid\texttt{c}\mid
+\texttt{L}\mid\texttt{l}\mid
+\texttt{W}\mid\texttt{w}\mid
+\texttt{M}\mid\texttt{m}\mid
+\texttt{I}\mid\texttt{i}\mid
+\texttt{F}\mid\texttt{f}\mid
+\texttt{A}\mid\texttt{a}\mid
+\texttt{S}\mid\texttt{s}\mid
+\texttt{E}\mid\texttt{e}.
+\end{array}
+\]
+Here \(\epsilon\) denotes an empty expansion. The grammar captures the subset of \fone{} syntax used by the grammar-aware models: a genotype is a non-empty sequence of elements, each element contains an optional modifier prefix followed by the structural symbol \texttt{X}, and an element may introduce a parenthesized list of comma-separated child branches. This formalization describes syntactic admissibility for the implemented representation; semantic validity and fitness still depend on Framsticks phenotype construction and simulation.
+
 
 After parsing, a genotype is encoded as the sequence of productions used in one parse tree. Each production is assigned an integer index, and the production sequence is padded to a fixed maximum length for batch processing. In the integer production-index encoding, positions beyond the end of the actual derivation use a separate padding index; this index is not one of the grammar productions. The one-hot grammar encoding uses a different convention: its columns correspond only to grammar productions, and padded positions activate the final production column, which corresponds to the grammar's \texttt{Nothing -> None} production. These two related dataset encodings support different model interfaces. The index form is convenient for embedding-based sequence models, whereas the one-hot form is convenient for models that predict a distribution over grammar productions. In both cases, the object being learned is not a character string directly, but a derivation trace that can be expanded back into a genotype string.
 
@@ -43,7 +101,7 @@ The implemented CoSO module performs optimization directly in the \fone{} genoty
 
 At the beginning of a run, the module initializes the Framsticks evaluation environment, random seeds, population parameters, archive parameters, compatibility thresholds, and the logging procedure. Starting genotypes can be obtained either from a dataset of \fone{} genotypes with stored fitness values or generated through the Framsticks mutation mechanism. Dataset fitness values are used when the exact genotype is already known, whereas newly produced candidates are evaluated through Framsticks. Empty genotypes and genotypes exceeding the configured length constraint are treated as uncompetitive, and all accepted evaluations update the best solution observed so far.
 
-The search is organized around an active genotype that is repeatedly improved by compatible substitutions. For this genotype, the tree-based fragment handling described above produces candidate recipient fragments together with their locations in the original genotype. Each fragment is described by a small set of representation-level features. In the final \fone{} implementation, these features characterize the spatial effect of the fragment and the direction associated with its terminal part. 
+The search is organized around an active genotype that is repeatedly improved by compatible substitutions. For this genotype, the tree-based fragment handling described above produces candidate recipient fragments together with their locations in the original genotype. Each fragment is described by a small set of representation-level features. In the final \fone{} implementation, these features characterize the spatial effect of the fragment and the direction associated with its terminal part.
 A pair of fragments is considered compatible when the distance between each corresponding feature descriptor does not exceed its assigned threshold. The spatial threshold controls how similar the displacement induced by two fragments must be (interpreted in the coordinate units of the generated Framsticks model), whereas the directional threshold controls how similar their terminal directions must be (feature is a unit direction vector, so Euclidean distance corresponds approximately to angular deviation). Lower thresholds make the archive retrieval stricter and return only near-identical fragments; higher thresholds make retrieval more permissive and allow substitutions between less similar fragments.
 The intent is to compare fragments by the structural role they may play in the constructed phenotype, rather than by their raw textual form or absolute position in the genotype.
 

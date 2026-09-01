@@ -42,7 +42,11 @@ In the evaluated CoSO configuration, candidate substitutions are guided by two f
 The treatment of the source genotype in CoSO is closer to a direct local-improvement procedure than to the distribution-based latent optimizers. The active genotype is evaluated as a complete \fone{} candidate, then repeatedly modified through accepted substitutions. If no improving substitution is found, the genotype is treated as locally converged, its fragments may contribute to the archive, and the search proceeds from another starting genotype. Consequently, the raw CoSO best score reflects mostly the semantics of the best genotype actually retained during direct search in the original representation.
 
 % ---baseline---
-Two benchmark variants of the same genotype-space Framsticks EA provide baseline conditions. Both use Framsticks mutation and crossover, tournament selection, elitist survival, population and offspring sizes of 100, and 300 generations from each manifest genotype. They differ in the simulation files used to score generated candidates. The standard baseline uses \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The mini baseline replaces the first file with \texttt{eval-allcriteria-mini.sim} and retains the other three. They are consequently treated as two separate evaluation conditions. Neither is silently pooled with the other or treated as a same-condition comparator for the completed LSO runs, whose recorded chain contains only \texttt{eval-allcriteria.sim}.
+Two benchmark variants of the same genotype-space Framsticks EA provide baseline conditions. Both use Framsticks mutation and crossover, tournament selection, elitist survival, population and offspring sizes of 100, and 300 generations from each manifest genotype.
+% They differ in the simulation files used to score generated candidates. The standard baseline uses \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The mini baseline replaces the first file with \texttt{eval-allcriteria-mini.sim} and retains the other three. They are consequently treated as two separate evaluation conditions. Neither is silently pooled with the other or treated as a same-condition comparator for the completed LSO runs, whose recorded chain contains only \texttt{eval-allcriteria.sim}.
+% -- poprawka F
+They differ in the first simulation file used to score generated candidates. The standard baseline uses the same four-file chain as the LSO benchmark: \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The mini baseline replaces the first file with \texttt{eval-allcriteria-mini.sim} and retains the other three. They are consequently treated as two separate baseline conditions, with the standard variant serving as the same-chain baseline for LSO and the mini variant as the closest simulation-chain reference for CoSO.
+
 
 % TODO: add the CoSO method configuration after its implementation and final experimental evidence are available. -- DONE
 
@@ -52,7 +56,15 @@ Two benchmark variants of the same genotype-space Framsticks EA provide baseline
 
 The common benchmark is centered on Framsticks \fone{} genotypes and on the \vertpos{} fitness criterion introduced in Section \ref{sec:Dataset and fitness evaluation}. The dataset is used to provide existing genotypes with known starting fitness values, but it is not used as a lookup table for the fitness of newly generated candidates. During optimization, each candidate produced by a baseline evolutionary run or by decoding a latent vector is converted to an \fone{} genotype and evaluated through Framsticks with the same \vertpos{} criterion. Candidates that cannot be represented or evaluated successfully are treated as invalid for the corresponding search procedure.
 
-Starting genotypes for the final benchmark are selected from six initial-fitness buckets. The bucket ranges are \([0.30,0.50)\), \([0.50,0.75)\), \([0.75,1.00)\), \([1.00,1.20)\), \([1.20,1.50)\), and \([1.50,\infty)\). Twenty-five starting genotypes are sampled from each bucket, giving 150 starting points in total. The same seed manifest is used for all latent-space configurations and for the Framsticks EA baselines. This provides identical starting genotypes and permits seed-level alignment. It does not, by itself, make final-score comparisons controlled or paired when the simulation configurations used to score generated candidates differ.
+Starting genotypes for the final benchmark are selected from six initial-fitness buckets. The bucket ranges are \([0.30,0.50)\), \([0.50,0.75)\), \([0.75,1.00)\), \([1.00,1.20)\), \([1.20,1.50)\),
+% and \([1.50,\infty)\). 1.5-2.2952309520191614
+and \([1.50, 2.30)\).
+The upper bound of the final bucket was chosen to include the fittest available starting genotype, which had an initial fitness score of about 2.30.
+Twenty-five starting genotypes are sampled from each bucket, giving 150 starting points in total. The same seed manifest is used for all latent-space configurations and for the Framsticks EA baselines.
+% This provides identical starting genotypes and permits seed-level alignment. It does not, by itself, make final-score comparisons controlled or paired when the simulation configurations used to score generated candidates differ.
+% -- poprawka F
+This provides identical starting genotypes and permits seed-level alignment between LSO and the standard baseline. The mini baseline remains a separate simulation condition because it begins with \texttt{eval-allcriteria-mini.sim}.
+
 
 % --coso
 
@@ -60,10 +72,10 @@ The CoSO evaluation is divided into two experimental stages. The first stage is 
 
 The second CoSO stage uses the selected threshold pair in a bucket-aligned benchmark. This stage follows the same initial-fitness bucket structure as the latent-space benchmark: starting genotypes are grouped by their stored source \vertpos{} values so that the method can be analysed separately for weak, medium, and already strong initial candidates. A CoSO run operates directly on \fone{} strings, extracts tree-based genotype fragments, stores previously observed fragments in a compatibility-indexed archive, and tests substitutions in complete genotypes. Newly produced candidates are evaluated through Framsticks with the \vertpos{} criterion.
 
-Unlike the latent benchmark, CoSO does not form checkpoint--optimizer combinations. A CoSO configuration is defined by its compatibility thresholds, 
-% archive parameters, 
-population and elite sizes, 
-% substitution-intensity setting, substitution-length constraint, 
+Unlike the latent benchmark, CoSO does not form checkpoint--optimizer combinations. A CoSO configuration is defined by its compatibility thresholds,
+% archive parameters,
+population and elite sizes,
+% substitution-intensity setting, substitution-length constraint,
 % TODO wypisać i uzasadnic wartosci stałych parametrów
 % task = vertpos
 % pop_size = 20
@@ -94,76 +106,56 @@ For each checkpoint, three latent methods are evaluated: the latent-space evolut
 
 The baseline part of the benchmark uses the standard Framsticks EA from the same starting genotypes. There is one baseline run for each of the 150 starting genotypes. The nominal search budget is kept consistent at the design level: evolutionary runs use 300 generations with population size 100, while distribution-based latent methods use 300 iterations with the same population size. Actual numbers of unique evaluated genotypes may differ between runs because invalid candidates, duplicates, and cached evaluations are handled by the optimization procedure. The number of unique evaluated genotypes is recorded for all runs, while invalid and duplicate counts are interpreted only for methods and jobs that record them; these measurements are used for later metric analysis rather than being treated as separate benchmark conditions.
 
-The computational execution separates neural latent-space jobs and baseline evolutionary jobs because latent decoding uses trained autoencoder checkpoints, whereas the Framsticks EA baseline does not require neural inference. More importantly, completed-run provenance identifies three distinct simulation configurations. The LSO details files record only \texttt{eval-allcriteria.sim}. The standard CPU baseline records \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}; the mini CPU baseline records the same latter three files after \texttt{eval-allcriteria-mini.sim}. All runs target \vertpos{} and reuse the same starting-genotype manifest, but their final candidate scores are not observations from one common simulation condition.
+The computational execution separates neural latent-space jobs and baseline evolutionary jobs because latent decoding uses trained autoencoder checkpoints, whereas the Framsticks EA baseline does not require neural inference.
+% More importantly, completed-run provenance identifies three distinct simulation configurations. The LSO details files record only \texttt{eval-allcriteria.sim}. The standard CPU baseline records \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}; the mini CPU baseline records the same latter three files after \texttt{eval-allcriteria-mini.sim}. All runs target \vertpos{} and reuse the same starting-genotype manifest, but their final candidate scores are not observations from one common simulation condition.
+% -- poprawka F
+In the completed artifacts, LSO and the standard CPU baseline use the same four-file chain: \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The mini CPU baseline uses the corresponding four-file chain beginning with \texttt{eval-allcriteria-mini.sim}. All these runs target \vertpos{} and reuse the same starting-genotype manifest; only the mini baseline is a separate simulation condition from the standard LSO--baseline chain.
+
 
 % TODO: add CoSO-specific benchmark setup after the CoSO experimental protocol and run evidence are available. -DONE
 
 \section{Evaluation metrics}
 \label{sec:Evaluation metrics}
 
-The evaluation uses separate but connected metric groups for representation learning, optimization quality, and search behaviour. This separation is important because a genotype autoencoder can reconstruct examples well without necessarily producing a latent space that is easy to optimize. Conversely, an optimization method can occasionally discover a high-fitness genotype even if its generator has limited average reconstruction accuracy. The reported metrics therefore distinguish model diagnostics from final objective performance.
+The evaluation uses three connected groups of metrics: representation-learning quality, optimization quality, and search behaviour. This organization reflects the structure of the study. Autoencoder training is not treated only as compression of genotype strings: selected variants also attempt to organize the latent representation with respect to fitness-related information, for example through auxiliary fitness prediction or conditioning. Final optimization quality is nevertheless always measured with the true Framsticks \vertpos{} evaluation, not with a neural prediction.
 
-For autoencoder training and checkpoint selection, the main reconstruction metric is validation exact reconstruction accuracy. A reconstruction is counted as exact when the decoded output string is identical to the corresponding reference genotype string after the representation-specific decoding step. The accuracy is the number of exact reconstructions divided by the number of validation examples. Because exact equality is a strict criterion for variable-length structured genotypes, average string similarity is also recorded. This metric averages a normalized string-similarity score over reconstructed examples and indicates partial preservation of genotype text. It should be interpreted only as a reconstruction diagnostic: a high similarity value does not imply high \vertpos{}, and a low exact-reconstruction value does not by itself determine the outcome of latent-space search.
+For autoencoder training and checkpoint selection, the main reconstruction metric is validation exact reconstruction accuracy. A reconstruction is counted as exact when the decoded output string is identical to the corresponding reference genotype string after the representation-specific decoding step. Because exact equality is strict for variable-length structured genotypes, average string similarity is also recorded. Selected checkpoints are additionally characterized by unconditional generation diagnostics: syntactic validity of decoded \fone{} strings, uniqueness, duplicate rate, novelty relative to the available dataset, and, when evaluated, the distribution of generated \vertpos{} values. For fitness-aware variants, fitness-prediction error and correlation are used as auxiliary diagnostics describing whether the learned representation captures fitness-related structure.
 
-Selected checkpoints are additionally characterized by unconditional generation diagnostics. Random latent samples are decoded and classified according to whether the resulting strings are syntactically valid \fone{} genotypes. The validity rate is the fraction of generated samples that pass this syntactic check. Uniqueness is measured by counting distinct generated strings, and duplicate rate is the complementary fraction of repeated generated samples. For valid generated genotypes, novelty relative to the available dataset and, when evaluated, the count and summary statistics of generated \vertpos{} values are auxiliary indicators of generator behaviour. These quantities help describe whether a checkpoint can produce diverse admissible genotypes, but they are not substitutes for the final seeded optimization benchmark. For fitness-guided variants, fitness-prediction error and correlation are considered only when such diagnostics are recorded or when a fitness-prediction head is used; in those cases, they are auxiliary training diagnostics rather than final optimization metrics.
-
-The benchmark records a raw best-score field for every run. For method or configuration~$m$ and starting genotype~$s$, it is denoted by
+The main optimization endpoint is the best \vertpos{} value obtained by a method or configuration. For single-source LSO and baseline runs, the benchmark records a raw best-score field
 \[
-F^{\mathrm{raw}}_{m,s}.
+F^{\mathrm{raw}}_{m,s},
 \]
-This field is not a semantically uniform cross-optimizer outcome. For latent EA, the original genotype is an explicit individual carrying its stored manifest fitness, so the raw best can be that unevaluated source entry. For CEM and CMA-ES, the raw best is selected from decoded candidates evaluated through Framsticks, even when the corresponding latent distribution is initialized around the encoded source. Their raw source-reference difference is
-\[
-\Delta^{\mathrm{raw}}_{\mathrm{source}}(m,s)
-= F^{\mathrm{raw}}_{m,s} - F^{\mathrm{source}}_{s},
-\]
-where $F^{\mathrm{source}}_{s}$ is the stored \vertpos{} label of the starting genotype. This raw difference may be used for a within-method diagnostic only when the method-dependent source semantics are stated explicitly.
-
-Cross-optimizer and bucket-conditioned comparisons use a uniform source-retention policy
-% ---coso
-(this policy is used for single-source latent-space configurations and baseline-style comparisons; it is not directly applied to CoSO runs that process multiple starting genotypes within one archive-based search). 
-% ---\coso
-Its decision score is
-
+where \(m\) denotes the method or configuration and \(s\) denotes the starting genotype. Because the optimizers handle the source genotype differently, cross-optimizer summaries use a uniform retained-source decision policy:
 \[
 F^{\mathrm{retained}}_{m,s}
 = \max\left(F^{\mathrm{raw}}_{m,s}, F^{\mathrm{source}}_{s}\right),
 \]
-and retained improvement is
+with retained improvement
 \[
 \Delta^{\mathrm{retained}}_{\mathrm{source}}(m,s)
 = F^{\mathrm{retained}}_{m,s} - F^{\mathrm{source}}_{s}.
 \]
-This policy describes a decision rule: after search, the original genotype is retained whenever the best generated search output does not improve its stored source label. It is not a generated-candidate-only performance measure. For latent EA, the rule is already embedded in the raw result because the stored-label source participates in selection. For CEM and CMA-ES, it is applied after the raw search output has been produced. Generated-candidate-only best scores cannot be reconstructed reliably for latent-EA runs in which the source remains best, so the retained score is the primary comparative endpoint for all three optimizers. Because $F^{\mathrm{source}}_{s}$ is a stored dataset label rather than a contemporaneous re-evaluation under every final simulation chain, both raw and retained improvements are reference-to-source statistics. They do not establish that the source and generated candidate were scored under identical simulation settings.
+This metric corresponds to the practical decision made after optimization: keep the generated result if it improves the starting genotype, otherwise retain the source genotype. It makes latent EA, CEM, CMA-ES, and the baseline comparable under one reported endpoint, even though their raw optimizer outputs have slightly different source-handling semantics.
 
-For a controlled comparison in which both methods use the same simulation configuration, results can be paired by starting genotype. For each non-baseline method or configuration and starting genotype, the paired difference is
+When two single-source methods use the same starting manifest and simulation chain, results are compared directly by starting genotype. For a method or configuration \(m\), the paired difference against the standard Framsticks EA baseline is
 \[
-\Delta_{\mathrm{EA}}(m,s) = F^{\mathrm{retained}}_{m,s} - F^{\mathrm{retained}}_{\mathrm{Framsticks\ EA},s}.
+\Delta_{\mathrm{EA}}(m,s)
+= F^{\mathrm{retained}}_{m,s}
+- F^{\mathrm{retained}}_{\mathrm{Framsticks\ EA},s}.
 \]
-A positive difference is counted as a win against the baseline, a negative difference as a loss, and an exact zero as a tie. Aggregates over starting genotypes can then include the mean, median, maximum, and variability of retained scores, retained improvements over the starting genotype, and paired differences against the baseline. The win rate is the fraction of pairs for which the compared method obtains a strictly larger retained score than the Framsticks EA run from the same starting genotype. These comparative metrics are not applied as ordinary method-comparison metrics to the completed LSO and baseline outputs because their details files record different simulation chains. Joining those outputs by starting genotype would yield cross-configuration descriptive statistics rather than a controlled paired comparison. If best-per-seed or portfolio-style summaries are shown later, they are interpreted only as upper-bound analyses over already completed configurations, not as independent optimization methods.
+Positive values indicate wins against the baseline, negative values indicate losses, and exact zeros indicate ties. Aggregates over starting genotypes include mean, median, maximum, standard deviation, retained improvement, paired difference, and win rate. Since the completed LSO runs and the standard baseline use the same four-file simulation chain and the same 150 starting genotypes, this comparison is treated as the main same-condition LSO--baseline comparison.
 
-Search behaviour and stability are described by quantities recorded during each run. The number of unique evaluated genotypes is used as an effective measure of how many distinct genotype strings were assigned fitness values during search. This quantity is broadly available in the final benchmark outputs and helps compare how much unique search material each method produced under the same nominal budget. Invalid-candidate and duplicate-candidate counts are more method-dependent. They are interpreted only for methods and runs whose output explicitly records them; missing fields are not treated as zero counts. When available, invalid counts indicate decoded or modified candidates that could not be used as evaluated \fone{} genotypes, while duplicate counts indicate repeated normalized genotypes that did not add new search information.
-
-% ---coso
-For CoSO, representation-learning diagnostics such as reconstruction accuracy, latent validity, or duplicate decoded samples are not applicable, because the method does not train a generative model and does not decode candidates from a latent representation. CoSO is evaluated through run-level optimization and substitution-behaviour metrics. The primary quality measure is the best \vertpos{} value found during a run. Since a CoSO run may introduce several starting genotypes through restart-like steps, improvement over a single fixed source genotype is not used as the main endpoint. Instead, an auxiliary CoSO improvement measure compares the final best value with the best fitness among unmodified genotypes introduced into the same run:
+CoSO is evaluated with compatible quality metrics but a different experimental unit. A CoSO run is an archive-based multi-start search over a genotype pool, not a one-run-per-source trajectory. Its primary endpoint is therefore the best \vertpos{} value found during the run, together with improvement over the best unmodified genotype introduced into that run:
 \[
 \Delta^{\mathrm{CoSO}}_{\mathrm{subst}}(r)
 = F^{\mathrm{best}}_{\mathrm{CoSO},r}
 - F^{\mathrm{introduced}}_{r}.
 \]
-This quantity estimates the improvement obtained beyond selecting good starting genotypes from the input pool.
+This makes CoSO comparable with LSO via the baselines at the bucket, configuration, and aggregate-result level, while preserving the fact that it is not a paired per-source method.
 
-Additional CoSO-specific diagnostics describe the behaviour of the substitution archive. These include the number of accepted substitutions, the number of local convergence events or restarts, archive size measured by the number of occupied feature buckets and stored entries, and archive-retrieval statistics such as the number of retrieval calls, non-empty retrievals, total retrieved candidates, and mean or maximum number of candidates returned per query. These quantities are not separate objectives, but they help interpret whether a CoSO configuration succeeds because it finds useful compatible substitutions, because the archive grows into a diverse source of fragments, or because the search repeatedly fails to obtain usable replacements.
-% ---\coso
+Search behaviour and stability are described by quantities recorded during each run. The number of unique evaluated genotypes measures how many distinct genotype strings were assigned fitness values under the nominal budget. Invalid-candidate and duplicate-candidate counts describe how much search effort was lost to unusable or repeated candidates, where such fields are recorded. Best-so-far histories over generations, iterations, or evaluation steps are used to show convergence behaviour and stability over time.
 
-
-The LSO benchmark also records best-so-far histories over generations or iterations. Their raw values inherit the same source-retention asymmetry as the final rows. Retained-score trajectories can be derived pointwise by taking the maximum of each raw history value and the stored source label, but they remain source-policy analyses rather than generated-candidate-only histories. A win-rate trajectory against a baseline is meaningful only when both histories were produced under the same simulation configuration. History-level plots can therefore assess convergence behaviour and stability within a completed condition when their score semantics are declared, whereas cross-method baseline trajectories require compatible runs.
-% ---/coso/
-For CoSO, best-so-far histories have a different interpretation than in single-source latent-space runs. A CoSO run may process multiple starting genotypes through restart-like steps while retaining an archive accumulated from previous locally converged solutions. Therefore, CoSO trajectories describe the progress of an archive-based multi-start search over a genotype pool, not the improvement trajectory of one fixed source genotype. 
-% Cross-method trajectory comparisons involving CoSO are consequently interpreted only at the aggregate configuration or bucket level, under a common evaluation budget, rather than as paired per-source convergence curves.
-
-
-Optimization metrics are also analysed conditionally on the initial-fitness buckets defined in Section \ref{sec:Benchmark setup}. Bucket-conditioned cross-optimizer summaries report retained scores and retained improvements within each starting-fitness range. Paired differences and win rates may be added when same-simulation-condition comparison runs are available. This analysis distinguishes cases in which the retained decision selects a generated improvement for weak or medium starting genotypes from cases in which an already strong source is retained more often.
-% ---coso
+Optimization metrics are also analysed conditionally on the initial-fitness buckets defined in Section~\ref{sec:Benchmark setup}. Bucket-conditioned summaries report final scores and improvements separately for weak, medium, and strong starting material. This shows whether a method mainly improves low-fitness candidates, refines already promising ones, or depends strongly on the initial quality of the genotype pool.
 
 % TODO: add CoSO-specific diagnostic counters here if the final CoSO run protocol records additional substitution-level metrics. -DONE - dorecencji F
 
@@ -173,7 +165,10 @@ Autoencoder training and final optimization are conducted as separate stages. Tr
 
 The checkpoint-selection stage produced a frozen list before the final benchmark plan was executed. The ten-checkpoint diagnostic set contains validation-selected checkpoints for the masked and LHS families and explicit epoch checkpoints for TreeVAE-80 and TransformerVAE-90. The final optimization plan fixes five labels: TreeVAE-80, TransformerVAE-90, LHS latent 256, LHS with depth, and the auxiliary fitness-aware LHS model. For every starting genotype, each label is evaluated separately with latent EA, CEM, and CMA-ES. No result-dependent checkpoint switching, optimizer switching, or per-seed portfolio selection is part of a benchmark run.
 
-Starting points are defined by one manifest sampled with pseudorandom seed 20260607. It contains 25 dataset genotypes in each of the six ranges from Section \ref{sec:Benchmark setup}, for 150 source genotypes in total. The completed LSO, standard-baseline, and mini-baseline manifests are byte-identical. Within the final execution, pseudorandom optimizer states are derived deterministically from a fixed base seed of 777 and the planned configuration and source-seed identifiers. This procedure makes repeated `of a declared unit reproducible without implying that different algorithms consume identical random-number streams.
+Starting points are defined by one manifest sampled with pseudorandom seed 20260607. It contains 25 dataset genotypes in each of the six ranges from Section \ref{sec:Benchmark setup}, for 150 source genotypes in total.
+% The completed LSO, standard-baseline, and mini-baseline manifests are byte-identical.
+% -- poprawka F
+Within the final execution, pseudorandom optimizer states are derived deterministically from a fixed base seed of 777 and the planned configuration and source-seed identifiers. This procedure makes repeated `of a declared unit reproducible without implying that different algorithms consume identical random-number streams.
 
 Each latent-space EA run uses 300 generations, a population of 100, 100 requested offspring per generation, ten elites, and tournament size three. Its fixed operator settings use mutation standard deviations 0.12, 0.25, 0.50, and 0.90; crossover, extrapolation, directional-move, and random-immigrant probabilities of 0.45, 0.20, 0.25, and 0.05; and no offspring re-encoding in the final plan. CEM and CMA-ES use 300 iterations and populations of 100. CEM uses an elite fraction of 0.25, initial standard deviation 0.35, smoothing 0.35, and minimum standard deviation 0.02; CMA-ES starts with scale 0.35. The Framsticks EA baselines use populations and offspring sets of 100 for 300 generations, ten elites, tournament size three, crossover probability 0.25, and probability 0.25 of mutation after crossover. These settings define one fixed configuration per run.
 
@@ -181,40 +176,47 @@ Initialization follows the method distinction introduced in Section \ref{sec:Com
 
 The nominal budget is approximately 30,000 population slots per source genotype, in addition to method-specific initialization. This number is not interpreted as an exact count of unique simulator evaluations. Decoding failures, simulator failures, duplicate genotypes, retries, and cached scores affect the number of distinct strings encountered and evaluated. The recorded best-so-far histories use 300 generation or iteration steps when a run completes, and summary rows retain the number of unique scored genotypes together with invalid and duplicate counters where the method explicitly provides them.
 
-Every generated candidate is decoded to normalized \fone{} text and assigned its final objective through Framsticks \vertpos{}; auxiliary predictions are not substituted for this value. Completed artifacts establish three observed simulation configurations. LSO uses only \texttt{eval-allcriteria.sim}. The standard baseline begins with \texttt{eval-allcriteria.sim} and then applies \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}.
+Every generated candidate is decoded to normalized \fone{} text and assigned its final objective through Framsticks \vertpos{}; auxiliary predictions are not substituted for this value.
+% Completed artifacts establish three observed simulation configurations. LSO uses only \texttt{eval-allcriteria.sim}. The standard baseline begins with \texttt{eval-allcriteria.sim} and then applies \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}.
+% -- poprawka F
+Completed artifacts establish two observed simulation configurations for the single-source benchmark. LSO and the standard baseline use \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. The mini baseline replaces the first standard-baseline file with \texttt{eval-allcriteria-mini.sim} and retains the other three.
+
+
 
 The mini baseline replaces the first standard-baseline file with \texttt{eval-allcriteria-mini.sim} and retains the other three. The manifest aligns starting genotypes across these conditions, but aggregation does not convert their generated-candidate scores into a controlled paired comparison.
 
-Final LSO aggregation treats each of the fifteen fixed checkpoint--optimizer configurations as a separate group of 150 runs. For cross-optimizer and bucket-conditioned summaries, every row is transformed by the same post-search decision rule: the reported retained score is the larger of the raw optimizer score and the stored source fitness, and retained improvement is their difference from that source fitness. Source-retention counts are reported alongside this outcome. In latent EA, these counts identify rows whose raw best is already the embedded stored-label source. In CEM and CMA-ES, they identify rows for which the derived policy selects the source because the freshly evaluated raw search output does not improve it; an exact tie changes no numeric value but is still a no-improvement retention decision. Bucket-conditioned summaries contain 25 runs per fixed configuration and bucket. The two baseline variants are summarized independently. Ordinary paired LSO--baseline differences, win rates, and same-condition superiority statements are withheld unless a compatible rerun supplies an identical complete simulation chain.
+Final LSO aggregation treats each of the fifteen fixed checkpoint--optimizer configurations as a separate group of 150 runs. For cross-optimizer and bucket-conditioned summaries, every row is transformed by the same post-search decision rule: the reported retained score is the larger of the raw optimizer score and the stored source fitness, and retained improvement is their difference from that source fitness. Source-retention counts are reported alongside this outcome. In latent EA, these counts identify rows whose raw best is already the embedded stored-label source. In CEM and CMA-ES, they identify rows for which the derived policy selects the source because the freshly evaluated raw search output does not improve it; an exact tie changes no numeric value but is still a no-improvement retention decision. Bucket-conditioned summaries contain 25 runs per fixed configuration and bucket.
+% The two baseline variants are summarized independently. Ordinary paired LSO--baseline differences, win rates, and same-condition superiority statements are withheld unless a compatible rerun supplies an identical complete simulation chain.
+% -- poprawka F
+The standard baseline is the same-chain comparator for LSO, whereas the mini baseline is summarized separately as a distinct simulation condition.
 
 % ---coso
-
 CoSO is executed as a separate family of direct genotype-space runs because its experimental unit differs from the single-source latent-space benchmark. A CoSO run is an archive-building search over a declared genotype pool rather than an optimization attempt paired with one fixed starting genotype. Each run starts with an empty substitution archive, samples \fone{} genotypes from the declared pool, evaluates candidates with the Framsticks \vertpos{} criterion, and preserves the archive only within that run. When the currently processed genotype reaches local convergence, its fragments may be inserted into the archive and the search proceeds from another genotype sampled from the same pool. No archive state is shared across independent seeds, buckets, or configurations.
 
-The first CoSO stage is a compatibility-threshold selection experiment. It evaluates spatial thresholds 
-% \(0, 1, 2,\) and \(3\) 
-combined together together with directional thresholds 
+The first CoSO stage is a compatibility-threshold selection experiment. It evaluates spatial thresholds
+% \(0, 1, 2,\) and \(3\)
+combined together together with directional thresholds
 % \(0, 0.5, 1.0,\) and \(1.5\)
 presented below:
 \[
 \delta_{\mathrm{spatial}} \in \{0,1,2,3\}, \quad
 \delta_{\mathrm{direction}} \in \{0,0.5,1.0,1.5\},
-\] 
+\]
 giving sixteen threshold configurations (under the unit-vector interpretation described in Chapter~3, these directional thresholds correspond approximately to identical direction, \(30^\circ\) difference, \(60^\circ\) difference, and slightly more than a right-angle difference, respectively). The grid ranges from exact or near-exact compatibility to increasingly permissive archive retrieval, what allows the experiment to test whether CoSO benefits from conservative fragment matching or from broader reuse of archived fragments.
 Each configuration is run with 25 independent seeds, a nominal limit of 30,000 within-constraint evaluations (the value arbitrarly set to mimic the population slots), and the available \fone{} genotype dataset as the sampling pool. This stage is used to characterize the sensitivity of the substitution archive to permissive or restrictive compatibility criteria; it is not treated as a paired comparison against individual LSO source-genotype runs.
 
-The bucket-aligned CoSO stage uses the same six initial-fitness ranges as the latent-space benchmark, but the alignment is performed at the bucket level rather than at the individual-source level. 
+The bucket-aligned CoSO stage uses the same six initial-fitness ranges as the latent-space benchmark, but the alignment is performed at the bucket level rather than at the individual-source level.
 %  -- TODO zdecydować czy zrobić konfigi w bucketowym ekperymencie
-The directional compatibility threshold is fixed at the selected value, while the spatial-threshold settings are treated as separate CoSO configurations. 
+The directional compatibility threshold is fixed at the selected value, while the spatial-threshold settings are treated as separate CoSO configurations.
 % ---
 For each bucket--configuration pair, CoSO is evaluated with 25 independent seeds and a nominal budget of 30,000 within-constraint evaluations. The archive is reset at the beginning of every run, so differences between runs reflect independent archive construction processes.
 
-CoSO aggregation is therefore performed over independent runs grouped by bucket 
+CoSO aggregation is therefore performed over independent runs grouped by bucket
 %  -- TODO zdecydować czy zrobić konfigi w bucketowym ekperymencie
-and compatibility configuration. 
+and compatibility configuration.
 % ---
-The main reported endpoint is 
-% the best \vertpos{} value found during a run, together with 
+The main reported endpoint is
+% the best \vertpos{} value found during a run, together with
 the run-level improvement in \vertpos{} over the best unmodified genotype introduced into that same run and the archive/substitution diagnostics defined in Section~\ref{sec:Evaluation metrics}. CoSO best-so-far histories are interpreted as trajectories of an archive-based multi-start search under a fixed evaluation budget, not as paired convergence curves from the same source genotypes used by the LSO benchmark.
 
 
