@@ -214,10 +214,10 @@ The results in Table~\ref{tab:lso-final-configurations} are therefore first inte
 \section{Comparison with the Framsticks evolutionary baseline}
 \label{sec:Comparison with the Framsticks evolutionary baseline}
 
-% The completed outputs do not constitute a controlled LSO--Framsticks EA comparison. The LSO condition scores generated candidates using only \texttt{eval-allcriteria.sim}. In contrast, the standard Framsticks EA baseline uses \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}.
+% The completed outputs do not constitute a controlled LSO--Framsticks EA comparison. The LSO condition scores generated candidates using only \texttt{eval-allcriteria.sim}. In contrast, the standard Framsticks EA baseline uses \texttt{eval-allcriteria.sim} followed by \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}. 
 % -- poprawka F
-The completed LSO outputs and the standard Framsticks EA baseline constitute a same-chain comparison condition. Both score generated candidates with \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}, and both use the same 150 starting genotypes.
-The second baseline uses the corresponding four-file chain beginning with \texttt{eval-allcriteria-mini.sim}.
+The completed LSO outputs and the standard Framsticks EA baseline constitute a same-chain comparison condition. Both score generated candidates with \texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, and \texttt{only-body.sim}, and both use the same 150 starting genotypes. 
+The second baseline uses the corresponding four-file chain beginning with \texttt{eval-allcriteria-mini.sim}. 
 % Consequently, Table~\ref{tab:baseline-standalone-results} reports the two baseline conditions as standalone descriptive results rather than as comparators for Table~\ref{tab:lso-final-configurations}.
 % -- poprawka F
 Consequently, Table~\ref{tab:baseline-standalone-results} reports the standard baseline as the same-chain reference for LSO and the mini baseline as a separate descriptive condition.
@@ -242,20 +242,20 @@ Mini four-file chain     & 1.693 & 1.656 & 0.364 & 2.653 & 0.683 \\
 % --coso
 The relation between CoSO and the Framsticks EA baseline is different from the relation between LSO and the baseline. CoSO evaluates candidates with the same four-file chain as the mini baseline, beginning with \texttt{eval-allcriteria-mini.sim}. Therefore, the mini baseline is the closest available reference condition for CoSO. However, the experimental unit is still different: the mini baseline contains one evolutionary run for each manifest genotype, whereas a CoSO run is an archive-based multi-start search over a bucket-level genotype pool. Consequently, ordinary paired per-source differences and win rates are not reported for CoSO either.
 
-At the aggregate level, the strongest bucket-aligned CoSO configuration reached a mean final best \vertpos{} of 1.529 under the 30,000-evaluation protocol, with the largest observed CoSO value equal to 2.384. The mini Framsticks EA baseline reached a standalone mean of 1.693 and maximum of 2.653.
+At the aggregate level, the strongest bucket-aligned CoSO configuration reached a mean final best \vertpos{} of 1.529 under the 30,000-evaluation protocol, with the largest observed CoSO value equal to 2.384. The mini Framsticks EA baseline reached a standalone mean of 1.693 and maximum of 2.653. 
 % -- poprawka F niepotrzebna
 These values indicate that the completed mini-baseline run remained stronger as a standalone optimizer under its recorded protocol. CoSO should therefore be interpreted primarily through its substitution-specific evidence, bucket-conditioned improvements, and archive behaviour, rather than as outperforming the Framsticks EA baseline in the available experiments.
 % --/coso
 \vspace{\baselineskip}  % ????
 
-Both baseline datasets contain 150 final rows, one for each manifest genotype, and every history contains 300 generations. Each run recorded 30,100 unique entries in its score cache, including the stored source entry and initialization. Under the standard condition, the mean best \vertpos{} was 1.690 and the largest observed value was 2.368. Under the mini condition, the corresponding standalone values were 1.693 and 2.653.
+Both baseline datasets contain 150 final rows, one for each manifest genotype, and every history contains 300 generations. Each run recorded 30,100 unique entries in its score cache, including the stored source entry and initialization. Under the standard condition, the mean best \vertpos{} was 1.690 and the largest observed value was 2.368. Under the mini condition, the corresponding standalone values were 1.693 and 2.653. 
 % -- poprawka F niepotrzebna
 These values characterize separate simulator configurations; the larger mini-condition maximum is not evidence that one baseline variant is superior under a common objective.
 
 
-% The three manifests are
-% byte-identical,
-% so every LSO row can be aligned with a standard- and mini-baseline row by bucket, seed rank, dataset index, and source genotype. This alignment verifies that the experiments began from the same 150 genotype records.
+% The three manifests are 
+% byte-identical, 
+% so every LSO row can be aligned with a standard- and mini-baseline row by bucket, seed rank, dataset index, and source genotype. This alignment verifies that the experiments began from the same 150 genotype records. 
 % It does not remove the score-producing simulation-chain difference. In particular, calculating a per-seed LSO-minus-baseline difference or a win rate would combine outcomes whose generated candidates were evaluated under different conditions. Such quantities are therefore not reported as method-comparison evidence.
 % -- poprawka F
 % For the standard baseline, this alignment is a same-chain alignment. For the mini baseline, it remains a cross-condition alignment because the first simulation file differs. Consequently, per-seed LSO-minus-standard-baseline differences are methodologically meaningful, whereas analogous LSO-minus-mini quantities would combine outcomes produced under different simulation conditions.
@@ -301,6 +301,11 @@ The comparison also shows a shared qualitative trend. Both approaches produce th
 
 The result should not be interpreted as a direct proof that one method dominates the other on paired starting genotypes. The LSO values include a source-retention decision policy, while CoSO values use the best genotype introduced into the run as their reference. Moreover, CoSO trajectories summarize archive-building progress over a pool rather than convergence from a single source genotype. The comparison therefore supports an aggregate conclusion: within the completed experiments, the strongest LSO configurations achieved larger bucket-conditioned improvement margins, while CoSO provided interpretable genotype-space improvements without relying on a trained latent representation.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/coso_lso_bucket_improvement.eps}
+\end{figure}
+
 % TODO: insert comparative analysis after CoSO results are available.
 
 \section{Analysis by initial fitness ranges}
@@ -308,15 +313,15 @@ The result should not be interpreted as a direct proof that one method dominates
 % This analysis is restricted to the completed LSO condition and explicitly evaluates the uniform source-retention decision policy. Every cell contains the same 25 source genotypes from one predefined bucket and one fixed checkpoint--optimizer configuration. Figure~\ref{fig:lso-bucket-improvement} reports mean retained improvement, $F^{\mathrm{retained}}-F^{\mathrm{source}}$, for all fifteen configurations. It does not measure generated-candidate-only optimizer performance, select the best configuration separately for each source genotype, or contain Framsticks EA values.
 
 % -- +coso
-This section summarizes how the observed optimization behaviour changes across the initial-fitness buckets. For LSO, the analysis uses the retained-source policy because runs are paired with individual starting genotypes. Every LSO cell contains the same 25 source genotypes from one predefined bucket and one fixed checkpoint--optimizer configuration. Figure~\ref{fig:lso-bucket-improvement} reports mean retained improvement, $F^{\mathrm{retained}}-F^{\mathrm{source}}$, for all fifteen configurations. It does not measure generated-candidate-only optimizer performance, select the best configuration separately for each source genotype, or contain Framsticks EA values.
+This section summarizes how the observed optimization behaviour changes across the initial-fitness buckets. For LSO, the analysis uses the retained-source policy because runs are paired with individual starting genotypes. Every LSO cell contains the same 25 source genotypes from one predefined bucket and one fixed checkpoint--optimizer configuration. Figure~\ref{fig:lso-bucket-improvement} reports mean retained improvement, $F^{\mathrm{retained}}-F^{\mathrm{source}}$, for all fifteen configurations. It does not measure generated-candidate-only optimizer performance, select the best configuration separately for each source genotype, or contain Framsticks EA values. 
 For CoSO, the corresponding bucket analysis uses run-level pool summaries from Section~\ref{sec:CoSO optimization results}, because a CoSO run is an archive-based multi-start search rather than a single-source optimization run. The two analyses therefore share the same bucket definitions, but not the same experimental unit.
 % --
 
 \begin{figure}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/lso_bucket_mean_improvement.eps}
-\caption{Bucket-conditioned mean retained improvement for each fixed LSO checkpoint--optimizer configuration. Each cell contains 25 runs from the completed one-file LSO condition (\texttt{eval-allcriteria.sim}) and reports $\max(F^{\mathrm{raw}},F^{\mathrm{source}})-F^{\mathrm{source}}$. Zero means that the source is retained. Values are decision-policy outcomes, not generated-candidate-only performance; no per-seed selection
-% or baseline comparison
+\caption{Bucket-conditioned mean retained improvement for each fixed LSO checkpoint--optimizer configuration. Each cell contains 25 runs from the completed one-file LSO condition (\texttt{eval-allcriteria.sim}) and reports $\max(F^{\mathrm{raw}},F^{\mathrm{source}})-F^{\mathrm{source}}$. Zero means that the source is retained. Values are decision-policy outcomes, not generated-candidate-only performance; no per-seed selection 
+% or baseline comparison 
 % -- poprawka F
 is used.}
 \label{fig:lso-bucket-improvement}
@@ -348,10 +353,10 @@ The TreeVAE checkpoint at epoch 80 with latent EA had mean retained improvements
 
 The same endpoint pattern is visible outside the two leading configurations, but its magnitude depends on both checkpoint and optimizer. The retained policy eliminates negative improvement by construction, so the earlier negative raw differences for CEM and CMA-ES are not interpreted as comparative outcomes. Instead, stronger buckets are characterized by more frequent source retention. Across all five checkpoints, latent EA retained the embedded source in 62 of 125 B6 rows. The policy retained the source in 82 of 125 CEM rows and 65 of 125 CMA-ES rows in B6, compared with no retained sources for any optimizer in B1 or B2. The B6 heatmap cells consequently combine successful generated improvements with zero-improvement source-retention decisions. This concentration shows that strong source genotypes more often remain preferable under the stated policy; it does not recover the unavailable generated-candidate-only latent-EA scores.
 
-These results concern only the retained-source decision policy across starting-fitness ranges inside the
-% \texttt{eval-allcriteria.sim}-only LSO condition. They cannot be converted into bucket-conditioned LSO win rates against either Framsticks EA baseline, because the baseline candidate scores were produced with different simulation chains.
+These results concern only the retained-source decision policy across starting-fitness ranges inside the 
+% \texttt{eval-allcriteria.sim}-only LSO condition. They cannot be converted into bucket-conditioned LSO win rates against either Framsticks EA baseline, because the baseline candidate scores were produced with different simulation chains. 
 % -- poprawka F
-standard four-file LSO condition. They are not themselves bucket-conditioned win rates against the standard baseline; such quantities require explicit paired aggregation with the aligned baseline rows. They also should not be converted into comparisons with the mini baseline, because the mini baseline uses a different first simulation file.
+standard four-file LSO condition. They are not themselves bucket-conditioned win rates against the standard baseline; such quantities require explicit paired aggregation with the aligned baseline rows. They also should not be converted into comparisons with the mini baseline, because the mini baseline uses a different first simulation file. 
 The stored source labels define the retention rule and provide a common within-LSO reference.
 % ; they are not a substitute for a same-condition method comparison.
 
