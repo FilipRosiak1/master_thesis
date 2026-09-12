@@ -1,5 +1,16 @@
 \begin{thebibliography}{10}
 
+\bibitem{bentley1999introduction}
+Peter Bentley.
+\newblock An introduction to evolutionary design by computers.
+\newblock {\em Evolutionary design by computers}, pages 1--73, 1999.
+
+\bibitem{bentley1999three}
+Peter~J Bentley.
+\newblock Three ways to grow designs: A comparison of embryogenies for an
+  evolutionary design problem.
+\newblock 1999.
+
 \bibitem{BentleyLimGaierTran2022}
 Peter~J. Bentley, Soo~Ling Lim, Adam Gaier, and Linh Tran.
 \newblock Evolving through the looking glass: Learning improved search spaces
@@ -7,6 +18,13 @@ Peter~J. Bentley, Soo~Ling Lim, Adam Gaier, and Linh Tran.
 \newblock In {\em Parallel Problem Solving from Nature -- PPSN XVII}, volume
   13398 of {\em Lecture Notes in Computer Science}, pages 371--384. Springer,
   2022.
+
+\bibitem{BosmanThierens2012}
+Peter A.~N. Bosman and Dirk Thierens.
+\newblock Linkage neighbors, optimal mixing and forced improvements in genetic
+  algorithms.
+\newblock In {\em Proceedings of the Genetic and Evolutionary Computation
+  Conference}, GECCO '12, pages 585--592, New York, NY, USA, 2012. ACM.
 
 \bibitem{GomezBombarelli2018}
 Rafael G{\'o}mez-Bombarelli, Jennifer~N. Wei, David Duvenaud, Jos{\'e}~Miguel
@@ -26,6 +44,13 @@ Geoffrey~E. Hinton and Ruslan~R. Salakhutdinov.
 \newblock Reducing the dimensionality of data with neural networks.
 \newblock {\em Science}, 313(5786):504--507, 2006.
 
+\bibitem{hornby2003generative}
+Gregory~S Hornby, Hod Lipson, and Jordan~B Pollack.
+\newblock Generative representations for the automated design of modular
+  physical robots.
+\newblock {\em IEEE transactions on Robotics and Automation}, 19(4):703--719,
+  2003.
+
 \bibitem{KaszubaKomosinskiMensfelt2021}
 Piotr Kaszuba, Maciej Komosi{\'n}ski, and Agnieszka Mensfelt.
 \newblock Automated development of latent representations for optimization of
@@ -33,11 +58,25 @@ Piotr Kaszuba, Maciej Komosi{\'n}ski, and Agnieszka Mensfelt.
 \newblock In {\em 2021 IEEE Congress on Evolutionary Computation (CEC)}, pages
   1360--1367, 2021.
 
+\bibitem{kicinger2005evolutionary}
+Rafal Kicinger, Tomasz Arciszewski, and Kenneth De~Jong.
+\newblock Evolutionary computation and structural design: A survey of the
+  state-of-the-art.
+\newblock {\em Computers \& structures}, 83(23-24):1943--1978, 2005.
+
 \bibitem{KingmaWelling2014}
 Diederik~P. Kingma and Max Welling.
 \newblock Auto-encoding variational bayes.
 \newblock In {\em Proceedings of the International Conference on Learning
   Representations}, 2014.
+
+\bibitem{KomosinskiMiazga2025}
+Maciej Komosi{\'n}ski and Konrad Miazga.
+\newblock {GOM}-based compatible substitutions optimization for variable-length
+  representation gray-box problems.
+\newblock In {\em Proceedings of the Genetic and Evolutionary Computation
+  Conference Companion}, GECCO '25 Companion, pages 571--574, New York, NY,
+  USA, 2025. ACM.
 
 \bibitem{KusnerPaigeHernandezLobato2017}
 Matt~J. Kusner, Brooks Paige, and Jos{\'e}~Miguel Hern{\'a}ndez-Lobato.
@@ -70,10 +109,7 @@ Reuven~Y. Rubinstein.
 
 \bibitem{Rumelhart1986}
 David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
-\newblock Learning internal representations by error propagation.
-\newblock In David~E. Rumelhart, James~L. McClelland, and the PDP
-  Research~Group, editors, {\em Parallel Distributed Processing: Explorations
-  in the Microstructure of Cognition, Volume 1: Foundations}, pages 318--362.
-  MIT Press, Cambridge, MA, USA, 1986.
+\newblock Learning representations by back-propagating errors.
+\newblock {\em Nature}, 323:533--536, 1986.
 
 \end{thebibliography}

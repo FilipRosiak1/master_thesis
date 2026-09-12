@@ -157,7 +157,7 @@ CMA-ES is implemented as another continuous distribution-search method. It sampl
 
 The latent-space methods are therefore derivative-free black-box optimizers with respect to the final objective. The autoencoder is trained before optimization and is used only to map between \fone{} genotypes and latent vectors. During search, no learned surrogate fitness is used to replace Framsticks evaluation, and no gradient of \vertpos{} is available. This separation is essential for the comparison performed in later chapters: differences between methods can be attributed to how they explore the learned representation and how often they produce valid, diverse, high-fitness decoded genotypes, not to a change in the underlying fitness criterion.
 
-\section{Baseline evolutionary methods}
+\section{Baseline evolutionary method}
 
 The baseline evolutionary method provides a non-learned reference point for the latent-space procedures. It operates directly on normalized Framsticks \fone{} genotype strings and uses the standard variation operators exposed by the Framsticks library. No autoencoder, latent vector, learned surrogate, or fragment archive is involved. As in the other optimization procedures, the objective value assigned to a candidate is the true Framsticks \vertpos{} value obtained after the candidate genotype is interpreted and simulated.
 
@@ -169,18 +169,22 @@ After offspring generation, the previous population and newly accepted children 
 
 The final benchmark configuration uses 300 generations, population size 100, requested offspring size 100, elite-size parameter 10, tournament size three, Framsticks crossover probability \(0.25\), mutation-after-crossover probability \(0.25\), attempt factor 30, and base pseudorandom seed 777. No explicit maximum-evaluation or wall-clock limit is imposed in the final baseline jobs. A completed run therefore has a nominal budget of about 30,000 offspring slots plus initialization, although the exact number of unique scored genotypes depends on duplicates, invalid candidates, and retry limits.
 
-Two baseline execution variants use the same evolutionary loop and the same starting manifest. The standard baseline evaluates candidates with the chain
-\texttt{eval-allcriteria.sim}, \texttt{deterministic.sim}, \texttt{sample-period-2.sim}, \texttt{only-body.sim}.
-The mini baseline replaces the first file with
-\texttt{eval-allcriteria-mini.sim}
-and keeps the remaining deterministic, sampling-period, and body-only settings. These variants should therefore be interpreted as direct genotype-space evolutionary references under their recorded Framsticks simulation configurations.
+The baseline uses a four-file simulation chain: \path{eval-allcriteria-mini.sim}, \path{deterministic.sim}, \path{sample-period-2.sim}, and \path{only-body.sim}. It is therefore interpreted as a direct genotype-space evolutionary reference under this recorded Framsticks simulation configuration.
 
 Methodologically, this baseline answers a different question from the latent-space optimizers. It measures what can be achieved by applying native Framsticks mutation and crossover directly to \fone{} strings under a similar population-and-generation schedule. The latent methods instead test whether a learned continuous representation helps propose useful decoded genotypes. Comparing them therefore requires preserving the distinction between the search representation, the candidate-generation operators, and the exact simulation configuration used for evaluation.
-% TODO: write this section.
 
 \section{Implementation architecture}
 
 The implemented Latent Space Optimization system is organized as a sequence of components with explicit interfaces between symbolic representation, neural inference, black-box optimization, and simulation. This separation allows the representation model and the optimizer to be varied independently. A candidate is always transferred between components in one of three forms: F1 genotype text, a grammar-production sequence, or a continuous latent vector. Only genotype text is submitted to Framsticks, and only the score returned by Framsticks is used as the final optimization objective.
+
+The iterative path from a source genotype to optimizer feedback is summarized in Figure~\ref{fig:lso-pipeline}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/lso_pipeline.eps}
+\caption{Implemented Latent Space Optimization pipeline. The source genotype is encoded into an initial latent vector, candidate vectors proposed by the optimizer are decoded and checked, and evaluable genotypes receive true Framsticks fitness values. The evaluation result updates the optimizer and closes the feedback loop.}
+\label{fig:lso-pipeline}
+\end{figure}
 
 The data and grammar component reads genotype--fitness records, normalizes genotype text where grammar processing requires it, and converts accepted examples into either character indices or grammar-production indices. For grammar-aware models, the same component provides production dictionaries, padding conventions, derivation context, and masks of rules compatible with the current nonterminal. It is used both when constructing training batches and when encoding a starting genotype for optimization. This shared representation layer prevents training and search from using incompatible interpretations of an F1 string.
 

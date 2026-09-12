@@ -21,6 +21,15 @@ For the purposes of this thesis, Framsticks provides both the design domain and 
 
 The representation considered in this thesis is Framsticks \fone{}. At a conceptual level, an \fone{} genotype is a textual description of an organism rather than a fixed list of numerical parameters. Its symbols specify structural components and modifiers, and the complete string is interpreted through a genotype-to-phenotype mapping. This mapping is indirect: the fitness of a candidate is not defined by the string alone, but by the organism produced from it and by the behaviour of this organism during simulation. The later use of the \vertpos{} criterion should therefore be understood as evaluation of a constructed phenotype, not as a direct score assigned to individual characters.
 
+Figure~\ref{fig:f1-genotype-phenotype} illustrates this indirect mapping for one example genotype.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/f1_genotype_phenotype.eps}
+\caption{Illustrative Framsticks \fone{} genotype \texttt{LX(FfXrLfXq((X,LXLCXXfFX)), mXLqQFX)} and the phenotype rendering supplied for that genotype. The example connects the symbolic description with the organism constructed by Framsticks.}
+\label{fig:f1-genotype-phenotype}
+\end{figure}
+
 \fone{} genotypes are variable-length expressions. This property is important because evolutionary variation can change not only parameter values, but also the amount and organization of encoded structure. Longer or shorter genotypes may describe organisms with different numbers of components, different branching patterns, or different modifier sequences. Consequently, the search space is not a simple Euclidean space with a fixed dimensionality. It is a discrete structured space in which insertion, deletion, and substitution can change the interpretation of neighbouring fragments and, in some cases, larger parts of the organism.
 
 The \fone{} representation also contains branching and nested descriptions. In simplified grammatical terms, genotype strings may be understood as sequences of elements, where elements can contain a core component, optional modifiers, and branch expressions enclosed in parentheses. Branches make the representation expressive, because they allow the genotype to describe articulated or tree-like morphology. At the same time, they impose syntactic constraints: parentheses, separators, branch contents, and modifier positions must be arranged in forms that can be parsed and developed into a phenotype. A candidate that violates these constraints may be useless for simulation-based optimization because it cannot be evaluated in the intended way.

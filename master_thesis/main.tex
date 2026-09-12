@@ -14,6 +14,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{float} % provides the [H] specifier to force float placement
+\usepackage{longtable}
 
 %--------------------------------------
 % Strona tytułowa
@@ -55,6 +56,8 @@
 
 \pagenumbering{Roman}\pagestyle{ppfcmthesis}%
 \input{chapters/00-abstracts.tex}
+\input{chapters/00-author-contributions.tex}
+\cleardoublepage
 \tableofcontents* 
 \cleardoublepage % Zaczynamy od nieparzystej strony
 

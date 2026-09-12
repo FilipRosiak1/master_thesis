@@ -1,0 +1,453 @@
+model,model_name,epoch,training_epochs_planned,validation_exact_count,validation_n,validation_exact_percent,average_string_similarity_percent,selected_epoch,source_log
+09_tree_vae_epoch80,TreeVAE-80,1,1000,0,2178,0,39.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,10,1000,11,2178,0.51000000000000001,56.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,20,1000,48,2178,2.2000000000000002,61.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,30,1000,91,2178,4.1799999999999997,64.969999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,40,1000,133,2178,6.1100000000000003,67.019999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,50,1000,178,2178,8.1699999999999999,68.849999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,60,1000,199,2178,9.1400000000000006,69.260000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,70,1000,219,2178,10.06,69.180000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,80,1000,225,2178,10.33,69.560000000000002,yes,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,90,1000,199,2178,9.1400000000000006,69.120000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,100,1000,207,2178,9.5,67.900000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,110,1000,212,2178,9.7300000000000004,68.629999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,120,1000,208,2178,9.5500000000000007,68.75,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,130,1000,186,2178,8.5399999999999991,67.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,140,1000,183,2178,8.4000000000000004,67.959999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,150,1000,179,2178,8.2200000000000006,67.209999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,160,1000,181,2178,8.3100000000000005,67.310000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,170,1000,181,2178,8.3100000000000005,67.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,180,1000,177,2178,8.1300000000000008,67.400000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,190,1000,165,2178,7.5800000000000001,66.840000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,200,1000,161,2178,7.3899999999999997,66.159999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,210,1000,151,2178,6.9299999999999997,66.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,220,1000,148,2178,6.7999999999999998,66.489999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,230,1000,146,2178,6.7000000000000002,65.609999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,240,1000,125,2178,5.7400000000000002,65.739999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,250,1000,133,2178,6.1100000000000003,66.010000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,260,1000,125,2178,5.7400000000000002,65.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,270,1000,132,2178,6.0599999999999996,66.170000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,280,1000,122,2178,5.5999999999999996,65.75,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,290,1000,127,2178,5.8300000000000001,65.530000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,300,1000,101,2178,4.6399999999999997,65.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,310,1000,130,2178,5.9699999999999998,66.159999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,320,1000,98,2178,4.5,65.359999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,330,1000,100,2178,4.5899999999999999,64.840000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,340,1000,93,2178,4.2699999999999996,64.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,350,1000,101,2178,4.6399999999999997,64.700000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,360,1000,104,2178,4.7800000000000002,64.849999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,370,1000,91,2178,4.1799999999999997,64.709999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,380,1000,77,2178,3.54,63.920000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,390,1000,68,2178,3.1200000000000001,63.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,400,1000,68,2178,3.1200000000000001,63.5,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,410,1000,65,2178,2.98,63.039999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,420,1000,55,2178,2.5299999999999998,62.649999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,430,1000,45,2178,2.0699999999999998,62.530000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,440,1000,49,2178,2.25,62.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,450,1000,35,2178,1.6100000000000001,61.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,460,1000,32,2178,1.47,61.479999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,470,1000,30,2178,1.3799999999999999,61.240000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,480,1000,24,2178,1.1000000000000001,60.539999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,490,1000,24,2178,1.1000000000000001,59.920000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,500,1000,21,2178,0.95999999999999996,59.200000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,510,1000,16,2178,0.72999999999999998,59.640000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,520,1000,18,2178,0.82999999999999996,59.060000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,530,1000,17,2178,0.78000000000000003,58.630000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,540,1000,9,2178,0.40999999999999998,58.57,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,550,1000,14,2178,0.64000000000000001,57.899999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,560,1000,15,2178,0.68999999999999995,57.920000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,570,1000,14,2178,0.64000000000000001,57.460000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,580,1000,11,2178,0.51000000000000001,57.259999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,590,1000,6,2178,0.28000000000000003,57.359999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,600,1000,13,2178,0.59999999999999998,56.82,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,610,1000,8,2178,0.37,56.560000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,620,1000,7,2178,0.32000000000000001,55.909999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,630,1000,5,2178,0.23000000000000001,56.460000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,640,1000,14,2178,0.64000000000000001,56.060000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,650,1000,5,2178,0.23000000000000001,55.920000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,660,1000,11,2178,0.51000000000000001,55.640000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,670,1000,4,2178,0.17999999999999999,55.450000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,680,1000,8,2178,0.37,56.18,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,690,1000,9,2178,0.40999999999999998,55.280000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,700,1000,4,2178,0.17999999999999999,55.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,710,1000,9,2178,0.40999999999999998,55.170000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,720,1000,6,2178,0.28000000000000003,54.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,730,1000,9,2178,0.40999999999999998,54.649999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,740,1000,7,2178,0.32000000000000001,54.75,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,750,1000,8,2178,0.37,54.649999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,760,1000,5,2178,0.23000000000000001,54.229999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,770,1000,7,2178,0.32000000000000001,54.479999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,780,1000,5,2178,0.23000000000000001,54.729999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,790,1000,4,2178,0.17999999999999999,54.020000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,800,1000,10,2178,0.46000000000000002,54.289999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,810,1000,5,2178,0.23000000000000001,54.240000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,820,1000,10,2178,0.46000000000000002,54.469999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,830,1000,5,2178,0.23000000000000001,54.329999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,840,1000,6,2178,0.28000000000000003,54.18,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,850,1000,6,2178,0.28000000000000003,53.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,860,1000,5,2178,0.23000000000000001,53.299999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,870,1000,7,2178,0.32000000000000001,53.409999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,880,1000,6,2178,0.28000000000000003,53.710000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,890,1000,3,2178,0.14000000000000001,53.57,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,900,1000,5,2178,0.23000000000000001,53.710000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,910,1000,7,2178,0.32000000000000001,53.340000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,920,1000,6,2178,0.28000000000000003,53.210000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,930,1000,8,2178,0.37,53.18,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,940,1000,4,2178,0.17999999999999999,53.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,950,1000,5,2178,0.23000000000000001,53.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,960,1000,3,2178,0.14000000000000001,53.520000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,970,1000,6,2178,0.28000000000000003,53.43,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,980,1000,6,2178,0.28000000000000003,53.759999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,990,1000,6,2178,0.28000000000000003,52.75,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+09_tree_vae_epoch80,TreeVAE-80,1000,1000,8,2178,0.37,53.270000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/09_tree_vae_epoch80/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,1,1000,0,2178,0,44.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,10,1000,3,2178,0.14000000000000001,49.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,20,1000,17,2178,0.78000000000000003,51.270000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,30,1000,27,2178,1.24,52.789999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,40,1000,14,2178,0.64000000000000001,53.280000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,50,1000,39,2178,1.79,53.740000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,60,1000,41,2178,1.8799999999999999,54.149999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,70,1000,33,2178,1.52,54.32,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,80,1000,44,2178,2.02,54.359999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,90,1000,48,2178,2.2000000000000002,55.280000000000001,yes,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,100,1000,38,2178,1.74,53.950000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,110,1000,32,2178,1.47,54.520000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,120,1000,34,2178,1.5600000000000001,54.210000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,130,1000,41,2178,1.8799999999999999,54.289999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,140,1000,36,2178,1.6499999999999999,54.439999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,150,1000,38,2178,1.74,54.399999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,160,1000,37,2178,1.7,54.789999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,170,1000,37,2178,1.7,54.509999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,180,1000,35,2178,1.6100000000000001,54.310000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,190,1000,26,2178,1.1899999999999999,54.57,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,200,1000,36,2178,1.6499999999999999,54.380000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,210,1000,23,2178,1.0600000000000001,54.469999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,220,1000,23,2178,1.0600000000000001,54.270000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,230,1000,15,2178,0.68999999999999995,54.030000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,240,1000,23,2178,1.0600000000000001,54.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,250,1000,23,2178,1.0600000000000001,54.469999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,260,1000,23,2178,1.0600000000000001,54.060000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,270,1000,20,2178,0.92000000000000004,54.369999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,280,1000,22,2178,1.01,53.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,290,1000,18,2178,0.82999999999999996,53.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,300,1000,10,2178,0.46000000000000002,53.689999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,310,1000,20,2178,0.92000000000000004,53.960000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,320,1000,16,2178,0.72999999999999998,53.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,330,1000,8,2178,0.37,53.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,340,1000,15,2178,0.68999999999999995,53.409999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,350,1000,14,2178,0.64000000000000001,53.060000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,360,1000,6,2178,0.28000000000000003,52.899999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,370,1000,5,2178,0.23000000000000001,52.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,380,1000,10,2178,0.46000000000000002,52.789999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,390,1000,8,2178,0.37,52.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,400,1000,7,2178,0.32000000000000001,53.409999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,410,1000,5,2178,0.23000000000000001,52.57,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,420,1000,1,2178,0.050000000000000003,51.359999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,430,1000,3,2178,0.14000000000000001,51.630000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,440,1000,2,2178,0.089999999999999997,51.469999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,450,1000,1,2178,0.050000000000000003,51.390000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,460,1000,2,2178,0.089999999999999997,49.609999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,470,1000,0,2178,0,49.090000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,480,1000,0,2178,0,46.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,490,1000,0,2178,0,45.75,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,500,1000,0,2178,0,42.619999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,510,1000,0,2178,0,42.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,520,1000,0,2178,0,41.619999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,530,1000,0,2178,0,40.759999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,540,1000,0,2178,0,40.710000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,550,1000,0,2178,0,39.960000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,560,1000,0,2178,0,40.75,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,570,1000,0,2178,0,37.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,580,1000,0,2178,0,37.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,590,1000,0,2178,0,36.759999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,600,1000,0,2178,0,36.990000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,610,1000,0,2178,0,39.880000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,620,1000,0,2178,0,35.119999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,630,1000,0,2178,0,39.310000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,640,1000,0,2178,0,36.259999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,650,1000,0,2178,0,37.289999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,660,1000,0,2178,0,39.479999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,670,1000,0,2178,0,36.079999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,680,1000,0,2178,0,36.909999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,690,1000,0,2178,0,39.43,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,700,1000,0,2178,0,38.039999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,710,1000,0,2178,0,38.490000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,720,1000,0,2178,0,35.990000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,730,1000,0,2178,0,37.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,740,1000,0,2178,0,39.409999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,750,1000,0,2178,0,38.700000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,760,1000,0,2178,0,36.640000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,770,1000,0,2178,0,37.289999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,780,1000,0,2178,0,39.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,790,1000,0,2178,0,37.229999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,800,1000,0,2178,0,37.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,810,1000,0,2178,0,35.240000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,820,1000,0,2178,0,37.119999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,830,1000,0,2178,0,34.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,840,1000,0,2178,0,36.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,850,1000,0,2178,0,32.259999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,860,1000,0,2178,0,34.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,870,1000,0,2178,0,34.299999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,880,1000,0,2178,0,35.490000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,890,1000,0,2178,0,38.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,900,1000,0,2178,0,38.039999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,910,1000,0,2178,0,35.880000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,920,1000,0,2178,0,38.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,930,1000,0,2178,0,36.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,940,1000,0,2178,0,34.840000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,950,1000,0,2178,0,36.479999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,960,1000,0,2178,0,32.740000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,970,1000,0,2178,0,35.850000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,980,1000,0,2178,0,34.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,990,1000,0,2178,0,36.799999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+10_transformer_vae_epoch90,TransformerVAE-90,1000,1000,0,2178,0,38.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/10_transformer_vae_epoch90/training.log
+02_lhs_latent256_seed42_best,LHS-256,1,1200,1,2178,0.050000000000000003,52.090000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,10,1200,276,2178,12.67,75.819999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,20,1200,413,2178,18.960000000000001,80.25,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,30,1200,471,2178,21.629999999999999,82.730000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,40,1200,390,2178,17.91,81.879999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,50,1200,435,2178,19.969999999999999,83.189999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,60,1200,401,2178,18.41,83.200000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,70,1200,469,2178,21.530000000000001,83.840000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,80,1200,460,2178,21.120000000000001,83.689999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,90,1200,464,2178,21.300000000000001,84.060000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,100,1200,479,2178,21.989999999999998,83.560000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,110,1200,444,2178,20.390000000000001,83.810000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,120,1200,493,2178,22.640000000000001,84.730000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,130,1200,469,2178,21.530000000000001,84.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,140,1200,497,2178,22.82,84.239999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,150,1200,475,2178,21.809999999999999,84.650000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,160,1200,498,2178,22.870000000000001,85.290000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,170,1200,484,2178,22.219999999999999,84.900000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,180,1200,504,2178,23.140000000000001,85.290000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,190,1200,487,2178,22.359999999999999,85.230000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,200,1200,509,2178,23.370000000000001,85.680000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,210,1200,537,2178,24.66,85.769999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,220,1200,501,2178,23,85.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,230,1200,544,2178,24.98,86.049999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,240,1200,509,2178,23.370000000000001,86.129999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,250,1200,544,2178,24.98,85.459999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,260,1200,530,2178,24.329999999999998,85.849999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,270,1200,529,2178,24.289999999999999,86.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,280,1200,572,2178,26.260000000000002,86.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,290,1200,514,2178,23.600000000000001,86.430000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,300,1200,567,2178,26.030000000000001,86.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,310,1200,564,2178,25.899999999999999,86.849999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,320,1200,560,2178,25.710000000000001,87.25,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,330,1200,560,2178,25.710000000000001,86.969999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,340,1200,559,2178,25.670000000000002,86.659999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,350,1200,576,2178,26.449999999999999,87.370000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,360,1200,533,2178,24.469999999999999,86.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,370,1200,567,2178,26.030000000000001,87.269999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,380,1200,525,2178,24.100000000000001,86.519999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,390,1200,599,2178,27.5,87.400000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,400,1200,570,2178,26.170000000000002,87.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,410,1200,581,2178,26.68,87.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,420,1200,614,2178,28.190000000000001,87.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,430,1200,551,2178,25.300000000000001,87.519999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,440,1200,572,2178,26.260000000000002,87.769999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,450,1200,563,2178,25.850000000000001,87.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,460,1200,594,2178,27.27,88.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,470,1200,601,2178,27.59,88.129999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,480,1200,638,2178,29.289999999999999,88.230000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,490,1200,623,2178,28.600000000000001,88.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,500,1200,614,2178,28.190000000000001,88.200000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,510,1200,614,2178,28.190000000000001,88.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,520,1200,614,2178,28.190000000000001,88.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,530,1200,619,2178,28.420000000000002,88.299999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,540,1200,601,2178,27.59,88.370000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,550,1200,614,2178,28.190000000000001,88.290000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,560,1200,620,2178,28.469999999999999,88.640000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,570,1200,651,2178,29.890000000000001,88.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,580,1200,644,2178,29.57,88.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,590,1200,660,2178,30.300000000000001,88.969999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,600,1200,617,2178,28.329999999999998,88.689999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,610,1200,628,2178,28.829999999999998,88.730000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,620,1200,623,2178,28.600000000000001,89.030000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,630,1200,631,2178,28.969999999999999,88.719999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,640,1200,644,2178,29.57,89.150000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,650,1200,651,2178,29.890000000000001,89.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,660,1200,667,2178,30.620000000000001,89.069999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,670,1200,641,2178,29.43,88.900000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,680,1200,649,2178,29.800000000000001,89.019999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,690,1200,630,2178,28.93,88.859999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,700,1200,650,2178,29.84,89.239999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,710,1200,607,2178,27.870000000000001,89.069999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,720,1200,671,2178,30.809999999999999,89.569999999999993,yes,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,730,1200,655,2178,30.07,89.290000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,740,1200,650,2178,29.84,89.280000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,750,1200,652,2178,29.940000000000001,89.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,760,1200,648,2178,29.75,89.400000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,770,1200,638,2178,29.289999999999999,89.329999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,780,1200,669,2178,30.719999999999999,89.540000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,790,1200,646,2178,29.66,89.049999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,800,1200,669,2178,30.719999999999999,89.530000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,810,1200,618,2178,28.370000000000001,88.969999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,820,1200,645,2178,29.609999999999999,89.400000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+02_lhs_latent256_seed42_best,LHS-256,830,1200,669,2178,30.719999999999999,89.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/02_lhs_latent256_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1,1200,0,2178,0,52.049999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,10,1200,250,2178,11.48,73.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,20,1200,380,2178,17.449999999999999,79.540000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,30,1200,354,2178,16.25,79.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,40,1200,418,2178,19.190000000000001,81.109999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,50,1200,325,2178,14.92,79.629999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,60,1200,420,2178,19.280000000000001,81.030000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,70,1200,357,2178,16.390000000000001,80.599999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,80,1200,381,2178,17.489999999999998,81.379999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,90,1200,387,2178,17.77,80.890000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,100,1200,395,2178,18.140000000000001,80.959999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,110,1200,372,2178,17.079999999999998,81.75,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,120,1200,345,2178,15.84,80.689999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,130,1200,400,2178,18.370000000000001,81.629999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,140,1200,376,2178,17.260000000000002,81.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,150,1200,384,2178,17.629999999999999,81.989999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,160,1200,356,2178,16.350000000000001,82.030000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,170,1200,358,2178,16.440000000000001,81.760000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,180,1200,408,2178,18.73,82.459999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,190,1200,381,2178,17.489999999999998,82.280000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,200,1200,415,2178,19.050000000000001,82.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,210,1200,424,2178,19.469999999999999,82.840000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,220,1200,424,2178,19.469999999999999,83.099999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,230,1200,414,2178,19.010000000000002,83.150000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,240,1200,442,2178,20.289999999999999,82.950000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,250,1200,441,2178,20.25,83.489999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,260,1200,427,2178,19.609999999999999,83.150000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,270,1200,426,2178,19.559999999999999,83.469999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,280,1200,458,2178,21.030000000000001,84.129999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,290,1200,430,2178,19.739999999999998,83.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,300,1200,393,2178,18.039999999999999,82.689999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,310,1200,459,2178,21.07,83.560000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,320,1200,469,2178,21.530000000000001,84.040000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,330,1200,439,2178,20.16,84.049999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,340,1200,472,2178,21.670000000000002,84.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,350,1200,463,2178,21.260000000000002,83.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,360,1200,457,2178,20.98,84.120000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,370,1200,475,2178,21.809999999999999,84.739999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,380,1200,451,2178,20.710000000000001,83.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,390,1200,443,2178,20.34,84.180000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,400,1200,451,2178,20.710000000000001,84.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,410,1200,475,2178,21.809999999999999,84.769999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,420,1200,507,2178,23.280000000000001,85.150000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,430,1200,497,2178,22.82,84.900000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,440,1200,472,2178,21.670000000000002,85.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,450,1200,480,2178,22.039999999999999,85.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,460,1200,430,2178,19.739999999999998,85.010000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,470,1200,481,2178,22.079999999999998,85.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,480,1200,449,2178,20.620000000000001,85.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,490,1200,501,2178,23,85.439999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,500,1200,489,2178,22.449999999999999,85.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,510,1200,474,2178,21.760000000000002,85.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,520,1200,498,2178,22.870000000000001,85.680000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,530,1200,512,2178,23.510000000000002,86,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,540,1200,516,2178,23.690000000000001,85.670000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,550,1200,496,2178,22.77,85.680000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,560,1200,489,2178,22.449999999999999,85.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,570,1200,509,2178,23.370000000000001,86.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,580,1200,499,2178,22.91,85.489999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,590,1200,520,2178,23.879999999999999,86.180000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,600,1200,511,2178,23.460000000000001,85.730000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,610,1200,507,2178,23.280000000000001,85.930000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,620,1200,536,2178,24.609999999999999,86.400000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,630,1200,550,2178,25.25,86.579999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,640,1200,560,2178,25.710000000000001,86.590000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,650,1200,525,2178,24.100000000000001,86.290000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,660,1200,524,2178,24.059999999999999,86.439999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,670,1200,532,2178,24.43,86.609999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,680,1200,558,2178,25.620000000000001,86.900000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,690,1200,536,2178,24.609999999999999,86.870000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,700,1200,525,2178,24.100000000000001,86.620000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,710,1200,551,2178,25.300000000000001,87.069999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,720,1200,558,2178,25.620000000000001,86.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,730,1200,517,2178,23.739999999999998,86.760000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,740,1200,550,2178,25.25,87.019999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,750,1200,525,2178,24.100000000000001,86.75,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,760,1200,548,2178,25.16,87.010000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,770,1200,551,2178,25.300000000000001,86.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,780,1200,546,2178,25.07,86.980000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,790,1200,529,2178,24.289999999999999,86.739999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,800,1200,525,2178,24.100000000000001,86.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,810,1200,536,2178,24.609999999999999,87.079999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,820,1200,545,2178,25.02,86.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,830,1200,564,2178,25.899999999999999,87.090000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,840,1200,582,2178,26.719999999999999,87.170000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,850,1200,547,2178,25.109999999999999,87.370000000000005,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,860,1200,565,2178,25.940000000000001,87.239999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,870,1200,546,2178,25.07,87.040000000000006,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,880,1200,562,2178,25.800000000000001,87.459999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,890,1200,560,2178,25.710000000000001,87.450000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,900,1200,520,2178,23.879999999999999,86.909999999999997,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,910,1200,544,2178,24.98,87.269999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,920,1200,588,2178,27,87.640000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,930,1200,589,2178,27.039999999999999,87.810000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,940,1200,566,2178,25.989999999999998,87.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,950,1200,590,2178,27.09,87.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,960,1200,555,2178,25.48,87.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,970,1200,575,2178,26.399999999999999,87.709999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,980,1200,531,2178,24.379999999999999,87.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,990,1200,553,2178,25.390000000000001,87.489999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1000,1200,566,2178,25.989999999999998,87.569999999999993,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1010,1200,513,2178,23.550000000000001,87.340000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1020,1200,522,2178,23.969999999999999,87.420000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1030,1200,599,2178,27.5,87.930000000000007,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1040,1200,591,2178,27.129999999999999,87.780000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1050,1200,583,2178,26.77,88.209999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1060,1200,590,2178,27.09,87.829999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1070,1200,588,2178,27,87.739999999999995,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1080,1200,591,2178,27.129999999999999,88.140000000000001,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1090,1200,569,2178,26.120000000000001,88.170000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1100,1200,563,2178,25.850000000000001,87.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1110,1200,584,2178,26.809999999999999,88.170000000000002,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1120,1200,594,2178,27.27,88.209999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1130,1200,578,2178,26.539999999999999,87.939999999999998,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1140,1200,550,2178,25.25,87.480000000000004,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1150,1200,597,2178,27.41,88.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1160,1200,583,2178,26.77,88.200000000000003,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1170,1200,605,2178,27.780000000000001,88.230000000000004,yes,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1180,1200,550,2178,25.25,87.519999999999996,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1190,1200,581,2178,26.68,88.219999999999999,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+06_lhs_depth_seed42_best,LHS-depth,1200,1200,583,2178,26.77,87.959999999999994,no,exports/f1_selected_10_ckpts_20260520_184738/06_lhs_depth_seed42_best/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,1,1200,0,2178,0,26.690000000000001,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,10,1200,88,2178,4.04,69.780000000000001,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,20,1200,218,2178,10.01,76.209999999999994,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,30,1200,257,2178,11.800000000000001,78.099999999999994,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,40,1200,248,2178,11.390000000000001,77.739999999999995,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,50,1200,251,2178,11.52,78.299999999999997,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,60,1200,275,2178,12.630000000000001,78.840000000000003,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,70,1200,276,2178,12.67,79.319999999999993,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,80,1200,263,2178,12.08,79.090000000000003,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,90,1200,274,2178,12.58,78.689999999999998,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,100,1200,266,2178,12.210000000000001,79.420000000000002,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,110,1200,271,2178,12.44,79.480000000000004,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,120,1200,285,2178,13.09,79.519999999999996,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,130,1200,249,2178,11.43,78.930000000000007,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,140,1200,291,2178,13.359999999999999,79.870000000000005,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,150,1200,296,2178,13.59,80.329999999999998,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,160,1200,276,2178,12.67,80.159999999999997,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,170,1200,258,2178,11.85,80,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,180,1200,311,2178,14.279999999999999,80.680000000000007,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,190,1200,289,2178,13.27,80.5,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,200,1200,297,2178,13.640000000000001,80.879999999999995,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,210,1200,329,2178,15.109999999999999,81.019999999999996,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,220,1200,297,2178,13.640000000000001,80.760000000000005,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,230,1200,289,2178,13.27,81.200000000000003,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,240,1200,300,2178,13.77,81.489999999999995,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,250,1200,323,2178,14.83,81.519999999999996,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,260,1200,326,2178,14.970000000000001,81.700000000000003,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,270,1200,326,2178,14.970000000000001,81.959999999999994,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,280,1200,327,2178,15.01,82.090000000000003,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,290,1200,333,2178,15.289999999999999,82.019999999999996,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,300,1200,336,2178,15.43,82.019999999999996,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,310,1200,348,2178,15.98,82.150000000000006,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,320,1200,325,2178,14.92,82.579999999999998,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,330,1200,325,2178,14.92,82.480000000000004,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,340,1200,358,2178,16.440000000000001,82.189999999999998,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,350,1200,364,2178,16.710000000000001,82.629999999999995,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,360,1200,353,2178,16.210000000000001,82.900000000000006,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,370,1200,371,2178,17.030000000000001,82.849999999999994,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,380,1200,358,2178,16.440000000000001,82.810000000000002,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,390,1200,384,2178,17.629999999999999,83.170000000000002,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,400,1200,380,2178,17.449999999999999,83.25,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,410,1200,365,2178,16.760000000000002,83.150000000000006,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,420,1200,365,2178,16.760000000000002,83.480000000000004,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,430,1200,373,2178,17.129999999999999,83.739999999999995,no,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log
+fitness_aware_lhs_seed42,Fitness-aware LHS,440,1200,398,2178,18.27,83.810000000000002,yes,exports/cluster_export_20260524_222538/models/f1_guided/fitness_aware_lhs_seed42/training.log

@@ -10,4 +10,6 @@
 
 \section{Examples of optimized genotypes}
 
-% TODO: add genotype examples if needed.
+The examples below use one deterministically selected source from each benchmark bucket. The selected record is closest to the median source fitness within its bucket, with the dataset index resolving ties. TreeVAE-80 with latent EA, TransformerVAE-90 with latent EA, and the mini Framsticks EA outcome are reported for every selected source, so the examples do not use result-dependent configuration selection. The table abbreviates these methods as TreeVAE-80 EA, TransVAE-90 EA, and Mini EA. For a Source row, ``Reported score'' is the stored manifest fitness; for an optimization row, it is the retained endpoint $\max(F^{\mathrm{raw}},F^{\mathrm{source}})$. ``Source retained'' states whether that endpoint kept the source genotype instead of a generated result. None of the selected optimization rows retained the source, so the displayed outcomes are generated improvements for these illustrative records. The LSO outcomes were evaluated with \texttt{eval-allcriteria.sim} only, whereas mini EA used the four-file chain beginning with \texttt{eval-allcriteria-mini.sim}; their side-by-side scores are cross-configuration examples, not controlled paired effects. The six groups illustrate the structural variety of selected outputs; they are not estimates of typical method performance.
+
+\input{figures/representative_genotype_outcomes.tex}
